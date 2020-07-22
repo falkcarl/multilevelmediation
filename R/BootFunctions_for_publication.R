@@ -1,8 +1,7 @@
 ######################################################################
-## Two functions for use with bootstrapping
-## Underlying model and variable names are hard-coded for now
+## Functions for use with bootstrapping
 ##
-## Copyright 2019 Carl F. Falk
+## Copyright 2019-2020 Carl F. Falk, Todd Vogel
 ##
 ## This program is free software: you can redistribute it and/or
 ## modify it under the terms of the GNU General Public License as
@@ -39,24 +38,38 @@
 # For resampling, indices determines which cases are resampled. The "strata" argument
 # to the "boot" function will allow identification of L2 units. L1 units are resampled within each strata
 
-# requires nlme, matrixcalc, tidyr, and MCMCpack packages
-
-
 # More proper resampling approach, and again use of lme
 # This resamples L2 units, then L1 units within each L2 unit
 #Note: does not currently include this moderation as a random effect (the lme model will correctly place the moderator at the appropriate level)
+
+#' Custom boot function for two level models
+#'
+#' @param data blah
+#' @param indices blah
+#' @param L2ID blah
+#' @param X blah
+#' @param Y blah
+#' @param M blah
+#' @param random.a blah
+#' @param random.b blah
+#' @param random.c blah
+#' @param moderator blah
+#' @param mod.a blah
+#' @param mod.b blah
+#' @param mod.c blah
+#' @param method blah
+#' @param control blah
+#' @details TO DO. Implements custom function to do resampling at level 2, then level 1. For use with boot package.
+#'   Capable of doing moderation as well. Need to detail which kinds of moderation, which mediation models (e.g., 1-1-1 only?)
+#' @import nlme matrixcalc tidyr MCMCpack
+#' @export
 boot.mlm2 <- function(data, indices, L2ID, X = NULL, Y = NULL, M = NULL,
                     random.a = FALSE, random.b = FALSE, random.c = FALSE,
-                    moderator = NULL, mod.a = FALSE, mod.b = FALSE, mod.c = FALSE) {
-  #TODO: Add arg (...) to pass control info to lmecontrol (eg)
-  #Is there an option for a seed? ie for boot or for lme?
-  
-  library(nlme)
-  library(matrixcalc)
-  library(tidyr)
-  library(MCMCpack)
+                    moderator = NULL, mod.a = FALSE, mod.b = FALSE, mod.c = FALSE,
+                    method="REML", control = lmeControl(maxIter = 10000, msMaxIter = 10000, niterEM = 10000,
+                                                        msMaxEval = 10000, tolerance = 1e-6)) {
 
-  # check if this is first run of analysis by comparing to indices
+  # ad-hoc check if this is first run of analysis by comparing to indices
   if (all(indices == (1:nrow(data)))) {
     # do nothing
     rdat <- data[indices, ]
@@ -80,7 +93,7 @@ boot.mlm2 <- function(data, indices, L2ID, X = NULL, Y = NULL, M = NULL,
     row.names(rdat) <- NULL
   }
 
-  
+
   #TODO: Have checks that all vars are there and that they are numeric (can convert here, but at least give warning)
   # Assign variable names
   rdat$X = rdat[[X]]
@@ -99,7 +112,7 @@ boot.mlm2 <- function(data, indices, L2ID, X = NULL, Y = NULL, M = NULL,
   #TODO:maybe have a check if mod is factor. If yes, convert (with warning) to
   #numeric where levels are 0 and 1. If indirectCI==TRUE then do model at both levels
   #otherwise just center and run the model that way...?
-  
+
   # restructure data such that both m and y are in the Z column
   tmp <- tidyr::pivot_longer(rdat, cols = c(Y, M), names_to = "Outcome",
                              values_to = "Z")
@@ -138,8 +151,8 @@ boot.mlm2 <- function(data, indices, L2ID, X = NULL, Y = NULL, M = NULL,
                          random = as.formula(random.formula), # random effects
                          weights = varIdent(form = ~ 1 | Sm), # heteroskedasticity
                          data = tmp,
-                         control = lmeControl(maxIter = 10000, msMaxIter = 10000, niterEM = 10000,
-                                            msMaxEval = 10000, tolerance = 1e-6)))
+                         method = method,
+                         control = control))
   # some error handling, just in case (is for when model doesn't converge?? test it out to see)
   if (class(mod_med_tmp) == "try-error") {
     indirect <- NA
