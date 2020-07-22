@@ -13,6 +13,9 @@ RoxygenNote: 7.1.0
 Imports: nlme,
  matrixcalc,
  tidyr,
- MCMCpack
-Requires:
+ MCMCpack,
+ stats
+Suggests:
  boot
+Depends: 
+    R (>= 2.10)

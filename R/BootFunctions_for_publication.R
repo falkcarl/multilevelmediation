@@ -61,7 +61,16 @@
 #' @param control blah
 #' @details TO DO. Implements custom function to do resampling at level 2, then level 1. For use with boot package.
 #'   Capable of doing moderation as well. Need to detail which kinds of moderation, which mediation models (e.g., 1-1-1 only?)
-#' @import nlme matrixcalc tidyr MCMCpack
+#' @examples
+#' \donttest{
+#' # add some example code here
+#'
+#' }
+#' @import nlme
+#' @importFrom matrixcalc vech
+#' @importFrom tidyr pivot_longer
+#' @importFrom MCMCpack xpnd
+#' @importFrom stats as.formula
 #' @export
 boot.mlm2 <- function(data, indices, L2ID, X = NULL, Y = NULL, M = NULL,
                     random.a = FALSE, random.b = FALSE, random.c = FALSE,
@@ -95,6 +104,7 @@ boot.mlm2 <- function(data, indices, L2ID, X = NULL, Y = NULL, M = NULL,
 
 
   #TODO: Have checks that all vars are there and that they are numeric (can convert here, but at least give warning)
+  #TODO: Make sure we don't replace variables that already exist?
   # Assign variable names
   rdat$X = rdat[[X]]
   rdat$Y = rdat[[Y]]
@@ -114,7 +124,7 @@ boot.mlm2 <- function(data, indices, L2ID, X = NULL, Y = NULL, M = NULL,
   #otherwise just center and run the model that way...?
 
   # restructure data such that both m and y are in the Z column
-  tmp <- tidyr::pivot_longer(rdat, cols = c(Y, M), names_to = "Outcome",
+  tmp <- pivot_longer(rdat, cols = c(Y, M), names_to = "Outcome",
                              values_to = "Z")
 
   # create variables similar to Bauer et al syntax
@@ -168,34 +178,34 @@ boot.mlm2 <- function(data, indices, L2ID, X = NULL, Y = NULL, M = NULL,
     re_num <- length(re_names) #number of random effects
     #colnames(vc[1:5,]) = c("Variance","StdDev",re_names)
 
-
     sd <- as.numeric(vc[1:re_num, 2])
     sigma <- cbind(vc[1:re_num, 3:ncol(vc)], 1)
     diag(sigma) <- 1
-    sig <- as.numeric(matrixcalc::vech(sigma))
-    sig <- MCMCpack::xpnd(sig)
+    sig <- as.numeric(vech(sigma))
+    sig <- xpnd(sig)
     D <- diag(sd)
     sig2 <- D %*% sig %*% D
     colnames(sig2) <- re_names
     rownames(sig2) <- re_names
 
-
     #if both a and b are random, add in the covar component between the two
     if (random.a == TRUE && random.b == TRUE) {
-      #TODO: is fixed.effects from lme package? add in :: if so
       indirect <- fixed.effects(mod_med_tmp)["SmX"] * fixed.effects(mod_med_tmp)["SyM"] + sig2["SmX", "SyM"]
     } else {
-      #This returns as "SmX" in the boot output (how to change name??)
       indirect <- fixed.effects(mod_med_tmp)["SmX"] * fixed.effects(mod_med_tmp)["SyM"]
     }
+    names(indirect)<-"indirect"
 
+    # TODO: won't be relevant if we don't ask for moderation
+    # TODO: work through possibilites for moderation with dichotomous moderator, possibly continuous moderator
     #modindirect<-fixed.effects(mod_med_tmp)["SmX:W"]*fixed.effects(mod_med_tmp)["SyM:W"]
     modindirect <- (fixed.effects(mod_med_tmp)["SmX:W"] + fixed.effects(mod_med_tmp)["SmX"]) * (fixed.effects(mod_med_tmp)["SyM:W"] + fixed.effects(mod_med_tmp)["SyM"])
     modindirecta3b <- fixed.effects(mod_med_tmp)["SmX:W"] * fixed.effects(mod_med_tmp)["SyM"] #trying to see fx with just a-path being moderated
     fixestimates <- fixef(mod_med_tmp)
   }
 
-  #Possible to return other stuff? eg formulas used?
+  #Possible to return other stuff? eg formulas used? (usually not if we're doing bootstrapping at the same time)
+  # TO DO: but, could write the function that does all of this, returns formulas and stuff. Then, a wrapper that does the bootstrapping and only grabs parameter estimates
   #Will give NA in t0 if the first iteration fails to converge (might have been a problem with the parallel package??)
   return(c(indirect, modindirect, modindirecta3b, fixestimates))
 }

@@ -61,3 +61,9 @@ Custom boot function for two level models
 TO DO. Implements custom function to do resampling at level 2, then level 1. For use with boot package.
   Capable of doing moderation as well. Need to detail which kinds of moderation, which mediation models (e.g., 1-1-1 only?)
 }
+\examples{
+\donttest{
+# add some example code here
+
+}
+}
