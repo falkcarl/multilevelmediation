@@ -1,0 +1,11 @@
+Package: multilevelmediation
+Type: Package
+Title: Utility functions for multilevel mediation analysis in R
+Version: 0.1.0
+Author: Carl F. Falk, Todd Vogel and Milica Miocevic?
+Maintainer: Carl F. Falk <carl.falk@mcgill.ca>
+Description: Currently includes draft code for multilevel mediation
+  using bootstrapping methods.
+License: GPL-3
+Encoding: UTF-8
+LazyData: true
