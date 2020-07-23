@@ -34,22 +34,18 @@
 # Returns:
 #   asf: boot object??
 
-# Essentially what P-G code does for the resampling part, but with using lme instead
-# For resampling, indices determines which cases are resampled. The "strata" argument
-# to the "boot" function will allow identification of L2 units. L1 units are resampled within each strata
-
-# More proper resampling approach, and again use of lme
-# This resamples L2 units, then L1 units within each L2 unit
+#
 #Note: does not currently include this moderation as a random effect (the lme model will correctly place the moderator at the appropriate level)
 
 #' Custom boot function for two level models
 #'
-#' @param data blah
-#' @param indices blah
+#' @param data Data frame in long format.
+#' @param indices Not functional.
 #' @param L2ID String corresponding to the column that contains level 2 IDs.
 #' @param ... Arguments passed to modmed.mlm
 #' @details TO DO. Implements custom function to do resampling at level 2, then level 1. For use with boot package.
-#'   Capable of doing moderation as well. Need to detail which kinds of moderation, which mediation models (e.g., 1-1-1 only?)
+#'   Capable of doing moderation as well. Need to detail which kinds of moderation, which mediation models (e.g., 1-1-1 only?).
+#'   This resamples L2 units, then L1 units within each L2 unit
 #' @examples
 #' \donttest{
 #' # add some example code here
