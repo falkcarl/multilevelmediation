@@ -20,6 +20,10 @@ A data frame with 800 observations (from 100 subjects) and 4 variables
 BPG06dat
 }
 \description{
-Some description here
+In supplementary materials, Bauer, Preacher, and Gil (2006) provide a simulated dataset in SAS format.
+That dataset is replicated here.
+}
+\references{
+Bauer, D. J., Preacher, K. J., & Gil, K. M. (2006). Conceptualizing and testing random indirect effects and moderated mediation in multilevel models: New procedures and recommendations. Psychological Methods, 11(2), 142–163. \url{https://doi.org/10.1037/1082-989X.11.2.142}
 }
 \keyword{datasets}
