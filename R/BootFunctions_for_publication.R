@@ -46,19 +46,8 @@
 #'
 #' @param data blah
 #' @param indices blah
-#' @param L2ID blah
-#' @param X blah
-#' @param Y blah
-#' @param M blah
-#' @param random.a blah
-#' @param random.b blah
-#' @param random.c blah
-#' @param moderator blah
-#' @param mod.a blah
-#' @param mod.b blah
-#' @param mod.c blah
-#' @param method blah
-#' @param control blah
+#' @param L2ID String corresponding to the column that contains level 2 IDs.
+#' @param ... Arguments passed to modmed.mlm
 #' @details TO DO. Implements custom function to do resampling at level 2, then level 1. For use with boot package.
 #'   Capable of doing moderation as well. Need to detail which kinds of moderation, which mediation models (e.g., 1-1-1 only?)
 #' @examples
@@ -66,17 +55,8 @@
 #' # add some example code here
 #'
 #' }
-#' @import nlme
-#' @importFrom matrixcalc vech
-#' @importFrom tidyr pivot_longer
-#' @importFrom MCMCpack xpnd
-#' @importFrom stats as.formula
 #' @export
-boot.mlm2 <- function(data, indices, L2ID, X = NULL, Y = NULL, M = NULL,
-                    random.a = FALSE, random.b = FALSE, random.c = FALSE,
-                    moderator = NULL, mod.a = FALSE, mod.b = FALSE, mod.c = FALSE,
-                    method="REML", control = lmeControl(maxIter = 10000, msMaxIter = 10000, niterEM = 10000,
-                                                        msMaxEval = 10000, tolerance = 1e-6)) {
+boot.modmed.mlm <- function(data, indices, L2ID, ...) {
 
   # ad-hoc check if this is first run of analysis by comparing to indices
   if (all(indices == (1:nrow(data)))) {
@@ -102,6 +82,45 @@ boot.mlm2 <- function(data, indices, L2ID, X = NULL, Y = NULL, M = NULL,
     row.names(rdat) <- NULL
   }
 
+  result<-modmed.mlm(data,L2ID,...)
+
+  return(result$pars)
+}
+
+#' Custom model fitting function for two-level (moderated) mediation
+#'
+#' @param data blah
+#' @param L2ID blah
+#' @param X blah
+#' @param Y blah
+#' @param M blah
+#' @param random.a blah
+#' @param random.b blah
+#' @param random.c blah
+#' @param moderator blah
+#' @param mod.a blah
+#' @param mod.b blah
+#' @param mod.c blah
+#' @param method blah
+#' @param control blah
+#' @details TO DO. Implements custom function to do moderated mediation with multilevel models.
+#'   Capable of doing moderation as well. Need to detail which kinds of moderation, which mediation models (e.g., 1-1-1 only?)
+#' @examples
+#' \donttest{
+#' # add some example code here
+#'
+#' }
+#' @import nlme
+#' @importFrom matrixcalc vech
+#' @importFrom tidyr pivot_longer
+#' @importFrom MCMCpack xpnd
+#' @importFrom stats as.formula
+#' @export
+modmed.mlm<-function(data, L2ID, X = NULL, Y = NULL, M = NULL,
+                     random.a = FALSE, random.b = FALSE, random.c = FALSE,
+                     moderator = NULL, mod.a = FALSE, mod.b = FALSE, mod.c = FALSE,
+                     method="REML", control = lmeControl(maxIter = 10000, msMaxIter = 10000, niterEM = 10000,
+                                                         msMaxEval = 10000, tolerance = 1e-6)){
 
   #TODO: Have checks that all vars are there and that they are numeric (can convert here, but at least give warning)
   #TODO: Make sure we don't replace variables that already exist?
@@ -125,7 +144,7 @@ boot.mlm2 <- function(data, indices, L2ID, X = NULL, Y = NULL, M = NULL,
 
   # restructure data such that both m and y are in the Z column
   tmp <- pivot_longer(rdat, cols = c(Y, M), names_to = "Outcome",
-                             values_to = "Z")
+                      values_to = "Z")
 
   # create variables similar to Bauer et al syntax
   tmp$Sy <- ifelse(tmp$Outcome == "Y", 1, 0)
@@ -204,8 +223,10 @@ boot.mlm2 <- function(data, indices, L2ID, X = NULL, Y = NULL, M = NULL,
     fixestimates <- fixef(mod_med_tmp)
   }
 
-  #Possible to return other stuff? eg formulas used? (usually not if we're doing bootstrapping at the same time)
-  # TO DO: but, could write the function that does all of this, returns formulas and stuff. Then, a wrapper that does the bootstrapping and only grabs parameter estimates
-  #Will give NA in t0 if the first iteration fails to converge (might have been a problem with the parallel package??)
-  return(c(indirect, modindirect, modindirecta3b, fixestimates))
+  out<-list()
+  out$pars<-c(indirect, modindirect, modindirecta3b, fixestimates) # parameter estimates
+  out$mod<-mod_med_tmp # return fitted model
+
+  return(out)
+
 }
