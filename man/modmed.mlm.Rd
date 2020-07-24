@@ -7,9 +7,9 @@
 modmed.mlm(
   data,
   L2ID,
-  X = NULL,
-  Y = NULL,
-  M = NULL,
+  X,
+  Y,
+  M,
   random.a = FALSE,
   random.b = FALSE,
   random.c = FALSE,
@@ -23,33 +23,33 @@ modmed.mlm(
 )
 }
 \arguments{
-\item{data}{blah}
+\item{data}{Data frame in long format.}
 
-\item{L2ID}{blah}
+\item{L2ID}{(String) Name of column that contains grouping variable in \code{data} (e.g., \code{"SubjectID"}).}
 
-\item{X}{blah}
+\item{X}{(String) Name of column that contains the X independent variable in \code{data}.}
 
-\item{Y}{blah}
+\item{Y}{(String) Name of column that contains the Y dependent variable in \code{data}.}
 
-\item{M}{blah}
+\item{M}{(String) Name of column that contains the M mediating variable in \code{data}.}
 
-\item{random.a}{blah}
+\item{random.a}{(Logical) Add random slope for 'a' path (i.e,. SmX)?}
 
-\item{random.b}{blah}
+\item{random.b}{(Logical) Add random slope for 'b' path (i.e., SyM)?}
 
-\item{random.c}{blah}
+\item{random.c}{(Logical) Add random slope for 'c' path (i.e., SyX)?}
 
-\item{moderator}{blah}
+\item{moderator}{Optional string that contains name of column that contains the moderator variable in \code{data}}
 
-\item{mod.a}{blah}
+\item{mod.a}{(Logical) Add moderator to 'a' path (i.e., SmX:W, where W is the moderator)?}
 
-\item{mod.b}{blah}
+\item{mod.b}{(Logical) Add moderator to 'b' path (i.e., SyM:W, where W is the moderator)?}
 
-\item{mod.c}{blah}
+\item{mod.c}{(Logical) Add moderator to 'c' path (i.e., SyX:W, where W is the moderator)}
 
-\item{method}{blah}
+\item{method}{Argument passed to \code{\link[nlme]{lme}} to control estimation method.}
 
-\item{control}{blah}
+\item{control}{Argument passed to \code{\link[nlme]{lme}} that controls other estimation options.}
 }
 \description{
 Custom model fitting function for two-level (moderated) mediation
@@ -57,6 +57,8 @@ Custom model fitting function for two-level (moderated) mediation
 \details{
 TO DO. Implements custom function to do moderated mediation with multilevel models.
   Capable of doing moderation as well. Need to detail which kinds of moderation, which mediation models (e.g., 1-1-1 only?)
+  Note: does not currently include this moderation as a random effect (the lme model will correctly place the moderator at the appropriate level)
+  Implements the BPG06 model for 1-1-1 mediation with moderation...
 }
 \examples{
 \donttest{

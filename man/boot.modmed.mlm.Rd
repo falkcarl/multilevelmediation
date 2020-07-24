@@ -2,25 +2,29 @@
 % Please edit documentation in R/modmedmlm.R
 \name{boot.modmed.mlm}
 \alias{boot.modmed.mlm}
-\title{Custom boot function for two level models}
+\title{Custom boot function for (moderated) mediation with 2-level multilevel models}
 \usage{
 boot.modmed.mlm(data, indices, L2ID, ...)
 }
 \arguments{
-\item{data}{blah}
+\item{data}{Data frame in long format.}
 
-\item{indices}{blah}
+\item{indices}{\code{\link[boot]{boot}} requires the function signature to accept a vector of
+index numbers and so this argument is required. If the index numbers are all in order starting at 1,
+then the relevant model will be fit to the data without any resampling. If some other vector is supplied,
+then resampling is done as described in details.}
 
-\item{L2ID}{String corresponding to the column that contains level 2 IDs.}
+\item{L2ID}{Name of column that contains grouping variable in 'data' (e.g., "SubjectID")}
 
 \item{...}{Arguments passed to modmed.mlm}
 }
 \description{
-Custom boot function for two level models
+Custom boot function for (moderated) mediation with 2-level multilevel models
 }
 \details{
 TO DO. Implements custom function to do resampling at level 2, then level 1. For use with boot package.
-  Capable of doing moderation as well. Need to detail which kinds of moderation, which mediation models (e.g., 1-1-1 only?)
+  Capable of doing moderation as well. Need to detail which kinds of moderation, which mediation models (e.g., 1-1-1 only?).
+  This resamples L2 units, then L1 units within each L2 unit
 }
 \examples{
 \donttest{

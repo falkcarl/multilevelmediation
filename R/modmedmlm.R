@@ -14,41 +14,43 @@
 ## GNU General Public License for more details.
 ## <http://www.gnu.org/licenses/>
 
-# Implements the BPG06 model for 1-1-1 mediation with moderation...
-
-# Args:
-#   -data (data.frame):
-#   -indices ():
-#   -L2ID (character): Name of column that contains grouping variable in 'data' (e.g., "SubjectID")
-#   -X (character): Name of column that contains the X independent variable in 'data'
-#   -Y (character): Name of column that contains the Y dependent variable in 'data'
-#   -M (character): Name of column that contains the M mediating variable in 'data'
-#   -random.a (logical): Add random slope for 'a' path (i.e,. SmX).
-#   -random.b (logical): Add random slope for 'b' path (i.e., SyM).
-#   -random.c (logical): Add random slope for 'c' path (i.e., SyX).
-#   -moderator (character): Name of column that contains the moderator variable in 'data'
-#   -mod.a (logical): Add moderator to 'a' path (i.e., SmX:W, where W is the moderator)
-#   -mod.b (logical): Add moderator to 'b' path (i.e., SyM:W, where W is the moderator)
-#   -mod.c (logical): Add moderator to 'c' path (i.e., SyX:W, where W is the moderator)
-
-# Returns:
-#   asf: boot object??
-
-#
-#Note: does not currently include this moderation as a random effect (the lme model will correctly place the moderator at the appropriate level)
-
-#' Custom boot function for two level models
+#' Custom boot function for (moderated) mediation with 2-level multilevel models
 #'
 #' @param data Data frame in long format.
-#' @param indices Not functional.
-#' @param L2ID String corresponding to the column that contains level 2 IDs.
+#' @param indices \code{\link[boot]{boot}} requires the function signature to accept a vector of
+#'   index numbers and so this argument is required. If the index numbers are all in order starting at 1,
+#'   then the relevant model will be fit to the data without any resampling. If some other vector is supplied,
+#'   then resampling is done as described in details.
+#' @param L2ID Name of column that contains grouping variable in 'data' (e.g., "SubjectID")
 #' @param ... Arguments passed to modmed.mlm
 #' @details TO DO. Implements custom function to do resampling at level 2, then level 1. For use with boot package.
 #'   Capable of doing moderation as well. Need to detail which kinds of moderation, which mediation models (e.g., 1-1-1 only?).
 #'   This resamples L2 units, then L1 units within each L2 unit
 #' @examples
 #' \donttest{
-#' # add some example code here
+#' # Mediation for 1-1-1 model w/o moderation
+#' data(BPG06dat)
+#'
+#' # Do bootstrapping... w/ parallel processing
+#' library(parallel)
+#' library(boot)
+#' ncpu<-4
+#' cl<-makeCluster(ncpu)
+#'
+#' boot.result<-boot(BPG06dat, statistic=boot.modmed.mlm, R=100,
+#'   L2ID = "id", X = "x", Y = "y", M = "m",
+#'   random.a=TRUE, random.b=TRUE, random.c=TRUE,
+#'   parallel="snow",ncpus=ncpu,cl=cl)
+#'
+#' stopCluster(cl)
+#'
+#' boot.result$t0 # point estimates for everything based on original data
+#'
+#' boot.ci(boot.result, index=1, type="perc") # percentile interval
+#'
+#' # snow appears to work on Windows; something else may be better on Unix/Mac/Linux
+#'
+#' # need code to look at boot results
 #'
 #' }
 #' @export
@@ -78,32 +80,61 @@ boot.modmed.mlm <- function(data, indices, L2ID, ...) {
     row.names(rdat) <- NULL
   }
 
-  result<-modmed.mlm(data,L2ID,...)
+  result<-modmed.mlm(rdat,L2ID,...)
 
   return(result$pars)
 }
 
+
+# Args:
+#   -data (data.frame):
+#   -indices ():
+#   -L2ID (character): Name of column that contains grouping variable in 'data' (e.g., "SubjectID")
+#   -X (character): Name of column that contains the X independent variable in 'data'
+#   -Y (character): Name of column that contains the Y dependent variable in 'data'
+#   -M (character): Name of column that contains the M mediating variable in 'data'
+#   -random.a (logical): Add random slope for 'a' path (i.e,. SmX).
+#   -random.b (logical): Add random slope for 'b' path (i.e., SyM).
+#   -random.c (logical): Add random slope for 'c' path (i.e., SyX).
+#   -moderator (character): Name of column that contains the moderator variable in 'data'
+#   -mod.a (logical): Add moderator to 'a' path (i.e., SmX:W, where W is the moderator)
+#   -mod.b (logical): Add moderator to 'b' path (i.e., SyM:W, where W is the moderator)
+#   -mod.c (logical): Add moderator to 'c' path (i.e., SyX:W, where W is the moderator)
+
 #' Custom model fitting function for two-level (moderated) mediation
 #'
-#' @param data blah
-#' @param L2ID blah
-#' @param X blah
-#' @param Y blah
-#' @param M blah
-#' @param random.a blah
-#' @param random.b blah
-#' @param random.c blah
-#' @param moderator blah
-#' @param mod.a blah
-#' @param mod.b blah
-#' @param mod.c blah
-#' @param method blah
-#' @param control blah
+#' @param data Data frame in long format.
+#' @param L2ID (String) Name of column that contains grouping variable in \code{data} (e.g., \code{"SubjectID"}).
+#' @param X (String) Name of column that contains the X independent variable in \code{data}.
+#' @param Y (String) Name of column that contains the Y dependent variable in \code{data}.
+#' @param M (String) Name of column that contains the M mediating variable in \code{data}.
+#' @param random.a (Logical) Add random slope for 'a' path (i.e,. SmX)?
+#' @param random.b (Logical) Add random slope for 'b' path (i.e., SyM)?
+#' @param random.c (Logical) Add random slope for 'c' path (i.e., SyX)?
+#' @param moderator Optional string that contains name of column that contains the moderator variable in \code{data}
+#' @param mod.a (Logical) Add moderator to 'a' path (i.e., SmX:W, where W is the moderator)?
+#' @param mod.b (Logical) Add moderator to 'b' path (i.e., SyM:W, where W is the moderator)?
+#' @param mod.c (Logical) Add moderator to 'c' path (i.e., SyX:W, where W is the moderator)
+#' @param method Argument passed to \code{\link[nlme]{lme}} to control estimation method.
+#' @param control Argument passed to \code{\link[nlme]{lme}} that controls other estimation options.
 #' @details TO DO. Implements custom function to do moderated mediation with multilevel models.
 #'   Capable of doing moderation as well. Need to detail which kinds of moderation, which mediation models (e.g., 1-1-1 only?)
+#'   Note: does not currently include this moderation as a random effect (the lme model will correctly place the moderator at the appropriate level)
+#'   Implements the BPG06 model for 1-1-1 mediation with moderation...
 #' @examples
 #' \donttest{
-#' # add some example code here
+#' # Example data for 1-1-1 w/o moderation
+#' data(BPG06dat)
+#'
+#' # Fit model
+#' fitmod<-modmed.mlm(BPG06dat,"id", "x", "y", "m",
+#'   random.a=TRUE, random.b=TRUE, random.c=TRUE)
+#'
+#' # Vector of parameter estimates, including indirect effect
+#' fitmod$pars
+#'
+#' # The saved, fitted model following Bauer, Preacher, & Gil (2006)
+#' summary(fitmod$mod)
 #'
 #' }
 #' @import nlme
@@ -112,7 +143,7 @@ boot.modmed.mlm <- function(data, indices, L2ID, ...) {
 #' @importFrom MCMCpack xpnd
 #' @importFrom stats as.formula
 #' @export
-modmed.mlm<-function(data, L2ID, X = NULL, Y = NULL, M = NULL,
+modmed.mlm<-function(data, L2ID, X, Y, M,
                      random.a = FALSE, random.b = FALSE, random.c = FALSE,
                      moderator = NULL, mod.a = FALSE, mod.b = FALSE, mod.c = FALSE,
                      method="REML", control = lmeControl(maxIter = 10000, msMaxIter = 10000, niterEM = 10000,
@@ -121,17 +152,17 @@ modmed.mlm<-function(data, L2ID, X = NULL, Y = NULL, M = NULL,
   #TODO: Have checks that all vars are there and that they are numeric (can convert here, but at least give warning)
   #TODO: Make sure we don't replace variables that already exist?
   # Assign variable names
-  rdat$X = rdat[[X]]
-  rdat$Y = rdat[[Y]]
-  rdat$M = rdat[[M]]
-  rdat$L2id <- rdat[[L2ID]] # Save copy of the grouping (Level 2) variable
-  rdat$Md <- rdat$M # save copy of mediator (tv: why is this needed?)
+  data$X = data[[X]]
+  data$Y = data[[Y]]
+  data$M = data[[M]]
+  data$L2id <- data[[L2ID]] # Save copy of the grouping (Level 2) variable
+  data$Md <- data$M # save copy of mediator (tv: why is this needed?)
 
   # Save moderator if necessary
   #TODO:ADD warning/error message if moderator is a factor and that is should be numeric
   if (!is.null(moderator)) {
-    rdat$W <- rdat[[moderator]] # Save copy of the moderator
-    rdat$W <- as.numeric(rdat$W) #will give an error (singularity in backsolve if using a factor because of the way R does formulas...(chnage to numeric to fix, how make compatible if passed as a factor or something else??))
+    data$W <- data[[moderator]] # Save copy of the moderator
+    data$W <- as.numeric(data$W) #will give an error (singularity in backsolve if using a factor because of the way R does formulas...(chnage to numeric to fix, how make compatible if passed as a factor or something else??))
   }
 
   #TODO:maybe have a check if mod is factor. If yes, convert (with warning) to
@@ -139,7 +170,7 @@ modmed.mlm<-function(data, L2ID, X = NULL, Y = NULL, M = NULL,
   #otherwise just center and run the model that way...?
 
   # restructure data such that both m and y are in the Z column
-  tmp <- pivot_longer(rdat, cols = c(Y, M), names_to = "Outcome",
+  tmp <- pivot_longer(data, cols = c(Y, M), names_to = "Outcome",
                       values_to = "Z")
 
   # create variables similar to Bauer et al syntax
