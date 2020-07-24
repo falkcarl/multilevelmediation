@@ -28,7 +28,29 @@ TO DO. Implements custom function to do resampling at level 2, then level 1. For
 }
 \examples{
 \donttest{
-# add some example code here
+# Mediation for 1-1-1 model w/o moderation
+data(BPG06dat)
+
+# Do bootstrapping... w/ parallel processing
+library(parallel)
+library(boot)
+ncpu<-4
+cl<-makeCluster(ncpu)
+
+boot.result<-boot(BPG06dat, statistic=boot.modmed.mlm, R=100,
+  L2ID = "id", X = "x", Y = "y", M = "m",
+  random.a=TRUE, random.b=TRUE, random.c=TRUE,
+  parallel="snow",ncpus=ncpu,cl=cl)
+
+stopCluster(cl)
+
+boot.result$t0 # point estimates for everything based on original data
+
+boot.ci(boot.result, index=1, type="perc") # percentile interval
+
+# snow appears to work on Windows; something else may be better on Unix/Mac/Linux
+
+# need code to look at boot results
 
 }
 }

@@ -62,7 +62,18 @@ TO DO. Implements custom function to do moderated mediation with multilevel mode
 }
 \examples{
 \donttest{
-# add some example code here
+# Example data for 1-1-1 w/o moderation
+data(BPG06dat)
+
+# Fit model
+fitmod<-modmed.mlm(BPG06dat,"id", "x", "y", "m",
+  random.a=TRUE, random.b=TRUE, random.c=TRUE)
+
+# Vector of parameter estimates, including indirect effect
+fitmod$pars
+
+# The saved, fitted model following Bauer, Preacher, & Gil (2006)
+summary(fitmod$mod)
 
 }
 }
