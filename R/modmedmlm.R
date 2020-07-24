@@ -149,6 +149,23 @@ modmed.mlm<-function(data, L2ID, X, Y, M,
                      method="REML", control = lmeControl(maxIter = 10000, msMaxIter = 10000, niterEM = 10000,
                                                          msMaxEval = 10000, tolerance = 1e-6)){
 
+  # Some input checking per Todd's code:
+  #FIXME: THESE MESSGEES HAPPEN EVERY LOOP. ANY WAY TO ONLY DO AT START?
+  # Stop if X, Y, or M variables are not specified
+  #if (is.null(X)) {stop("X is NULL, please specify name of X variable.")}
+  #if (is.null(Y)) {stop("Y is NULL, please specify name of Y variable.")}
+  #if (is.null(M)) {stop("M is NULL, please specify name of M variable.")}
+
+  # Stop if X, Y, or M variables in data are not numeric
+  # factors not currently able to be used to set up BPG syntax for lme model (is there a possible workaround?)
+  #if (!is.numeric(rdat[[X]])) {stop("X is of type ", class(rdat[[X]]), ". X must be numeric to fit model.")}
+  #if (!is.numeric(rdat[[Y]])) {stop("Y is of type ", class(rdat[[Y]]), ". Y must be numeric to fit model.")}
+  #if (!is.numeric(rdat[[M]])) {stop("M is of type ", class(rdat[[M]]), ". M must be numeric to fit model.")}
+
+  # Check that all random effects/path moderation args are logical values (will skip adding to formula otherwise)
+  #stopifnot(is.logical(random.a), is.logical(random.b), is.logical(random.c),
+  #          is.logical(mod.a), is.logical(mod.b), is.logical(mod.c))
+
   #TODO: Have checks that all vars are there and that they are numeric (can convert here, but at least give warning)
   #TODO: Make sure we don't replace variables that already exist?
   # Assign variable names
