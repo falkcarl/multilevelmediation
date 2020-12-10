@@ -193,23 +193,24 @@ modmed.mlm<-function(data, L2ID, X, Y, M,
   stopifnot(is.logical(random.a), is.logical(random.b), is.logical(random.c),
             is.logical(mod.a), is.logical(mod.b), is.logical(mod.c))
 
-
-  #TODO: Have checks that all vars are there and that they are numeric (can convert here, but at least give warning)
-  #TODO: Make sure we don't replace variables that already exist?
-  # Assign variable names
-  data$X = data[[X]]
-  data$Y = data[[Y]]
-  data$M = data[[M]]
-  data$L2id <- data[[L2ID]] # Save copy of the grouping (Level 2) variable
-  data$Md <- data$M # save copy of mediator (tv: why is this needed?) CF: it might not be, to check later
+  # Use data frame with only relevant variables
+  tmp <- data.frame(
+    X = data[[X]],
+    Y = data[[Y]],
+    M = data[[M]],
+    L2id = data[[L2ID]], # Save copy of the grouping (Level 2) variable
+    Md = data$M # save copy of mediator (tv: why is this needed?) CF: pivot_longer will nuke the M column
+  )
 
   # Save moderator if necessary
   if (!is.null(moderator)) {
-    data$W <- data[[moderator]] # Save copy of the moderator
+    tmp$W <- data[[moderator]] # Save copy of the moderator
   }
 
+  # TODO: add covariates. Ensure covariates do not have same name as existing vars
+
   # restructure data such that both m and y are in the Z column
-  tmp <- pivot_longer(data, cols = c(Y, M), names_to = "Outcome",
+  tmp <- pivot_longer(tmp, cols = c(Y, M), names_to = "Outcome",
                       values_to = "Z")
 
   # create variables similar to Bauer et al syntax
