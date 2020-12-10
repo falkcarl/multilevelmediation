@@ -225,7 +225,6 @@ modmed.mlm<-function(data, L2ID, X, Y, M,
 
   # Add in the moderator to the paths if necessary
   # Note: interactions w/ W must must use selector variables in this way
-  #TODO: add checks here that params are boolean (and not eg string, raise error if not boolean, would skip otherwise)
   if (mod.a == TRUE) {fixed.formula <- paste(fixed.formula, "+ Sm:W + SmX:W")}
   if (mod.b == TRUE || mod.c == TRUE) {
     fixed.formula <- paste(fixed.formula, "+ Sy:W") #if b or c path is moderated, Sy component will always be there (prevents adding redundant parameters if both b & c are moderated)
@@ -235,12 +234,13 @@ modmed.mlm<-function(data, L2ID, X, Y, M,
   }
 
   # Create the formula for the random effects
-  #TODO: Same here, check that random params are boolean and not something else
   random.formula <- "~ 0 + Sm + Sy"
   if (random.a == TRUE) {random.formula <- paste(random.formula, "+ SmX")}
   if (random.b == TRUE) {random.formula <- paste(random.formula, "+ SyM")}
   if (random.c == TRUE) {random.formula <- paste(random.formula, "+ SyX")}
+
   #TODO: Need to add argument to make 3-level if necessary...(e.g., L2id/W)
+
   random.formula <- paste(random.formula, "| L2id") # add in the grouping variable after all the variables are entered
 
   mod_med_tmp <- try(lme(fixed = as.formula(fixed.formula), # fixed effects
@@ -249,12 +249,13 @@ modmed.mlm<-function(data, L2ID, X, Y, M,
                          data = tmp,
                          method = method,
                          control = control))
-  # some error handling, just in case (is for when model doesn't converge?? test it out to see)
+
+  # some error handling, just in case
   if (class(mod_med_tmp) == "try-error") {
     indirect <- NA
     modindirect <- NA
     modindirecta3b <- NA
-    fixestimates <- rep(NA, 10) #change from 10 to dynamic (number of fixed effects in model (10 is for all 5 + moderation on all 5))
+    fixestimates <- rep(NA, 10) # TODO: dynamically change this depending on the model
   } else {
 
     vc <- VarCorr(mod_med_tmp)
@@ -262,8 +263,8 @@ modmed.mlm<-function(data, L2ID, X, Y, M,
     #grab names of random effects
     re_names <- colnames(mod_med_tmp[["coefficients"]][["random"]][["L2id"]])
     re_num <- length(re_names) #number of random effects
-    #colnames(vc[1:5,]) = c("Variance","StdDev",re_names)
 
+    # create cov matrix among random effects
     sd <- as.numeric(vc[1:re_num, 2])
     sigma <- cbind(vc[1:re_num, 3:ncol(vc)], 1)
     diag(sigma) <- 1
@@ -274,7 +275,8 @@ modmed.mlm<-function(data, L2ID, X, Y, M,
     colnames(sig2) <- re_names
     rownames(sig2) <- re_names
 
-    #if both a and b are random, add in the covar component between the two
+    # Compute indirect effect!
+    # If both a and b are random, add in the covar component between the two
     if (random.a == TRUE && random.b == TRUE) {
       indirect <- fixed.effects(mod_med_tmp)["SmX"] * fixed.effects(mod_med_tmp)["SyM"] + sig2["SmX", "SyM"]
     } else {
@@ -285,6 +287,7 @@ modmed.mlm<-function(data, L2ID, X, Y, M,
     # TODO: won't be relevant if we don't ask for moderation
     # TODO: work through possibilites for moderation with dichotomous moderator, possibly continuous moderator
     #modindirect<-fixed.effects(mod_med_tmp)["SmX:W"]*fixed.effects(mod_med_tmp)["SyM:W"]
+
     modindirect <- (fixed.effects(mod_med_tmp)["SmX:W"] + fixed.effects(mod_med_tmp)["SmX"]) * (fixed.effects(mod_med_tmp)["SyM:W"] + fixed.effects(mod_med_tmp)["SyM"])
     modindirecta3b <- fixed.effects(mod_med_tmp)["SmX:W"] * fixed.effects(mod_med_tmp)["SyM"] #trying to see fx with just a-path being moderated
     fixestimates <- fixef(mod_med_tmp)
