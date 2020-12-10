@@ -170,19 +170,29 @@ modmed.mlm<-function(data, L2ID, X, Y, M,
   #FIXME: THESE MESSGEES HAPPEN EVERY LOOP. ANY WAY TO ONLY DO AT START?
 
   # Stop if X, Y, or M variables are not specified
-  #if (is.null(X)) {stop("X is NULL, please specify name of X variable.")}
-  #if (is.null(Y)) {stop("Y is NULL, please specify name of Y variable.")}
-  #if (is.null(M)) {stop("M is NULL, please specify name of M variable.")}
+  if (is.null(X)) {stop("X is NULL, please specify name of X variable.")}
+  if (is.null(Y)) {stop("Y is NULL, please specify name of Y variable.")}
+  if (is.null(M)) {stop("M is NULL, please specify name of M variable.")}
+
+  # Stop if X, Y, or M are not in dataset
+  if(!all(c(X,Y,M) %in% colnames(data))){stop("Not all variables found in dataset. Please check names of X, Y, and M.")}
 
   # Stop if X, Y, or M variables in data are not numeric
   # factors not currently able to be used to set up BPG syntax for lme model (is there a possible workaround?)
-  #if (!is.numeric(rdat[[X]])) {stop("X is of type ", class(rdat[[X]]), ". X must be numeric to fit model.")}
-  #if (!is.numeric(rdat[[Y]])) {stop("Y is of type ", class(rdat[[Y]]), ". Y must be numeric to fit model.")}
-  #if (!is.numeric(rdat[[M]])) {stop("M is of type ", class(rdat[[M]]), ". M must be numeric to fit model.")}
+  if (!is.numeric(data[[X]])) {stop("X is of type ", class(data[[X]]), ". Currently, only numeric X is supported.")}
+  if (!is.numeric(data[[Y]])) {stop("Y is of type ", class(data[[Y]]), ". Y must be numeric to fit model.")}
+  if (!is.numeric(data[[M]])) {stop("M is of type ", class(data[[M]]), ". M must be numeric to fit model.")}
+
+  # check moderator
+  if(!is.null(moderator)){
+    if(!(moderator %in% colnames(data))){stop("moderator not found in dataset. Please check specified name.")}
+    if(!is.numeric(data[[moderator]])) {stop("moderator is of type ", class(data[[moderator]]), ". Currently, only numeric moderators are supported.")}
+  }
 
   # Check that all random effects/path moderation args are logical values (will skip adding to formula otherwise)
-  #stopifnot(is.logical(random.a), is.logical(random.b), is.logical(random.c),
-  #          is.logical(mod.a), is.logical(mod.b), is.logical(mod.c))
+  stopifnot(is.logical(random.a), is.logical(random.b), is.logical(random.c),
+            is.logical(mod.a), is.logical(mod.b), is.logical(mod.c))
+
 
   #TODO: Have checks that all vars are there and that they are numeric (can convert here, but at least give warning)
   #TODO: Make sure we don't replace variables that already exist?
@@ -191,18 +201,12 @@ modmed.mlm<-function(data, L2ID, X, Y, M,
   data$Y = data[[Y]]
   data$M = data[[M]]
   data$L2id <- data[[L2ID]] # Save copy of the grouping (Level 2) variable
-  data$Md <- data$M # save copy of mediator (tv: why is this needed?)
+  data$Md <- data$M # save copy of mediator (tv: why is this needed?) CF: it might not be, to check later
 
   # Save moderator if necessary
-  #TODO:ADD warning/error message if moderator is a factor and that is should be numeric
   if (!is.null(moderator)) {
     data$W <- data[[moderator]] # Save copy of the moderator
-    data$W <- as.numeric(data$W) #will give an error (singularity in backsolve if using a factor because of the way R does formulas...(chnage to numeric to fix, how make compatible if passed as a factor or something else??))
   }
-
-  #TODO:maybe have a check if mod is factor. If yes, convert (with warning) to
-  #numeric where levels are 0 and 1. If indirectCI==TRUE then do model at both levels
-  #otherwise just center and run the model that way...?
 
   # restructure data such that both m and y are in the Z column
   tmp <- pivot_longer(data, cols = c(Y, M), names_to = "Outcome",
@@ -219,7 +223,7 @@ modmed.mlm<-function(data, L2ID, X, Y, M,
   fixed.formula <- "Z ~ 0 + Sm + Sy + SmX + SyX + SyM" #use the default formula from BPG 2006
 
   # Add in the moderator to the paths if necessary
-  #(Can't have just W as a predictor (gives backsolve errors), must use selector variables)
+  # Note: interactions w/ W must must use selector variables in this way
   #TODO: add checks here that params are boolean (and not eg string, raise error if not boolean, would skip otherwise)
   if (mod.a == TRUE) {fixed.formula <- paste(fixed.formula, "+ Sm:W + SmX:W")}
   if (mod.b == TRUE || mod.c == TRUE) {
