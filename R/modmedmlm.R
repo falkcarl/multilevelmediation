@@ -257,7 +257,7 @@ modmed.mlm<-function(data, L2ID, X, Y, M,
 
   # some error handling, just in case
   if (class(mod_med_tmp) == "try-error") {
-    out$model <- NA
+    out$model <- NULL
     out$conv <- FALSE # boolean or some other code?
   } else {
     out$model <- mod_med_tmp
@@ -299,13 +299,16 @@ extract.modmed.mlm <- function(fit, type=c("default","rcov","fixef","indirect","
 
   type <- match.arg(type)
 
-  if(!fit$conv | is.na(fit$model)){
+  if(!fit$conv | is.null(fit$model)){
     # if NA
     indirect <- NA
     modindirect <- NA
     modindirecta3b <- NA
     fixestimates <- rep(NA, 10) # TODO: dynamically change this depending on the model
   } else {
+
+    # get original arguments
+    args<-as.list(fit$call)
 
     if(type == "rcov" | type=="indirect" | type=="modindirect" | type=="default"){
       # computations if the model is ok
@@ -329,10 +332,9 @@ extract.modmed.mlm <- function(fit, type=c("default","rcov","fixef","indirect","
 
     if(type=="indirect" | type=="default"){
 
-      stop("Currently broken here. Need args from original call for random.a, random.b")
       # Compute indirect effect!
       # If both a and b are random, add in the covar component between the two
-      if (random.a == TRUE && random.b == TRUE) {
+      if (args$random.a == TRUE && args$random.b == TRUE) {
         indirect <- fixed.effects(fit$model)["SmX"] * fixed.effects(fit$model)["SyM"] + sig2["SmX", "SyM"]
       } else {
         indirect <- fixed.effects(fit$model)["SmX"] * fixed.effects(fit$model)["SyM"]
@@ -351,6 +353,6 @@ extract.modmed.mlm <- function(fit, type=c("default","rcov","fixef","indirect","
 
   out<-list()
   out$pars<-c(indirect, modindirect, modindirecta3b, fixestimates) # parameter estimates
-
+  out
 }
 
