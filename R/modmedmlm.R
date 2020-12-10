@@ -119,14 +119,39 @@ boot.modmed.mlm <- function(data, indices, L2ID, ...) {
 #' data(BPG06dat)
 #'
 #' # Fit model
-#' fitmod<-modmed.mlm(BPG06dat,"id", "x", "y", "m",
+#' fit<-modmed.mlm(BPG06dat,"id", "x", "y", "m",
 #'   random.a=TRUE, random.b=TRUE, random.c=TRUE)
 #'
 #' # Vector of parameter estimates, including indirect effect
-#' fitmod$pars
+#' fit$pars
 #'
 #' # The saved, fitted model following Bauer, Preacher, & Gil (2006)
-#' summary(fitmod$mod)
+#' summary(fit$model)
+#'
+#'
+#'
+#' # Fit model with moderation
+#' data(simdat)
+#'
+#' # moderation for a path
+#' fitmoda<-modmed.mlm(simdat,"L2id", "X", "Y", "M",
+#'   random.a=TRUE, random.b=TRUE, random.c=TRUE,
+#'   moderator = "mod", mod.a=TRUE)
+#'
+#' # moderation for b path
+#' fitmodb<-modmed.mlm(simdat,"L2id", "X", "Y", "M",
+#'   random.a=TRUE, random.b=TRUE, random.c=TRUE,
+#'   moderator = "mod", mod.b=TRUE)
+#'
+#' # moderation for both a and b paths
+#' fitmodab<-modmed.mlm(simdat,"L2id", "X", "Y", "M",
+#'   random.a=TRUE, random.b=TRUE, random.c=TRUE,
+#'   moderator = "mod", mod.a=TRUE, mod.b=TRUE)
+#'
+#' # Do we care about moderation for the c path?
+#' fitmodabc<-modmed.mlm(simdat,"L2id", "X", "Y", "M",
+#'   random.a=TRUE, random.b=TRUE, random.c=TRUE,
+#'   moderator = "mod", mod.a=TRUE, mod.b=TRUE, mod.c=TRUE)
 #'
 #' }
 #' @import nlme
@@ -143,6 +168,7 @@ modmed.mlm<-function(data, L2ID, X, Y, M,
 
   # Some input checking per Todd's code:
   #FIXME: THESE MESSGEES HAPPEN EVERY LOOP. ANY WAY TO ONLY DO AT START?
+
   # Stop if X, Y, or M variables are not specified
   #if (is.null(X)) {stop("X is NULL, please specify name of X variable.")}
   #if (is.null(Y)) {stop("Y is NULL, please specify name of Y variable.")}
@@ -261,7 +287,7 @@ modmed.mlm<-function(data, L2ID, X, Y, M,
 
   out<-list()
   out$pars<-c(indirect, modindirect, modindirecta3b, fixestimates) # parameter estimates
-  out$mod<-mod_med_tmp # return fitted model
+  out$model<-mod_med_tmp # return fitted model
 
   return(out)
 
