@@ -199,7 +199,7 @@ modmed.mlm<-function(data, L2ID, X, Y, M,
     Y = data[[Y]],
     M = data[[M]],
     L2id = data[[L2ID]], # Save copy of the grouping (Level 2) variable
-    Md = data$M # save copy of mediator (tv: why is this needed?) CF: pivot_longer will nuke the M column
+    Md = data[[M]] # save copy of mediator (tv: why is this needed?) CF: pivot_longer will nuke the M column
   )
 
   # Save moderator if necessary
