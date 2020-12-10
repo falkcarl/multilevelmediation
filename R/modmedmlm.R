@@ -44,6 +44,13 @@
 #'
 #' stopCluster(cl)
 #'
+#' # without cluster
+#' # boot.result<-boot(BPG06dat, statistic=boot.modmed.mlm, R=5,
+#' #   L2ID = "id", X = "x", Y = "y", M = "m",
+#'   random.a=TRUE, random.b=TRUE, random.c=TRUE)
+#'
+#' stopCluster(cl)
+#'
 #' boot.result$t0 # point estimates for everything based on original data
 #'
 #' boot.ci(boot.result, index=1, type="perc") # percentile interval
@@ -73,7 +80,7 @@ boot.modmed.mlm <- function(data, indices, L2ID, ...) {
       n_j <- nrow(L2_sub)
       L1_idx <- sample(1:n_j, n_j, replace = TRUE)
       L2_sub <- L2_sub[L1_idx, ]
-      #L2_sub #TV: can remove?
+      L2_sub
     })
 
     rdat <- do.call("rbind", rdat)
