@@ -89,7 +89,7 @@ boot.modmed.mlm <- function(data, indices, L2ID, ...) {
 
   result<-modmed.mlm(rdat,L2ID,...)
 
-  return(result$pars)
+  return(extract.modmed.mlm(result)$pars)
 }
 
 
@@ -109,6 +109,7 @@ boot.modmed.mlm <- function(data, indices, L2ID, ...) {
 #' @param mod.c (Logical) Add moderator to 'c' path (i.e., SyX:W, where W is the moderator)
 #' @param method Argument passed to \code{\link[nlme]{lme}} to control estimation method.
 #' @param control Argument passed to \code{\link[nlme]{lme}} that controls other estimation options.
+#' @param returndata (Logical) Whether to save restructured data in its own slot. Note: nlme may do this automatically. Defaults to \code{FALSE}.
 #' @details TO DO. Implements custom function to do moderated mediation with multilevel models.
 #'   Capable of doing moderation as well. Need to detail which kinds of moderation, which mediation models (e.g., 1-1-1 only?)
 #'   Note: does not currently include this moderation as a random effect (the lme model will correctly place the moderator at the appropriate level)
@@ -123,7 +124,7 @@ boot.modmed.mlm <- function(data, indices, L2ID, ...) {
 #'   random.a=TRUE, random.b=TRUE, random.c=TRUE)
 #'
 #' # Vector of parameter estimates, including indirect effect
-#' fit$pars
+#' #fit$pars
 #'
 #' # The saved, fitted model following Bauer, Preacher, & Gil (2006)
 #' summary(fit$model)
@@ -164,7 +165,8 @@ modmed.mlm<-function(data, L2ID, X, Y, M,
                      random.a = FALSE, random.b = FALSE, random.c = FALSE,
                      moderator = NULL, mod.a = FALSE, mod.b = FALSE, mod.c = FALSE,
                      method="REML", control = lmeControl(maxIter = 10000, msMaxIter = 10000, niterEM = 10000,
-                                                         msMaxEval = 10000, tolerance = 1e-6)){
+                                                         msMaxEval = 10000, tolerance = 1e-6),
+                     returndata = FALSE){
 
   # Some input checking per Todd's code:
   #FIXME: THESE MESSGEES HAPPEN EVERY LOOP. ANY WAY TO ONLY DO AT START?
@@ -250,53 +252,105 @@ modmed.mlm<-function(data, L2ID, X, Y, M,
                          method = method,
                          control = control))
 
+  # create output list
+  out <- list()
+
   # some error handling, just in case
   if (class(mod_med_tmp) == "try-error") {
+    out$model <- NA
+    out$conv <- FALSE # boolean or some other code?
+  } else {
+    out$model <- mod_med_tmp
+    out$conv <- TRUE
+  }
+
+  if(returndata) out$data <- tmp
+
+  out$call <- match.call()
+
+  return(out)
+
+}
+
+
+
+# TODO we also need a way to compute indirect effect at two different values and then
+# also compute the difference between those two different indirect effect values...
+# TODO probably would be easiest to return all fixed effects and vectorized var-cov matrix of random effects
+#       If done this way, all can be stored by boot code and any indirect effect can be computed afterwards?
+#       But, does rescaling the moderator change any of the relevant random effect covariances? IF not, then we're ok
+
+#' Post-processing of a model fit with modmed.mlm
+#'
+#' @param fit Result of \code{modmed.mlm}.
+#' @param type String indicating which piece of information to extract from the model.
+#'   \code{"rcov"} refers to covariance matrix among random effects,
+#'   \code{"indirect"} for the indirect effect, and \code{"modindirect"}
+#'   for the indirect effect computed at a particular value of the moderator (in the case)
+#'   that the originally fitted model included such a moderator. "default" is currently
+#'   used just for testing purposes to not break bootstrapping quite yet.
+#' @param modval If \code{"modindirect"} is chosen for \code{type}, the value of the
+#'   moderator at which to compute the indirect effect.
+#'
+extract.modmed.mlm <- function(fit, type=c("default","rcov","fixef","indirect","modindirect"),
+                               modval = NULL){
+
+  warning("function currently doesn't do anything except what was at the end of modmed.mlm i.e., args are not functional yet")
+
+  type <- match.arg(type)
+
+  if(!fit$conv | is.na(fit$model)){
+    # if NA
     indirect <- NA
     modindirect <- NA
     modindirecta3b <- NA
     fixestimates <- rep(NA, 10) # TODO: dynamically change this depending on the model
   } else {
 
-    vc <- VarCorr(mod_med_tmp)
+    if(type == "rcov" | type=="indirect" | type=="modindirect" | type=="default"){
+      # computations if the model is ok
+      vc <- VarCorr(fit$model)
 
-    #grab names of random effects
-    re_names <- colnames(mod_med_tmp[["coefficients"]][["random"]][["L2id"]])
-    re_num <- length(re_names) #number of random effects
+      #grab names of random effects
+      re_names <- colnames(fit$model[["coefficients"]][["random"]][["L2id"]])
+      re_num <- length(re_names) #number of random effects
 
-    # create cov matrix among random effects
-    sd <- as.numeric(vc[1:re_num, 2])
-    sigma <- cbind(vc[1:re_num, 3:ncol(vc)], 1)
-    diag(sigma) <- 1
-    sig <- as.numeric(vech(sigma))
-    sig <- xpnd(sig)
-    D <- diag(sd)
-    sig2 <- D %*% sig %*% D
-    colnames(sig2) <- re_names
-    rownames(sig2) <- re_names
-
-    # Compute indirect effect!
-    # If both a and b are random, add in the covar component between the two
-    if (random.a == TRUE && random.b == TRUE) {
-      indirect <- fixed.effects(mod_med_tmp)["SmX"] * fixed.effects(mod_med_tmp)["SyM"] + sig2["SmX", "SyM"]
-    } else {
-      indirect <- fixed.effects(mod_med_tmp)["SmX"] * fixed.effects(mod_med_tmp)["SyM"]
+      # create cov matrix among random effects
+      sd <- as.numeric(vc[1:re_num, 2])
+      sigma <- cbind(vc[1:re_num, 3:ncol(vc)], 1)
+      diag(sigma) <- 1
+      sig <- as.numeric(vech(sigma))
+      sig <- xpnd(sig)
+      D <- diag(sd)
+      sig2 <- D %*% sig %*% D
+      colnames(sig2) <- re_names
+      rownames(sig2) <- re_names
     }
-    names(indirect)<-"indirect"
+
+    if(type=="indirect" | type=="default"){
+
+      stop("Currently broken here. Need args from original call for random.a, random.b")
+      # Compute indirect effect!
+      # If both a and b are random, add in the covar component between the two
+      if (random.a == TRUE && random.b == TRUE) {
+        indirect <- fixed.effects(fit$model)["SmX"] * fixed.effects(fit$model)["SyM"] + sig2["SmX", "SyM"]
+      } else {
+        indirect <- fixed.effects(fit$model)["SmX"] * fixed.effects(fit$model)["SyM"]
+      }
+      names(indirect)<-"indirect"
+    }
 
     # TODO: won't be relevant if we don't ask for moderation
     # TODO: work through possibilites for moderation with dichotomous moderator, possibly continuous moderator
-    #modindirect<-fixed.effects(mod_med_tmp)["SmX:W"]*fixed.effects(mod_med_tmp)["SyM:W"]
+    #modindirect<-fixed.effects(fit$model)["SmX:W"]*fixed.effects(fit$model)["SyM:W"]
 
-    modindirect <- (fixed.effects(mod_med_tmp)["SmX:W"] + fixed.effects(mod_med_tmp)["SmX"]) * (fixed.effects(mod_med_tmp)["SyM:W"] + fixed.effects(mod_med_tmp)["SyM"])
-    modindirecta3b <- fixed.effects(mod_med_tmp)["SmX:W"] * fixed.effects(mod_med_tmp)["SyM"] #trying to see fx with just a-path being moderated
-    fixestimates <- fixef(mod_med_tmp)
+    modindirect <- (fixed.effects(fit$model)["SmX:W"] + fixed.effects(fit$model)["SmX"]) * (fixed.effects(fit$model)["SyM:W"] + fixed.effects(fit$model)["SyM"])
+    modindirecta3b <- fixed.effects(fit$model)["SmX:W"] * fixed.effects(fit$model)["SyM"] #trying to see fx with just a-path being moderated
+    fixestimates <- fixef(fit$model)
   }
 
   out<-list()
   out$pars<-c(indirect, modindirect, modindirecta3b, fixestimates) # parameter estimates
-  out$model<-mod_med_tmp # return fitted model
-
-  return(out)
 
 }
+
