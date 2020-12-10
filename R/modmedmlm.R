@@ -86,21 +86,6 @@ boot.modmed.mlm <- function(data, indices, L2ID, ...) {
 }
 
 
-# Args:
-#   -data (data.frame):
-#   -indices ():
-#   -L2ID (character): Name of column that contains grouping variable in 'data' (e.g., "SubjectID")
-#   -X (character): Name of column that contains the X independent variable in 'data'
-#   -Y (character): Name of column that contains the Y dependent variable in 'data'
-#   -M (character): Name of column that contains the M mediating variable in 'data'
-#   -random.a (logical): Add random slope for 'a' path (i.e,. SmX).
-#   -random.b (logical): Add random slope for 'b' path (i.e., SyM).
-#   -random.c (logical): Add random slope for 'c' path (i.e., SyX).
-#   -moderator (character): Name of column that contains the moderator variable in 'data'
-#   -mod.a (logical): Add moderator to 'a' path (i.e., SmX:W, where W is the moderator)
-#   -mod.b (logical): Add moderator to 'b' path (i.e., SyM:W, where W is the moderator)
-#   -mod.c (logical): Add moderator to 'c' path (i.e., SyX:W, where W is the moderator)
-
 #' Custom model fitting function for two-level (moderated) mediation
 #'
 #' @param data Data frame in long format.
