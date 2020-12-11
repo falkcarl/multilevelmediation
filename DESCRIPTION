@@ -9,7 +9,7 @@ Description: Currently includes draft code for multilevel mediation
 License: GPL-3
 Encoding: UTF-8
 LazyData: true
-RoxygenNote: 7.1.0
+RoxygenNote: 7.1.1
 Imports: nlme,
  matrixcalc,
  tidyr,

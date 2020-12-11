@@ -16,10 +16,11 @@ modmed.mlm(
   moderator = NULL,
   mod.a = FALSE,
   mod.b = FALSE,
-  mod.c = FALSE,
+  mod.cprime = FALSE,
   method = "REML",
   control = lmeControl(maxIter = 10000, msMaxIter = 10000, niterEM = 10000, msMaxEval =
-    10000, tolerance = 1e-06)
+    10000, tolerance = 1e-06),
+  returndata = FALSE
 )
 }
 \arguments{
@@ -45,11 +46,13 @@ modmed.mlm(
 
 \item{mod.b}{(Logical) Add moderator to 'b' path (i.e., SyM:W, where W is the moderator)?}
 
-\item{mod.c}{(Logical) Add moderator to 'c' path (i.e., SyX:W, where W is the moderator)}
+\item{mod.cprime}{(Logical) Add moderator to 'c' path (i.e., SyX:W, where W is the moderator)}
 
 \item{method}{Argument passed to \code{\link[nlme]{lme}} to control estimation method.}
 
 \item{control}{Argument passed to \code{\link[nlme]{lme}} that controls other estimation options.}
+
+\item{returndata}{(Logical) Whether to save restructured data in its own slot. Note: nlme may do this automatically. Defaults to \code{FALSE}.}
 }
 \description{
 Custom model fitting function for two-level (moderated) mediation
@@ -66,14 +69,45 @@ TO DO. Implements custom function to do moderated mediation with multilevel mode
 data(BPG06dat)
 
 # Fit model
-fitmod<-modmed.mlm(BPG06dat,"id", "x", "y", "m",
+fit<-modmed.mlm(BPG06dat,"id", "x", "y", "m",
   random.a=TRUE, random.b=TRUE, random.c=TRUE)
 
+extract.modmed.mlm(fit)
+extract.modmed.mlm(fit, type="indirect")
+extract.modmed.mlm(fit, type="a")
+extract.modmed.mlm(fit, type="b")
+extract.modmed.mlm(fit, type="covab")
+
 # Vector of parameter estimates, including indirect effect
-fitmod$pars
+#fit$pars
 
 # The saved, fitted model following Bauer, Preacher, & Gil (2006)
-summary(fitmod$mod)
+summary(fit$model)
+
+
+
+# Fit model with moderation
+data(simdat)
+
+# moderation for a path
+fitmoda<-modmed.mlm(simdat,"L2id", "X", "Y", "M",
+  random.a=TRUE, random.b=TRUE, random.c=TRUE,
+  moderator = "mod", mod.a=TRUE)
+
+# moderation for b path
+fitmodb<-modmed.mlm(simdat,"L2id", "X", "Y", "M",
+  random.a=TRUE, random.b=TRUE, random.c=TRUE,
+  moderator = "mod", mod.b=TRUE)
+
+# moderation for both a and b paths
+fitmodab<-modmed.mlm(simdat,"L2id", "X", "Y", "M",
+  random.a=TRUE, random.b=TRUE, random.c=TRUE,
+  moderator = "mod", mod.a=TRUE, mod.b=TRUE)
+
+# Do we care about moderation for the c path?
+fitmodabc<-modmed.mlm(simdat,"L2id", "X", "Y", "M",
+  random.a=TRUE, random.b=TRUE, random.c=TRUE,
+  moderator = "mod", mod.a=TRUE, mod.b=TRUE, mod.cprime=TRUE)
 
 }
 }

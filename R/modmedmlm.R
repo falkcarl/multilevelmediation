@@ -125,11 +125,11 @@ boot.modmed.mlm <- function(data, indices, L2ID, ...,
 #' fit<-modmed.mlm(BPG06dat,"id", "x", "y", "m",
 #'   random.a=TRUE, random.b=TRUE, random.c=TRUE)
 #'
-#' multilevelmediation:::extract.modmed.mlm(fit)
-#' multilevelmediation:::extract.modmed.mlm(fit, type="indirect")
-#' multilevelmediation:::extract.modmed.mlm(fit, type="a")
-#' multilevelmediation:::extract.modmed.mlm(fit, type="b")
-#' multilevelmediation:::extract.modmed.mlm(fit, type="covab")
+#' extract.modmed.mlm(fit)
+#' extract.modmed.mlm(fit, type="indirect")
+#' extract.modmed.mlm(fit, type="a")
+#' extract.modmed.mlm(fit, type="b")
+#' extract.modmed.mlm(fit, type="covab")
 #'
 #' # Vector of parameter estimates, including indirect effect
 #' #fit$pars
@@ -309,8 +309,8 @@ modmed.mlm<-function(data, L2ID, X, Y, M,
 #'   at this particular value of the moderator. Otherwise, value of these quantities is directly extracted from
 #'   the model output (i.e., these would represent values of the effects when the moderator = 0).
 #' @param modval2 Second value of the moderator at which to compute the indirect effect.
-
-extract.modmed.mlm <- function(fit, type=c("all","fixef","recov","recov.vec","indirect","a","b","cprim","covab",
+#' @export
+extract.modmed.mlm <- function(fit, type=c("all","fixef","recov","recov.vec","indirect","a","b","cprime","covab",
                                            "indirect.diff","a.diff","b.diff","cprime.diff"),
                                modval1 = NULL, modval2 = NULL){
 
@@ -375,7 +375,6 @@ extract.modmed.mlm <- function(fit, type=c("all","fixef","recov","recov.vec","in
       out <- compute.indirect(all,args=args,type=type,modval1 = modval1, modval2 = modval2)
     }
   }
-
   out
 }
 

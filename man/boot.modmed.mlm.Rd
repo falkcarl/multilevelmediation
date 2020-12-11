@@ -4,7 +4,15 @@
 \alias{boot.modmed.mlm}
 \title{Custom boot function for (moderated) mediation with 2-level multilevel models}
 \usage{
-boot.modmed.mlm(data, indices, L2ID, ...)
+boot.modmed.mlm(
+  data,
+  indices,
+  L2ID,
+  ...,
+  type = NULL,
+  modval1 = NULL,
+  modval2 = NULL
+)
 }
 \arguments{
 \item{data}{Data frame in long format.}
@@ -34,13 +42,21 @@ data(BPG06dat)
 # Do bootstrapping... w/ parallel processing
 library(parallel)
 library(boot)
-ncpu<-4
+ncpu<-6
 cl<-makeCluster(ncpu)
 
 boot.result<-boot(BPG06dat, statistic=boot.modmed.mlm, R=100,
   L2ID = "id", X = "x", Y = "y", M = "m",
   random.a=TRUE, random.b=TRUE, random.c=TRUE,
+  type="indirect",
   parallel="snow",ncpus=ncpu,cl=cl)
+
+stopCluster(cl)
+
+# without cluster
+# boot.result<-boot(BPG06dat, statistic=boot.modmed.mlm, R=5,
+#   L2ID = "id", X = "x", Y = "y", M = "m",
+  random.a=TRUE, random.b=TRUE, random.c=TRUE)
 
 stopCluster(cl)
 
