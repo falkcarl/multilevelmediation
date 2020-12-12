@@ -186,6 +186,7 @@ modmed.mlm<-function(data, L2ID, X, Y, M,
 
   # Some input checking per Todd's code:
   #FIXME: THESE MESSGEES HAPPEN EVERY LOOP. ANY WAY TO ONLY DO AT START?
+  # CFF: Huh?
 
   if(any(c(random.mod.a, random.mod.b, random.mod.cprime, random.mod.m, random.mod.y))){
     stop("Random effects with moderator not yet supported.")
@@ -399,18 +400,6 @@ compute.indirect <- function(v, args,
     covab <- v["re.SmXSyM"]
     ab <- ab + covab
   }
-
-
-  # Code from moderation:
-  # TODO: won't be relevant if we don't ask for moderation
-  # TODO: work through possibilites for moderation with dichotomous moderator, possibly continuous moderator
-  #modindirect<-fixed.effects(fit$model)["SmX:W"]*fixed.effects(fit$model)["SyM:W"]
-  #modindirect <- (fixed.effects(fit$model)["SmX:W"] + fixed.effects(fit$model)["SmX"]) * (fixed.effects(fit$model)["SyM:W"] + fixed.effects(fit$model)["SyM"])
-  #modindirecta3b <- fixed.effects(fit$model)["SmX:W"] * fixed.effects(fit$model)["SyM"] #trying to see fx with just a-path being moderated
-  #fixestimates <- fixef(fit$model)
-
-  ## TODO: add moderation effects here
-
 
 
   if(type=="indirect"){
