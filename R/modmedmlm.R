@@ -162,10 +162,105 @@ boot.modmed.mlm <- function(data, indices, L2ID, ...,
 #'   random.a=TRUE, random.b=TRUE, random.c=TRUE,
 #'   moderator = "mod", mod.a=TRUE, mod.b=TRUE)
 #'
-#' # Do we care about moderation for the c path?
-#' fitmodabc<-modmed.mlm(simdat,"L2id", "X", "Y", "M",
+#' # moderation for both a and b paths and random effect for interaction a
+#' fitmodab2<-modmed.mlm(simdat,"L2id", "X", "Y", "M",
 #'   random.a=TRUE, random.b=TRUE, random.c=TRUE,
-#'   moderator = "mod", mod.a=TRUE, mod.b=TRUE, mod.cprime=TRUE)
+#'   moderator = "mod", mod.a=TRUE, mod.b=TRUE,
+#'   random.mod.a = TRUE)
+#'
+#' # moderation for both a and b paths and random effect for interaction b
+#' fitmodab3<-modmed.mlm(simdat,"L2id", "X", "Y", "M",
+#'   random.a=TRUE, random.b=TRUE, random.c=TRUE,
+#'   moderator = "mod", mod.a=TRUE, mod.b=TRUE,
+#'   random.mod.b = TRUE)
+#'
+#' # moderation for both a and b paths and random effect for both interactions
+#' fitmodab4<-modmed.mlm(simdat,"L2id", "X", "Y", "M",
+#'   random.a=TRUE, random.b=TRUE, random.c=TRUE,
+#'   moderator = "mod", mod.a=TRUE, mod.b=TRUE,
+#'   random.mod.a = TRUE, random.mod.b = TRUE)
+#'
+#' # compare models?
+#' # Apparently anova() is not supported as it's looking for fixed.formula, and it's not in the current environment
+#' # AIC works though
+#' AIC(fitmodab$model)
+#' AIC(fitmodab2$model)
+#' AIC(fitmodab3$model)
+#' AIC(fitmodab4$model) # AIC here is best. Great simulated data we have here
+#'
+#'
+#' #TODO: move this to testing file to ensure package does not break
+#' extract.modmed.mlm(fitmodab4, "indirect")
+#' extract.modmed.mlm(fitmodab4, "indirect", modval1=0) # should match above
+#' extract.modmed.mlm(fitmodab4, "indirect", modval1=1)
+#' extract.modmed.mlm(fitmodab4, "indirect.diff", modval1 = 0, modval2=1) # should match difference between the two above?
+#' extract.modmed.mlm(fitmodab4, "indirect", modval1=0)-extract.modmed.mlm(fitmodab4, "indirect", modval1=1) # should match prev line
+#'
+#' extract.modmed.mlm(fitmodab4, "a")
+#' extract.modmed.mlm(fitmodab4, "a", modval1=0) # should match above
+#' extract.modmed.mlm(fitmodab4, "a", modval1=1)
+#' extract.modmed.mlm(fitmodab4, "a.diff", modval1 = 0, modval2=1) # should match difference between the two above?
+#' extract.modmed.mlm(fitmodab4, "a", modval1=0)-extract.modmed.mlm(fitmodab4, "a", modval1=1)  # should match prev line
+#'
+#' extract.modmed.mlm(fitmodab4, "b")
+#' extract.modmed.mlm(fitmodab4, "b", modval1=0) # should match above
+#' extract.modmed.mlm(fitmodab4, "b", modval1=1)
+#' extract.modmed.mlm(fitmodab4, "b.diff", modval1 = 0, modval2=1) # should match difference between the two above?
+#' extract.modmed.mlm(fitmodab4, "b", modval1=0)-extract.modmed.mlm(fitmodab4, "b", modval1=1)  # should match prev line
+#'
+#' extract.modmed.mlm(fitmodab3, "indirect")
+#' extract.modmed.mlm(fitmodab3, "indirect", modval1=0) # should match above
+#' extract.modmed.mlm(fitmodab3, "indirect", modval1=1)
+#' extract.modmed.mlm(fitmodab3, "indirect.diff", modval1 = 0, modval2=1) # should match difference between the two above?
+#' extract.modmed.mlm(fitmodab3, "indirect", modval1=0)-extract.modmed.mlm(fitmodab3, "indirect", modval1=1) # should match prev line
+#'
+#' extract.modmed.mlm(fitmodab3, "a")
+#' extract.modmed.mlm(fitmodab3, "a", modval1=0) # should match above
+#' extract.modmed.mlm(fitmodab3, "a", modval1=1)
+#' extract.modmed.mlm(fitmodab3, "a.diff", modval1 = 0, modval2=1) # should match difference between the two above?
+#' extract.modmed.mlm(fitmodab3, "a", modval1=0)-extract.modmed.mlm(fitmodab3, "a", modval1=1)  # should match prev line
+#'
+#' extract.modmed.mlm(fitmodab3, "b")
+#' extract.modmed.mlm(fitmodab3, "b", modval1=0) # should match above
+#' extract.modmed.mlm(fitmodab3, "b", modval1=1)
+#' extract.modmed.mlm(fitmodab3, "b.diff", modval1 = 0, modval2=1) # should match difference between the two above?
+#' extract.modmed.mlm(fitmodab3, "b", modval1=0)-extract.modmed.mlm(fitmodab3, "b", modval1=1)  # should match prev line
+#'
+#' extract.modmed.mlm(fitmodab2, "indirect")
+#' extract.modmed.mlm(fitmodab2, "indirect", modval1=0) # should match above
+#' extract.modmed.mlm(fitmodab2, "indirect", modval1=1)
+#' extract.modmed.mlm(fitmodab2, "indirect.diff", modval1 = 0, modval2=1) # should match difference between the two above?
+#' extract.modmed.mlm(fitmodab2, "indirect", modval1=0)-extract.modmed.mlm(fitmodab2, "indirect", modval1=1) # should match prev line
+#'
+#' extract.modmed.mlm(fitmodab2, "a")
+#' extract.modmed.mlm(fitmodab2, "a", modval1=0) # should match above
+#' extract.modmed.mlm(fitmodab2, "a", modval1=1)
+#' extract.modmed.mlm(fitmodab2, "a.diff", modval1 = 0, modval2=1) # should match difference between the two above?
+#' extract.modmed.mlm(fitmodab2, "a", modval1=0)-extract.modmed.mlm(fitmodab2, "a", modval1=1)  # should match prev line
+#'
+#' extract.modmed.mlm(fitmodab2, "b")
+#' extract.modmed.mlm(fitmodab2, "b", modval1=0) # should match above
+#' extract.modmed.mlm(fitmodab2, "b", modval1=1)
+#' extract.modmed.mlm(fitmodab2, "b.diff", modval1 = 0, modval2=1) # should match difference between the two above?
+#' extract.modmed.mlm(fitmodab2, "b", modval1=0)-extract.modmed.mlm(fitmodab2, "b", modval1=1)  # should match prev line
+#'
+#' extract.modmed.mlm(fitmodab, "indirect")
+#' extract.modmed.mlm(fitmodab, "indirect", modval1=0) # should match above
+#' extract.modmed.mlm(fitmodab, "indirect", modval1=1)
+#' extract.modmed.mlm(fitmodab, "indirect.diff", modval1 = 0, modval2=1) # should match difference between the two above?
+#' extract.modmed.mlm(fitmodab, "indirect", modval1=0)-extract.modmed.mlm(fitmodab, "indirect", modval1=1) # should match prev line
+#'
+#' extract.modmed.mlm(fitmodab, "a")
+#' extract.modmed.mlm(fitmodab, "a", modval1=0) # should match above
+#' extract.modmed.mlm(fitmodab, "a", modval1=1)
+#' extract.modmed.mlm(fitmodab, "a.diff", modval1 = 0, modval2=1) # should match difference between the two above?
+#' extract.modmed.mlm(fitmodab, "a", modval1=0)-extract.modmed.mlm(fitmodab, "a", modval1=1)  # should match prev line
+#'
+#' extract.modmed.mlm(fitmodab, "b")
+#' extract.modmed.mlm(fitmodab, "b", modval1=0) # should match above
+#' extract.modmed.mlm(fitmodab, "b", modval1=1)
+#' extract.modmed.mlm(fitmodab, "b.diff", modval1 = 0, modval2=1) # should match difference between the two above?
+#' extract.modmed.mlm(fitmodab, "b", modval1=0)-extract.modmed.mlm(fitmodab, "b", modval1=1)  # should match prev line
 #'
 #' }
 #' @import nlme
@@ -189,7 +284,7 @@ modmed.mlm<-function(data, L2ID, X, Y, M,
   # CFF: Huh?
 
   if(any(c(random.mod.a, random.mod.b, random.mod.cprime, random.mod.m, random.mod.y))){
-    stop("Random effects with moderator not yet supported.")
+  #TODO input checking of these
   }
 
   # Stop if X, Y, or M variables are not specified
@@ -262,7 +357,13 @@ modmed.mlm<-function(data, L2ID, X, Y, M,
   if (random.b == TRUE) {random.formula <- paste(random.formula, "+ SyM")}
   if (random.c == TRUE) {random.formula <- paste(random.formula, "+ SyX")}
 
-  #TODO: add random effects for moderator here, if any
+  # Add random effects for moderator here, if any
+  if(random.mod.a && mod.a){random.formula <- paste(random.formula, "+ SmX:W")}
+  if(random.mod.b && mod.b){random.formula <- paste(random.formula, "+ SyM:W")}
+  if(random.mod.cprime && mod.cprime){random.formula <- paste(random.formula, "+ SyX:W")}
+  if(random.mod.m && mod.a){random.formula <- paste(random.formula, "+ Sm:W")}
+  if(random.mod.y && mod.b){random.formula <- paste(random.formula, "+ Sy:W")}
+
   #TODO: Need to add argument to make 3-level if necessary...(e.g., L2id/W)
 
   random.formula <- paste(random.formula, "| L2id") # add in the grouping variable after all the variables are entered
@@ -375,9 +476,9 @@ extract.modmed.mlm <- function(fit, type=c("all","fixef","recov","recov.vec","in
       out <- all
     } else if (type=="fixef"){
       out <- fixed
-    } else if (type=="rcov"){
+    } else if (type=="recov"){
       out <- sig2
-    } else if (type=="rcov.vec"){
+    } else if (type=="recov.vec"){
       out <- sig2vec
     } else {
       out <- compute.indirect(all,args=args,type=type,modval1 = modval1, modval2 = modval2)
@@ -394,77 +495,86 @@ compute.indirect <- function(v, args,
   # TODO: need some input checking here. e.g., .diff isn't relevant unless both modval1 and modval2 are specified
   # And these would not work unless relevant moderation effects are actually estimated mod.a, mod.b, mod.cprime
 
-  a <- v["SmX"]
-  b <- v["SyM"]
+  a1 <- a2 <- v["SmX"]
+  b1 <- b2 <- v["SyM"]
   cprime <- v["SyX"]
 
   # If moderation effects, modify a and b
-  if(args$mod.a & !is.null(modval1)){
-    a <- a + V["SmX:W"]*modval1
+  if(!is.null(args$mod.a) && args$mod.a && !is.null(modval1)){
+    a1 <- a1 + v["SmX:W"]*modval1
   }
-  if(args$mod.a & !is.null(modval2)){
-    a2 <- a + V["SmX:W"]*modval2
+  if(!is.null(args$mod.a) && args$mod.a && !is.null(modval2)){
+    a2 <- a2 + v["SmX:W"]*modval2
   }
-  if(args$mod.b & !is.null(modval1)){
-    b <- b + V["SyM:W"]*modval1
+  if(!is.null(args$mod.b) && args$mod.b && !is.null(modval1)){
+    b1 <- b1 + v["SyM:W"]*modval1
   }
-  if(args$mod.b & !is.null(modval2)){
-    b2 <- b + V["SyM:W"]*modval2
+  if(!is.null(args$mod.b) && args$mod.b && !is.null(modval2)){
+    b2 <- b2 + v["SyM:W"]*modval2
   }
 
   # compute indirect effect using only fixed effects
-  ab <- a*b
+  ab1 <- a1*b1
+  if(!is.null(modval2)){ ab2 <-a2*b2 }
 
   # additional adjustments to indirect effect from random effects
 
   # cov among a and b paths
-  if(args$random.a && args$random.b){
+  if(!is.null(args$random.a) && !is.null(args$random.b) && args$random.a && args$random.b){
     covab <- v["re.SmXSyM"]
-    ab <- ab + covab
+    ab1 <- ab1 + covab
+    if(!is.null(modval2)){ ab2 <- ab2 + covab }
   }
 
   # random effects in case interaction term has random effects
   # TODO: Add options so that these random effects could also be returned?
   #     Mostly for debugging purposes I suppose
   if(!is.null(modval1)){
-    if(args$rand.b && args$mod.a && args$random.mod.a){
-      #ab <- ab + modval1 * # times covariance between re.b and re.mod.a
+    if(!is.null(args$random.b) && !is.null(args$mod.a) && !is.null(args$random.mod.a) &&
+       args$random.b && args$mod.a && args$random.mod.a){
+      ab1 <- ab1 + modval1 * v["re.SyMSmX:W"] # times covariance between re.b and re.mod.a
     }
-    if(args$rand.a && args$mod.b && args$random.mod.b){
-      #ab <- ab + modval1 * # times covariance between re.a and re.mod.b
+    if(!is.null(args$random.a) && !is.null(args$mod.b) && !is.null(args$random.mod.b) &&
+       args$random.a && args$mod.b && args$random.mod.b){
+      ab1 <- ab1 + modval1 * v["re.SmXSyM:W"] # times covariance between re.a and re.mod.b
     }
-    if(args$rand.mod.a && args$rand.mod.b){
-      #ab <- ab + (modval1^2) * # times covariance between re.mod.a and re.mod.b
+    if(!is.null(args$random.mod.a) && !is.null(args$random.mod.b) &&
+       args$random.mod.a && args$random.mod.b){
+      ab1 <- ab1 + (modval1^2) * v["re.SmX:WSyM:W"] # times covariance between re.mod.a and re.mod.b
     }
   }
   if(!is.null(modval2)){
-    if(args$rand.b && args$mod.a && args$random.mod.a){
-      #ab2 <- ab2 + modval2 * # times covariance between re.b and re.mod.a
+    if(!is.null(args$random.b) && !is.null(args$mod.a) && !is.null(args$random.mod.a) &&
+       args$random.b && args$mod.a && args$random.mod.a){
+      ab2 <- ab2 + modval2 * v["re.SyMSmX:W"] # times covariance between re.b and re.mod.a
     }
-    if(args$rand.a && args$mod.b && args$random.mod.b){
-      #ab2 <- ab2 + modval2 * # times covariance between re.a and re.mod.b
+    if(!is.null(args$random.a) && !is.null(args$mod.b) && !is.null(args$random.mod.b) &&
+       args$random.a && args$mod.b && args$random.mod.b){
+      ab2 <- ab2 + modval2 *  v["re.SmXSyM:W"] # times covariance between re.a and re.mod.b
     }
-    if(args$rand.mod.a && args$rand.mod.b){
-      #ab2 <- ab2 + (modval2^2) * # times covariance between re.mod.a and re.mod.b
+    if(!is.null(args$random.mod.a) && !is.null(args$random.mod.b) &&
+       args$random.mod.a && args$random.mod.b){
+      ab2 <- ab2 + (modval2^2) * v["re.SmX:WSyM:W"] # times covariance between re.mod.a and re.mod.b
     }
   }
 
   if(type=="indirect"){
-    out <- ab
+    out <- ab1
   } else if (type=="a"){
-    out <- a
+    out <- a1
   } else if (type=="b"){
-    out <- b
+    out <- b1
   } else if (type=="cprime"){
-    out <- cprime
+    stop("cprime not yet implemented")
+    #out <- cprime
   } else if (type=="covab"){
     out <- covab
   } else if (type=="indirect.diff"){
-    out <- ab - ab2
+    out <- ab1 - ab2
   } else if (type=="a.diff"){
-    out <- a - a2
+    out <- a1 - a2
   } else if (type=="b.diff"){
-    out <- b - b2
+    out <- b1 - b2
   } else if (type=="cprime.diff"){
     stop("cprime.diff not yet implemented") # forgot to add computation of it at values of the moderator
   }
@@ -472,3 +582,4 @@ compute.indirect <- function(v, args,
   names(out) <- NULL
   out
 }
+
