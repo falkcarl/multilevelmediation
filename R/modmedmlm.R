@@ -109,6 +109,11 @@ boot.modmed.mlm <- function(data, indices, L2ID, ...,
 #' @param mod.a (Logical) Add moderator to 'a' path (i.e., SmX:W, where W is the moderator)?
 #' @param mod.b (Logical) Add moderator to 'b' path (i.e., SyM:W, where W is the moderator)?
 #' @param mod.cprime (Logical) Add moderator to 'c' path (i.e., SyX:W, where W is the moderator)
+#' @param random.mod.a (Logical) Add random slope for 'a' path moderator? (not yet supported)
+#' @param random.mod.b (Logical) Add random slope for 'b' path moderator? (not yet supported)
+#' @param random.mod.cprime (Logical) Add random slope for 'c' path moderator? (not yet supported)
+#' @param random.mod.m (Logical) Add random slope for effect of moderator on M? (not yet supported)
+#' @param random.mod.y (Logical) Add random slope for effect of moderator on Y? (not yet supported)
 #' @param method Argument passed to \code{\link[nlme]{lme}} to control estimation method.
 #' @param control Argument passed to \code{\link[nlme]{lme}} that controls other estimation options.
 #' @param returndata (Logical) Whether to save restructured data in its own slot. Note: nlme may do this automatically. Defaults to \code{FALSE}.
@@ -172,12 +177,19 @@ boot.modmed.mlm <- function(data, indices, L2ID, ...,
 modmed.mlm<-function(data, L2ID, X, Y, M,
                      random.a = FALSE, random.b = FALSE, random.c = FALSE,
                      moderator = NULL, mod.a = FALSE, mod.b = FALSE, mod.cprime = FALSE,
+                     random.mod.a = FALSE, random.mod.b = FALSE,
+                     random.mod.cprime = FALSE, random.mod.m = FALSE,
+                     random.mod.y = FALSE,
                      method="REML", control = lmeControl(maxIter = 10000, msMaxIter = 10000, niterEM = 10000,
                                                          msMaxEval = 10000, tolerance = 1e-6),
                      returndata = FALSE){
 
   # Some input checking per Todd's code:
   #FIXME: THESE MESSGEES HAPPEN EVERY LOOP. ANY WAY TO ONLY DO AT START?
+
+  if(any(c(random.mod.a, random.mod.b, random.mod.cprime, random.mod.m, random.mod.y))){
+    stop("Random effects with moderator not yet supported.")
+  }
 
   # Stop if X, Y, or M variables are not specified
   if (is.null(X)) {stop("X is NULL, please specify name of X variable.")}
@@ -209,7 +221,7 @@ modmed.mlm<-function(data, L2ID, X, Y, M,
     Y = data[[Y]],
     M = data[[M]],
     L2id = data[[L2ID]], # Save copy of the grouping (Level 2) variable
-    Md = data[[M]] # save copy of mediator (tv: why is this needed?) CF: pivot_longer will nuke the M column
+    Md = data[[M]] # save copy of mediator (tv: why is this needed?) CF: pivot_longer will nuke the M column (delete comment when you see it?)
   )
 
   # Save moderator if necessary
@@ -249,6 +261,7 @@ modmed.mlm<-function(data, L2ID, X, Y, M,
   if (random.b == TRUE) {random.formula <- paste(random.formula, "+ SyM")}
   if (random.c == TRUE) {random.formula <- paste(random.formula, "+ SyX")}
 
+  #TODO: add random effects for moderator here, if any
   #TODO: Need to add argument to make 3-level if necessary...(e.g., L2id/W)
 
   random.formula <- paste(random.formula, "| L2id") # add in the grouping variable after all the variables are entered
@@ -403,6 +416,10 @@ compute.indirect <- function(v, args,
   #modindirect <- (fixed.effects(fit$model)["SmX:W"] + fixed.effects(fit$model)["SmX"]) * (fixed.effects(fit$model)["SyM:W"] + fixed.effects(fit$model)["SyM"])
   #modindirecta3b <- fixed.effects(fit$model)["SmX:W"] * fixed.effects(fit$model)["SyM"] #trying to see fx with just a-path being moderated
   #fixestimates <- fixef(fit$model)
+
+  ## TODO: add moderation effects here
+
+
 
   if(type=="indirect"){
     out <- ab
