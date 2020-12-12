@@ -293,14 +293,6 @@ modmed.mlm<-function(data, L2ID, X, Y, M,
 
 }
 
-
-
-# TODO we also need a way to compute indirect effect at two different values and then
-# also compute the difference between those two different indirect effect values...
-# TODO probably would be easiest to return all fixed effects and vectorized var-cov matrix of random effects
-#       If done this way, all can be stored by boot code and any indirect effect can be computed afterwards?
-#       But, does rescaling the moderator change any of the relevant random effect covariances? IF not, then we're ok
-
 #' Post-processing of a model fit with modmed.mlm
 #'
 #' @param fit Result of \code{modmed.mlm}.
@@ -330,7 +322,7 @@ extract.modmed.mlm <- function(fit, type=c("all","fixef","recov","recov.vec","in
   type <- match.arg(type)
 
   if(!fit$conv | is.null(fit$model)){
-    # FIXME
+    # FIXME!
     # if model fitting was a problem
     indirect <- NA
     modindirect <- NA
