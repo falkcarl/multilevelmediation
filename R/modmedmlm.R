@@ -315,6 +315,8 @@ modmed.mlm<-function(data, L2ID, X, Y, M,
 #'   at this particular value of the moderator. Otherwise, value of these quantities is directly extracted from
 #'   the model output (i.e., these would represent values of the effects when the moderator = 0).
 #' @param modval2 Second value of the moderator at which to compute the indirect effect.
+#' @details
+#'   For any of the .diff values, these are always the value of the effect at modval1 minus modval2.
 #' @export
 extract.modmed.mlm <- function(fit, type=c("all","fixef","recov","recov.vec","indirect","a","b","cprime","covab",
                                            "indirect.diff","a.diff","b.diff","cprime.diff"),
@@ -395,12 +397,57 @@ compute.indirect <- function(v, args,
   a <- v["SmX"]
   b <- v["SyM"]
   cprime <- v["SyX"]
+
+  # If moderation effects, modify a and b
+  if(args$mod.a & !is.null(modval1)){
+    a <- a + V["SmX:W"]*modval1
+  }
+  if(args$mod.a & !is.null(modval2)){
+    a2 <- a + V["SmX:W"]*modval2
+  }
+  if(args$mod.b & !is.null(modval1)){
+    b <- b + V["SyM:W"]*modval1
+  }
+  if(args$mod.b & !is.null(modval2)){
+    b2 <- b + V["SyM:W"]*modval2
+  }
+
+  # compute indirect effect using only fixed effects
   ab <- a*b
+
+  # additional adjustments to indirect effect from random effects
+
+  # cov among a and b paths
   if(args$random.a && args$random.b){
     covab <- v["re.SmXSyM"]
     ab <- ab + covab
   }
 
+  # random effects in case interaction term has random effects
+  # TODO: Add options so that these random effects could also be returned?
+  #     Mostly for debugging purposes I suppose
+  if(!is.null(modval1)){
+    if(args$rand.b && args$mod.a && args$random.mod.a){
+      #ab <- ab + modval1 * # times covariance between re.b and re.mod.a
+    }
+    if(args$rand.a && args$mod.b && args$random.mod.b){
+      #ab <- ab + modval1 * # times covariance between re.a and re.mod.b
+    }
+    if(args$rand.mod.a && args$rand.mod.b){
+      #ab <- ab + (modval1^2) * # times covariance between re.mod.a and re.mod.b
+    }
+  }
+  if(!is.null(modval2)){
+    if(args$rand.b && args$mod.a && args$random.mod.a){
+      #ab2 <- ab2 + modval2 * # times covariance between re.b and re.mod.a
+    }
+    if(args$rand.a && args$mod.b && args$random.mod.b){
+      #ab2 <- ab2 + modval2 * # times covariance between re.a and re.mod.b
+    }
+    if(args$rand.mod.a && args$rand.mod.b){
+      #ab2 <- ab2 + (modval2^2) * # times covariance between re.mod.a and re.mod.b
+    }
+  }
 
   if(type=="indirect"){
     out <- ab
@@ -412,6 +459,14 @@ compute.indirect <- function(v, args,
     out <- cprime
   } else if (type=="covab"){
     out <- covab
+  } else if (type=="indirect.diff"){
+    out <- ab - ab2
+  } else if (type=="a.diff"){
+    out <- a - a2
+  } else if (type=="b.diff"){
+    out <- b - b2
+  } else if (type=="cprime.diff"){
+    stop("cprime.diff not yet implemented") # forgot to add computation of it at values of the moderator
   }
 
   names(out) <- NULL
