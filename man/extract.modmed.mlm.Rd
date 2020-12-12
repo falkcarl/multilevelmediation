@@ -39,3 +39,6 @@ the model output (i.e., these would represent values of the effects when the mod
 \description{
 Post-processing of a model fit with modmed.mlm
 }
+\details{
+For any of the .diff values, these are always the value of the effect at modval1 minus modval2.
+}

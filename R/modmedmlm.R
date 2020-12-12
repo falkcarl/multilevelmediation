@@ -22,7 +22,16 @@
 #'   then the relevant model will be fit to the data without any resampling. If some other vector is supplied,
 #'   then resampling is done as described in details.
 #' @param L2ID Name of column that contains grouping variable in 'data' (e.g., "SubjectID")
-#' @param ... Arguments passed to modmed.mlm
+#' @param ... Arguments passed to \code{modmed.mlm} to define the mediation analysis model.
+#' @param type String that defines what information to extract from the model. Default and options are in \code{extract.modmed.mlm}.
+#'   As examples, "indirect" will compute the indirect effect, "all" will save all random and fixed effects for possible additional
+#'   computations, "indirect.diff" will compute the difference in the indirect effect at two values of a possible moderating variable.
+#' @param modval1 (Optional) Numeric. If the model has a moderator, this value will be passed to \code{extract.modmed.mlm}
+#'   to compute the indirect effect or other effects at that value. See \code{extract.modmed.mlm} for details.
+#' @param modval2 (Optional). If the model has a moderator, it is possible to compute the difference in the indirect
+#'   at two values of the moderator. If given and an appropriate option for such a difference is chosen for \code{type},
+#'   this value and that of \code{modval1} will be passed to \code{extract.modmed.mlm} to compute and save the difference.
+#'   This is useful for obtaining a CI for the difference in the indirect effect at two different levels of the moderator.
 #' @details TO DO. Implements custom function to do resampling at level 2, then level 1. For use with boot package.
 #'   Capable of doing moderation as well. Need to detail which kinds of moderation, which mediation models (e.g., 1-1-1 only?).
 #'   This resamples L2 units, then L1 units within each L2 unit
@@ -35,26 +44,24 @@
 #' library(parallel)
 #' library(boot)
 #' ncpu<-6
-#' cl<-makeCluster(ncpu)
+#' #cl<-makeCluster(ncpu)
 #'
-#' boot.result<-boot(BPG06dat, statistic=boot.modmed.mlm, R=100,
-#'   L2ID = "id", X = "x", Y = "y", M = "m",
-#'   random.a=TRUE, random.b=TRUE, random.c=TRUE,
-#'   type="indirect",
-#'   parallel="snow",ncpus=ncpu,cl=cl)
+#' #boot.result<-boot(BPG06dat, statistic=boot.modmed.mlm, R=100,
+#' # L2ID = "id", X = "x", Y = "y", M = "m",
+#' # random.a=TRUE, random.b=TRUE, random.c=TRUE,
+#' # type="indirect",
+#' # parallel="snow",ncpus=ncpu,cl=cl)
 #'
-#' stopCluster(cl)
+#' #stopCluster(cl)
 #'
 #' # without cluster
 #' # boot.result<-boot(BPG06dat, statistic=boot.modmed.mlm, R=5,
 #' #   L2ID = "id", X = "x", Y = "y", M = "m",
-#'   random.a=TRUE, random.b=TRUE, random.c=TRUE)
+#' #  random.a=TRUE, random.b=TRUE, random.c=TRUE)
 #'
-#' stopCluster(cl)
+#' #boot.result$t0 # point estimates for everything based on original data
 #'
-#' boot.result$t0 # point estimates for everything based on original data
-#'
-#' boot.ci(boot.result, index=1, type="perc") # percentile interval
+#' #boot.ci(boot.result, index=1, type="perc") # percentile interval
 #'
 #' # snow appears to work on Windows; something else may be better on Unix/Mac/Linux
 #'
@@ -63,7 +70,7 @@
 #' }
 #' @export
 boot.modmed.mlm <- function(data, indices, L2ID, ...,
-                            type=NULL, modval1=NULL, modval2=NULL) {
+                            type="indirect", modval1=NULL, modval2=NULL) {
 
   # ad-hoc check if this is first run of analysis by comparing to indices
   if (all(indices == (1:nrow(data)))) {

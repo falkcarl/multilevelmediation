@@ -9,7 +9,7 @@ boot.modmed.mlm(
   indices,
   L2ID,
   ...,
-  type = NULL,
+  type = "indirect",
   modval1 = NULL,
   modval2 = NULL
 )
@@ -24,7 +24,19 @@ then resampling is done as described in details.}
 
 \item{L2ID}{Name of column that contains grouping variable in 'data' (e.g., "SubjectID")}
 
-\item{...}{Arguments passed to modmed.mlm}
+\item{...}{Arguments passed to \code{modmed.mlm} to define the mediation analysis model.}
+
+\item{type}{String that defines what information to extract from the model. Default and options are in \code{extract.modmed.mlm}.
+As examples, "indirect" will compute the indirect effect, "all" will save all random and fixed effects for possible additional
+computations, "indirect.diff" will compute the difference in the indirect effect at two values of a possible moderating variable.}
+
+\item{modval1}{(Optional) Numeric. If the model has a moderator, this value will be passed to \code{extract.modmed.mlm}
+to compute the indirect effect or other effects at that value. See \code{extract.modmed.mlm} for details.}
+
+\item{modval2}{(Optional). If the model has a moderator, it is possible to compute the difference in the indirect
+at two values of the moderator. If given and an appropriate option for such a difference is chosen for \code{type},
+this value and that of \code{modval1} will be passed to \code{extract.modmed.mlm} to compute and save the difference.
+This is useful for obtaining a CI for the difference in the indirect effect at two different levels of the moderator.}
 }
 \description{
 Custom boot function for (moderated) mediation with 2-level multilevel models
@@ -43,26 +55,24 @@ data(BPG06dat)
 library(parallel)
 library(boot)
 ncpu<-6
-cl<-makeCluster(ncpu)
+#cl<-makeCluster(ncpu)
 
-boot.result<-boot(BPG06dat, statistic=boot.modmed.mlm, R=100,
-  L2ID = "id", X = "x", Y = "y", M = "m",
-  random.a=TRUE, random.b=TRUE, random.c=TRUE,
-  type="indirect",
-  parallel="snow",ncpus=ncpu,cl=cl)
+#boot.result<-boot(BPG06dat, statistic=boot.modmed.mlm, R=100,
+# L2ID = "id", X = "x", Y = "y", M = "m",
+# random.a=TRUE, random.b=TRUE, random.c=TRUE,
+# type="indirect",
+# parallel="snow",ncpus=ncpu,cl=cl)
 
-stopCluster(cl)
+#stopCluster(cl)
 
 # without cluster
 # boot.result<-boot(BPG06dat, statistic=boot.modmed.mlm, R=5,
 #   L2ID = "id", X = "x", Y = "y", M = "m",
-  random.a=TRUE, random.b=TRUE, random.c=TRUE)
+#  random.a=TRUE, random.b=TRUE, random.c=TRUE)
 
-stopCluster(cl)
+#boot.result$t0 # point estimates for everything based on original data
 
-boot.result$t0 # point estimates for everything based on original data
-
-boot.ci(boot.result, index=1, type="perc") # percentile interval
+#boot.ci(boot.result, index=1, type="perc") # percentile interval
 
 # snow appears to work on Windows; something else may be better on Unix/Mac/Linux
 
