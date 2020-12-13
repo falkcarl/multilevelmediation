@@ -41,9 +41,11 @@
 #' data(BPG06dat)
 #'
 #' # Do bootstrapping... w/ parallel processing
-#' library(parallel)
-#' library(boot)
-#' ncpu<-6
+#' # snow appears to work on Windows; something else may be better on Unix/Mac/Linux
+#'
+#' #library(parallel)
+#' #library(boot)
+#' #ncpu<-6
 #' #cl<-makeCluster(ncpu)
 #'
 #' #boot.result<-boot(BPG06dat, statistic=boot.modmed.mlm, R=100,
@@ -57,15 +59,33 @@
 #' # without cluster
 #' # boot.result<-boot(BPG06dat, statistic=boot.modmed.mlm, R=5,
 #' #   L2ID = "id", X = "x", Y = "y", M = "m",
-#' #  random.a=TRUE, random.b=TRUE, random.c=TRUE)
+#' #  random.a=TRUE, random.b=TRUE, random.c=TRUE,
+#' #  type="indirect")
 #'
 #' #boot.result$t0 # point estimates for everything based on original data
-#'
 #' #boot.ci(boot.result, index=1, type="perc") # percentile interval
 #'
-#' # snow appears to work on Windows; something else may be better on Unix/Mac/Linux
 #'
-#' # need code to look at boot results
+#' # Moderated mediation
+#'
+#' data(simdat)
+#' ncpu<-6
+#' cl<-makeCluster(ncpu)
+#'
+#' # boot results for difference of indirect effects at two levels of moderator
+#'
+#' boot.result2<-boot(simdat, statistic=boot.modmed.mlm, R=5,
+#'  L2ID = "L2id", X = "X", Y = "Y", M = "M",
+#'  random.a=TRUE, random.b=TRUE, random.c=TRUE,
+#'  moderator = "mod", mod.a=TRUE, mod.b=TRUE,
+#'  random.mod.a = TRUE, random.mod.b = TRUE,
+#'  type="indirect.diff", modval1 = 0, modval2 = 0,
+#'  parallel="snow",ncpus=ncpu,cl=cl)
+#'
+#'  stopCluster(cl)
+#'
+#' #boot.result$t0 # point estimates for everything based on original data
+#' #boot.ci(boot.result, index=1, type="perc") # percentile interval
 #'
 #' }
 #' @export
@@ -125,9 +145,9 @@ boot.modmed.mlm <- function(data, indices, L2ID, ...,
 #' @param control Argument passed to \code{\link[nlme]{lme}} that controls other estimation options.
 #' @param returndata (Logical) Whether to save restructured data in its own slot. Note: nlme may do this automatically. Defaults to \code{FALSE}.
 #' @details TO DO. Implements custom function to do moderated mediation with multilevel models.
-#'   Capable of doing moderation as well. Need to detail which kinds of moderation, which mediation models (e.g., 1-1-1 only?)
-#'   Note: does not currently include this moderation as a random effect (the lme model will correctly place the moderator at the appropriate level)
-#'   Implements the BPG06 model for 1-1-1 mediation with moderation...
+#'   Capable of doing moderation as well. Need to detail which kinds of moderation. Believed that it currently supports 2-1-1, 2-2-1, 1-1-1
+#'   with moderator at either level and moderator and any paths can have indirect effects.
+#'   Initially implemented for the BPG06 model for 1-1-1 mediation with moderation...
 #' @examples
 #' \donttest{
 #' # Example data for 1-1-1 w/o moderation
@@ -173,22 +193,24 @@ boot.modmed.mlm <- function(data, indices, L2ID, ...,
 #' fitmodab2<-modmed.mlm(simdat,"L2id", "X", "Y", "M",
 #'   random.a=TRUE, random.b=TRUE, random.c=TRUE,
 #'   moderator = "mod", mod.a=TRUE, mod.b=TRUE,
-#'   random.mod.a = TRUE)
+#'   random.mod.a = TRUE, random.mod.m = TRUE)
 #'
 #' # moderation for both a and b paths and random effect for interaction b
 #' fitmodab3<-modmed.mlm(simdat,"L2id", "X", "Y", "M",
 #'   random.a=TRUE, random.b=TRUE, random.c=TRUE,
 #'   moderator = "mod", mod.a=TRUE, mod.b=TRUE,
-#'   random.mod.b = TRUE)
+#'   random.mod.b = TRUE, random.mod.y = TRUE)
 #'
 #' # moderation for both a and b paths and random effect for both interactions
 #' fitmodab4<-modmed.mlm(simdat,"L2id", "X", "Y", "M",
 #'   random.a=TRUE, random.b=TRUE, random.c=TRUE,
 #'   moderator = "mod", mod.a=TRUE, mod.b=TRUE,
-#'   random.mod.a = TRUE, random.mod.b = TRUE)
+#'   random.mod.a = TRUE, random.mod.b = TRUE,
+#'   random.mod.m = TRUE, random.mod.y = TRUE)
 #'
 #' # compare models?
-#' # Apparently anova() is not supported as it's looking for fixed.formula, and it's not in the current environment
+#' # Apparently anova() is not supported as it's looking for fixed.formula,
+#' # as it's not in the current environment
 #' # AIC works though
 #' AIC(fitmodab$model)
 #' AIC(fitmodab2$model)
