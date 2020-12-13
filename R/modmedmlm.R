@@ -454,14 +454,45 @@ extract.modmed.mlm <- function(fit, type=c("all","fixef","recov","recov.vec","in
 
   type <- match.arg(type)
 
-  if(!fit$conv | is.null(fit$model)){
-    # FIXME!
-    # if model fitting was a problem
-    indirect <- NA
-    modindirect <- NA
-    modindirecta3b <- NA
-    fixestimates <- rep(NA, 10) # TODO: dynamically change this depending on the model
+  if(!fit$conv || is.null(fit$model)){
+    # If model fitting was a problem
+    # Can I just return NA? Or does it need to be of a certain length?
+    # depending on type and fit$call, it is possible to guess the length of output here
+    # This is a bit tenuous if support for more variables changes, however
+
+    # TODO: add check for covariates here
+
+    args <- as.list(fit$call)
+
+    moda <- unlist(args[grepl("^mod\\.a",names(args))])
+    modb <- unlist(args[grepl("^mod\\.b",names(args))])
+    modc <- unlist(args[grepl("^mod\\.c",names(args))])
+
+    nfixefa <- 2 + ifelse(any(moda),2,0) # number of fixed effects first model
+    nfixefb <- 3 + ifelse(any(modb)||any(modc),1,0) + any(modb) + any(modc) #number of fixed effects second model
+    nfex <- nfixefa + nfixefb # combined
+
+    # re due to just typical stuff
+    nre <- 1 + sum(unlist(args[grepl("^random\\.[abc]$",names(args))]))
+
+    # re due to moderator effects
+    nre <- nre + sum(unlist(args[grepl("^random\\.mod\\.([abym]|cprime)$",names(args))]))
+    nre <- nre*nre # duplicates not yet removed
+
     out <- vector("numeric")
+
+    if(type=="indirect"||type=="a"||type=="b"||type=="cprime"||type=="covab"||type=="indirect.diff"||
+       type=="a.diff"||type=="b.diff"||type=="cprime.diff"){
+      out <- NA
+    } else if (type=="all"){
+      out <- rep(NA, nfex + nre)
+    } else if (type=="fixef"){
+      out <- rep(NA, nfex)
+    } else if (type=="recov"){
+      out <- matrix(NA,nre,nre)
+    } else if (type=="recov.vec"){
+      out <- rep(NA, nre)
+    }
   } else {
 
     # computations if the model is ok
