@@ -557,7 +557,7 @@ compute.indirect <- function(v, args,
 
   a1 <- a2 <- v["SmX"]
   b1 <- b2 <- v["SyM"]
-  cprime <- v["SyX"]
+  cprime1 <- cprime2 <- v["SyX"]
 
   # If moderation effects, modify a and b
   if(!is.null(args$mod.a) && args$mod.a && !is.null(modval1)){
@@ -571,6 +571,12 @@ compute.indirect <- function(v, args,
   }
   if(!is.null(args$mod.b) && args$mod.b && !is.null(modval2)){
     b2 <- b2 + v["SyM:W"]*modval2
+  }
+  if(!is.null(args$mod.cprime) && args$mod.cprime && !is.null(modval1)){
+    cprime1 <- cprime1 + v["SyX:W"]*modval1
+  }
+  if(!is.null(args$mod.cprime) && args$mod.cprime && !is.null(modval2)){
+    cprime2 <- cprime2 + v["SyX:W"]*modval2
   }
 
   # compute indirect effect using only fixed effects
@@ -625,8 +631,7 @@ compute.indirect <- function(v, args,
   } else if (type=="b"){
     out <- b1
   } else if (type=="cprime"){
-    stop("cprime not yet implemented")
-    #out <- cprime
+    out <- cprime1
   } else if (type=="covab"){
     out <- covab
   } else if (type=="indirect.diff"){
@@ -636,7 +641,7 @@ compute.indirect <- function(v, args,
   } else if (type=="b.diff"){
     out <- b1 - b2
   } else if (type=="cprime.diff"){
-    stop("cprime.diff not yet implemented") # forgot to add computation of it at values of the moderator
+    out <- cprime1 - cprime2
   }
 
   names(out) <- NULL
