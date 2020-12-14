@@ -491,8 +491,8 @@ extract.modmed.mlm <- function(fit, type=c("all","fixef","recov","recov.vec","in
     nfixefb <- 3 + ifelse(any(modb)||any(modc),1,0) + any(modb) + any(modc) #number of fixed effects second model
     nfex <- nfixefa + nfixefb # combined
 
-    # re due to just typical stuff
-    nre <- 1 + sum(unlist(args[grepl("^random\\.[abc]$",names(args))]))
+    # re due to 2 random intercepts + abc paths
+    nre <- 2 + sum(unlist(args[grepl("^random\\.[abc]$",names(args))]))
 
     # re due to moderator effects
     nre <- nre + sum(unlist(args[grepl("^random\\.mod\\.([abym]|cprime)$",names(args))]))
