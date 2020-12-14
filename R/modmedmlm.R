@@ -79,7 +79,7 @@
 #' ## Moderated mediation
 #'
 #' data(simdat)
-#' ncpu<-6
+#' ncpu<-12
 #' cl<-makeCluster(ncpu)
 #'
 #' # Bootstrap w/ moderation of a and b paths
@@ -89,7 +89,8 @@
 #'   random.a=TRUE, random.b=TRUE, random.c=TRUE,
 #'   moderator = "mod", mod.a=TRUE, mod.b=TRUE,
 #'   random.mod.a = TRUE, random.mod.b = TRUE,
-#'  type="all")
+#'   type="all",
+#'   parallel="snow",ncpus=ncpu,cl=cl)
 #'
 #'  test<-modmed.mlm(simdat,
 #'  L2ID = "L2id", X = "X", Y = "Y", M = "M",
@@ -97,11 +98,19 @@
 #'   moderator = "mod", mod.a=TRUE, mod.b=TRUE,
 #'   random.mod.a = TRUE, random.mod.b = TRUE)
 #'
-#' # stopCluster(cl)
+#' stopCluster(cl)
 #'
 #' # indirect effect point estimate and 95% CI when moderator = 0
+#' extract.boot.modmed.mlm(boot.result2, type="indirect")
+#' extract.boot.modmed.mlm(boot.result2, type="indirect", modval1=0)
+#'
 #' # indirect effect point estimate and 95% CI when moderator = 1
-#' # indirect effect  difference point estimate and 95% CI
+#' extract.boot.modmed.mlm(boot.result2, type="indirect", modval1=1)
+#'
+#' # indirect effect difference point estimate and 95% CI
+#' extract.boot.modmed.mlm(boot.result2, type="indirect.diff",
+#'   modval1=0, modval2=1)
+
 #'
 #' }
 #' @export
@@ -472,6 +481,7 @@ extract.modmed.mlm <- function(fit, type=c("all","fixef","recov","recov.vec","in
   type <- match.arg(type)
 
   if(!fit$conv || is.null(fit$model)){
+
     # If model fitting was a problem
     # Can I just return NA? Or does it need to be of a certain length?
     # depending on type and fit$call, it is possible to guess the length of output here
