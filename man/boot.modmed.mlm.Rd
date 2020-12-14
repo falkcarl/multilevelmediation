@@ -52,31 +52,59 @@ TO DO. Implements custom function to do resampling at level 2, then level 1. For
 data(BPG06dat)
 
 # Do bootstrapping... w/ parallel processing
-library(parallel)
-library(boot)
-ncpu<-6
+# snow appears to work on Windows; something else may be better on Unix/Mac/Linux
+
+#library(parallel)
+#library(boot)
+#ncpu<-6
 #cl<-makeCluster(ncpu)
 
+# bootstrap just the indirect effect
 #boot.result<-boot(BPG06dat, statistic=boot.modmed.mlm, R=100,
 # L2ID = "id", X = "x", Y = "y", M = "m",
 # random.a=TRUE, random.b=TRUE, random.c=TRUE,
 # type="indirect",
 # parallel="snow",ncpus=ncpu,cl=cl)
 
+# bootstrap all fixed and random effects
+#boot.result<-boot(BPG06dat, statistic=boot.modmed.mlm, R=100,
+#   L2ID = "id", X = "x", Y = "y", M = "m",
+# random.a=TRUE, random.b=TRUE, random.c=TRUE,
+#   type="all",
+#  parallel="snow",ncpus=ncpu,cl=cl)
+
 #stopCluster(cl)
+
+
+#boot.result$t0 # point estimates for everything based on original data
+#boot.ci(boot.result, index=1, type="perc") # percentile interval of first element
 
 # without cluster
 # boot.result<-boot(BPG06dat, statistic=boot.modmed.mlm, R=5,
 #   L2ID = "id", X = "x", Y = "y", M = "m",
-#  random.a=TRUE, random.b=TRUE, random.c=TRUE)
+#  random.a=TRUE, random.b=TRUE, random.c=TRUE,
+#  type="indirect")
+
+# Moderated mediation
+
+data(simdat)
+ncpu<-6
+cl<-makeCluster(ncpu)
+
+# boot results for difference of indirect effects at two levels of moderator
+
+boot.result2<-boot(simdat, statistic=boot.modmed.mlm, R=5,
+ L2ID = "L2id", X = "X", Y = "Y", M = "M",
+ random.a=TRUE, random.b=TRUE, random.c=TRUE,
+ moderator = "mod", mod.a=TRUE, mod.b=TRUE,
+ random.mod.a = TRUE, random.mod.b = TRUE,
+ type="all",
+ parallel="snow",ncpus=ncpu,cl=cl)
+
+ stopCluster(cl)
 
 #boot.result$t0 # point estimates for everything based on original data
-
 #boot.ci(boot.result, index=1, type="perc") # percentile interval
-
-# snow appears to work on Windows; something else may be better on Unix/Mac/Linux
-
-# need code to look at boot results
 
 }
 }

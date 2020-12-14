@@ -74,9 +74,9 @@ Custom model fitting function for two-level (moderated) mediation
 }
 \details{
 TO DO. Implements custom function to do moderated mediation with multilevel models.
-  Capable of doing moderation as well. Need to detail which kinds of moderation, which mediation models (e.g., 1-1-1 only?)
-  Note: does not currently include this moderation as a random effect (the lme model will correctly place the moderator at the appropriate level)
-  Implements the BPG06 model for 1-1-1 mediation with moderation...
+  Capable of doing moderation as well. Need to detail which kinds of moderation. Believed that it currently supports 2-1-1, 2-2-1, 1-1-1
+  with moderator at either level and moderator and any paths can have indirect effects.
+  Initially implemented for the BPG06 model for 1-1-1 mediation with moderation...
 }
 \examples{
 \donttest{
@@ -123,22 +123,24 @@ fitmodab<-modmed.mlm(simdat,"L2id", "X", "Y", "M",
 fitmodab2<-modmed.mlm(simdat,"L2id", "X", "Y", "M",
   random.a=TRUE, random.b=TRUE, random.c=TRUE,
   moderator = "mod", mod.a=TRUE, mod.b=TRUE,
-  random.mod.a = TRUE)
+  random.mod.a = TRUE, random.mod.m = TRUE)
 
 # moderation for both a and b paths and random effect for interaction b
 fitmodab3<-modmed.mlm(simdat,"L2id", "X", "Y", "M",
   random.a=TRUE, random.b=TRUE, random.c=TRUE,
   moderator = "mod", mod.a=TRUE, mod.b=TRUE,
-  random.mod.b = TRUE)
+  random.mod.b = TRUE, random.mod.y = TRUE)
 
 # moderation for both a and b paths and random effect for both interactions
 fitmodab4<-modmed.mlm(simdat,"L2id", "X", "Y", "M",
   random.a=TRUE, random.b=TRUE, random.c=TRUE,
   moderator = "mod", mod.a=TRUE, mod.b=TRUE,
-  random.mod.a = TRUE, random.mod.b = TRUE)
+  random.mod.a = TRUE, random.mod.b = TRUE,
+  random.mod.m = TRUE, random.mod.y = TRUE)
 
 # compare models?
-# Apparently anova() is not supported as it's looking for fixed.formula, and it's not in the current environment
+# Apparently anova() is not supported as it's looking for fixed.formula,
+# as it's not in the current environment
 # AIC works though
 AIC(fitmodab$model)
 AIC(fitmodab2$model)

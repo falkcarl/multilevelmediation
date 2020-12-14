@@ -37,7 +37,7 @@
 #'   This resamples L2 units, then L1 units within each L2 unit
 #' @examples
 #' \donttest{
-#' # Mediation for 1-1-1 model w/o moderation
+#' ## Mediation for 1-1-1 model
 #' data(BPG06dat)
 #'
 #' # Do bootstrapping... w/ parallel processing
@@ -48,13 +48,27 @@
 #' #ncpu<-6
 #' #cl<-makeCluster(ncpu)
 #'
+#' # bootstrap just the indirect effect
 #' #boot.result<-boot(BPG06dat, statistic=boot.modmed.mlm, R=100,
 #' # L2ID = "id", X = "x", Y = "y", M = "m",
 #' # random.a=TRUE, random.b=TRUE, random.c=TRUE,
 #' # type="indirect",
 #' # parallel="snow",ncpus=ncpu,cl=cl)
 #'
+#' # bootstrap all fixed and random effects (recommended)
+#' #boot.result<-boot(BPG06dat, statistic=boot.modmed.mlm, R=100,
+#' #   L2ID = "id", X = "x", Y = "y", M = "m",
+#' # random.a=TRUE, random.b=TRUE, random.c=TRUE,
+#' #   type="all",
+#' #  parallel="snow",ncpus=ncpu,cl=cl)
+#'
 #' #stopCluster(cl)
+#'
+#' #boot.result$t0 # point estimates for everything based on original data
+#' #boot.ci(boot.result, index=1, type="perc") # percentile interval of first element
+#'
+#' # Point estimate and 95% CI for indirect effect
+#' #extract.boot.modmed.mlm(boot.result, type="indirect", ci.conf=.95)
 #'
 #' # without cluster
 #' # boot.result<-boot(BPG06dat, statistic=boot.modmed.mlm, R=5,
@@ -62,35 +76,39 @@
 #' #  random.a=TRUE, random.b=TRUE, random.c=TRUE,
 #' #  type="indirect")
 #'
-#' #boot.result$t0 # point estimates for everything based on original data
-#' #boot.ci(boot.result, index=1, type="perc") # percentile interval
-#'
-#'
-#' # Moderated mediation
+#' ## Moderated mediation
 #'
 #' data(simdat)
 #' ncpu<-6
 #' cl<-makeCluster(ncpu)
 #'
-#' # boot results for difference of indirect effects at two levels of moderator
+#' # Bootstrap w/ moderation of a and b paths
 #'
-#' boot.result2<-boot(simdat, statistic=boot.modmed.mlm, R=5,
+#' boot.result2<-boot(simdat, statistic=boot.modmed.mlm, R=10000,
 #'  L2ID = "L2id", X = "X", Y = "Y", M = "M",
-#'  random.a=TRUE, random.b=TRUE, random.c=TRUE,
-#'  moderator = "mod", mod.a=TRUE, mod.b=TRUE,
-#'  random.mod.a = TRUE, random.mod.b = TRUE,
-#'  type="indirect.diff", modval1 = 0, modval2 = 0,
-#'  parallel="snow",ncpus=ncpu,cl=cl)
+#'   random.a=TRUE, random.b=TRUE, random.c=TRUE,
+#'   moderator = "mod", mod.a=TRUE, mod.b=TRUE,
+#'   random.mod.a = TRUE, random.mod.b = TRUE,
+#'  type="all")
 #'
-#'  stopCluster(cl)
+#'  test<-modmed.mlm(simdat,
+#'  L2ID = "L2id", X = "X", Y = "Y", M = "M",
+#'   random.a=TRUE, random.b=TRUE, random.c=TRUE,
+#'   moderator = "mod", mod.a=TRUE, mod.b=TRUE,
+#'   random.mod.a = TRUE, random.mod.b = TRUE)
 #'
-#' #boot.result$t0 # point estimates for everything based on original data
-#' #boot.ci(boot.result, index=1, type="perc") # percentile interval
+#' # stopCluster(cl)
+#'
+#' # indirect effect point estimate and 95% CI when moderator = 0
+#' # indirect effect point estimate and 95% CI when moderator = 1
+#' # indirect effect  difference point estimate and 95% CI
 #'
 #' }
 #' @export
 boot.modmed.mlm <- function(data, indices, L2ID, ...,
                             type="indirect", modval1=NULL, modval2=NULL) {
+
+  # TODO use only default type="all". Otherwise conflicts with extract.boot.modmed.mlm possible
 
   # ad-hoc check if this is first run of analysis by comparing to indices
   if (all(indices == (1:nrow(data)))) {
@@ -168,7 +186,6 @@ boot.modmed.mlm <- function(data, indices, L2ID, ...,
 #'
 #' # The saved, fitted model following Bauer, Preacher, & Gil (2006)
 #' summary(fit$model)
-#'
 #'
 #'
 #' # Fit model with moderation
@@ -460,9 +477,11 @@ extract.modmed.mlm <- function(fit, type=c("all","fixef","recov","recov.vec","in
     # depending on type and fit$call, it is possible to guess the length of output here
     # This is a bit tenuous if support for more variables changes, however
 
-    # TODO: add check for covariates here
+    args <- as.list(args(modmed.mlm))
+    calledargs <- as.list(fit$call)
+    args[names(calledargs)] <- calledargs
 
-    args <- as.list(fit$call)
+    # TODO: add check for covariates here
 
     moda <- unlist(args[grepl("^mod\\.a",names(args))])
     modb <- unlist(args[grepl("^mod\\.b",names(args))])
@@ -547,7 +566,69 @@ extract.modmed.mlm <- function(fit, type=c("all","fixef","recov","recov.vec","in
   out
 }
 
-# compute stuff from a vector of fixed effects and random effects
+#' Post-processing of bootstrap results from boot.modmed.mlm
+#'
+#' @param boot.obj Result of \code{\link{boot::boot}} using \code{boot.modmed.mlm}
+#' @param type String indicating which piece of information to extract from the model
+#'   "indirect": value of the indirect effect.
+#'   "a": Current value of a path.
+#'   "b": Current value of b path.
+#'   "cprime": Current value of c path.
+#'   "covab": Random effect covariance between a and b paths, if both paths have associated random effects.
+#'   "indirect.diff": difference in indirect effect at two values of the moderator (set by \code{modval1} and \code{modval2}).
+#'   "a.diff": difference in a at two values of the moderator (set by \code{modval1} and \code{modval2}).
+#'   "b.diff": difference in b at two values of the moderator (set by \code{modval1} and \code{modval2}).
+#'   "cprime.diff": difference cprime at two values of the moderator (set by \code{modval1} and \code{modval2}).
+#' @param ci.type String indicating the type of confidence interval to compute.
+#'   Currently only percentile confidence intervals are supported with "perc".
+#' @param ci.conf Numeric value indicating the confidence level for the interval.
+#' @param modval1 If enabled, other quantities such as the indirect effect, a, b, and cprime, will be computed
+#'   at this particular value of the moderator. Otherwise, value of these quantities is directly extracted from
+#'   the model output (i.e., these would represent values of the effects when the moderator = 0).
+#' @param modval2 Second value of the moderator at which to compute the indirect effect.
+#' @details
+#'   This function generally assumes that type="all" was used when initially fitting the model, making all necessary
+#'   information available for computation of indirect effects, differences between effects, and so on. If type="all"
+#'   was not used, there is no guarantee that confidence intervals for the effects of interest can be extracted.
+#' @export
+#' @examples
+#' \donttest{
+#'
+#' }
+extract.boot.modmed.mlm <- function(boot.obj, type=c("indirect","a","b","cprime","covab",
+                                           "indirect.diff","a.diff","b.diff","cprime.diff"), ci.type="perc", ci.conf=.95,
+                               modval1 = NULL, modval2 = NULL){
+  type <- match.arg(type)
+  ci.type <- match.arg(ci.type)
+
+  # guess what options were used for modmed.mlm by extracting from it and from boot.modmed.mlm call
+  args <- as.list(args(modmed.mlm))
+  calledargs <- as.list(boot.obj$call)
+  args[names(calledargs)] <- calledargs
+
+  # Extract point estimate from model
+  point.est <- compute.indirect(boot.obj$t0, args=args, type=type, modval1=modval1, modval2=modval2)
+
+  # Obtain vector of estimates for effect of interest
+  est <-apply(boot.obj$t, 1, function(x){
+    names(x) <- names(boot.obj$t0)
+    compute.indirect(x,args=args, type=type, modval1=modval1, modval2=modval2)
+  })
+
+  # form CI
+  probs <- c((1-ci.conf)/2, ci.conf+(1-ci.conf)/2)
+  ci <- quantile(est, probs=probs, na.rm=TRUE)
+
+  # output
+  out<-list(CI = ci,
+            est = point.est)
+
+  return(out)
+
+}
+
+
+# Compute stuff from a vector of fixed effects and random effects
 compute.indirect <- function(v, args,
                              type=c("indirect","a","b","cprime","covab","indirect.diff","a.diff","b.diff","cprime.diff"),
                              modval1 = NULL, modval2 = NULL){
