@@ -110,7 +110,6 @@
 #' # indirect effect difference point estimate and 95% CI
 #' extract.boot.modmed.mlm(boot.result2, type="indirect.diff",
 #'   modval1=0, modval2=1)
-
 #'
 #' }
 #' @export

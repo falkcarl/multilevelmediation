@@ -48,7 +48,7 @@ TO DO. Implements custom function to do resampling at level 2, then level 1. For
 }
 \examples{
 \donttest{
-# Mediation for 1-1-1 model w/o moderation
+## Mediation for 1-1-1 model
 data(BPG06dat)
 
 # Do bootstrapping... w/ parallel processing
@@ -66,7 +66,7 @@ data(BPG06dat)
 # type="indirect",
 # parallel="snow",ncpus=ncpu,cl=cl)
 
-# bootstrap all fixed and random effects
+# bootstrap all fixed and random effects (recommended)
 #boot.result<-boot(BPG06dat, statistic=boot.modmed.mlm, R=100,
 #   L2ID = "id", X = "x", Y = "y", M = "m",
 # random.a=TRUE, random.b=TRUE, random.c=TRUE,
@@ -75,9 +75,11 @@ data(BPG06dat)
 
 #stopCluster(cl)
 
-
 #boot.result$t0 # point estimates for everything based on original data
 #boot.ci(boot.result, index=1, type="perc") # percentile interval of first element
+
+# Point estimate and 95\% CI for indirect effect
+#extract.boot.modmed.mlm(boot.result, type="indirect", ci.conf=.95)
 
 # without cluster
 # boot.result<-boot(BPG06dat, statistic=boot.modmed.mlm, R=5,
@@ -85,26 +87,40 @@ data(BPG06dat)
 #  random.a=TRUE, random.b=TRUE, random.c=TRUE,
 #  type="indirect")
 
-# Moderated mediation
+## Moderated mediation
 
 data(simdat)
-ncpu<-6
+ncpu<-12
 cl<-makeCluster(ncpu)
 
-# boot results for difference of indirect effects at two levels of moderator
+# Bootstrap w/ moderation of a and b paths
 
-boot.result2<-boot(simdat, statistic=boot.modmed.mlm, R=5,
+boot.result2<-boot(simdat, statistic=boot.modmed.mlm, R=10000,
  L2ID = "L2id", X = "X", Y = "Y", M = "M",
- random.a=TRUE, random.b=TRUE, random.c=TRUE,
- moderator = "mod", mod.a=TRUE, mod.b=TRUE,
- random.mod.a = TRUE, random.mod.b = TRUE,
- type="all",
- parallel="snow",ncpus=ncpu,cl=cl)
+  random.a=TRUE, random.b=TRUE, random.c=TRUE,
+  moderator = "mod", mod.a=TRUE, mod.b=TRUE,
+  random.mod.a = TRUE, random.mod.b = TRUE,
+  type="all",
+  parallel="snow",ncpus=ncpu,cl=cl)
 
- stopCluster(cl)
+ test<-modmed.mlm(simdat,
+ L2ID = "L2id", X = "X", Y = "Y", M = "M",
+  random.a=TRUE, random.b=TRUE, random.c=TRUE,
+  moderator = "mod", mod.a=TRUE, mod.b=TRUE,
+  random.mod.a = TRUE, random.mod.b = TRUE)
 
-#boot.result$t0 # point estimates for everything based on original data
-#boot.ci(boot.result, index=1, type="perc") # percentile interval
+stopCluster(cl)
+
+# indirect effect point estimate and 95\% CI when moderator = 0
+extract.boot.modmed.mlm(boot.result2, type="indirect")
+extract.boot.modmed.mlm(boot.result2, type="indirect", modval1=0)
+
+# indirect effect point estimate and 95\% CI when moderator = 1
+extract.boot.modmed.mlm(boot.result2, type="indirect", modval1=1)
+
+# indirect effect difference point estimate and 95\% CI
+extract.boot.modmed.mlm(boot.result2, type="indirect.diff",
+  modval1=0, modval2=1)
 
 }
 }

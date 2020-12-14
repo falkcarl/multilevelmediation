@@ -100,7 +100,6 @@ extract.modmed.mlm(fit, type="covab")
 summary(fit$model)
 
 
-
 # Fit model with moderation
 data(simdat)
 

@@ -50,28 +50,5 @@ This function generally assumes that type="all" was used when initially fitting 
 \examples{
 \donttest{
 
-#' data(BPG06dat)
-
-# Do bootstrapping... w/ parallel processing
-# snow appears to work on Windows; something else may be better on Unix/Mac/Linux
-
-#library(parallel)
-#library(boot)
-#ncpu<-6
-#cl<-makeCluster(ncpu)
-
-#boot.result<-boot(BPG06dat, statistic=boot.modmed.mlm, R=100,
-# L2ID = "id", X = "x", Y = "y", M = "m",
-# random.a=TRUE, random.b=TRUE, random.c=TRUE,
-# type="indirect",
-# parallel="snow",ncpus=ncpu,cl=cl)
-
-boot.result<-boot(BPG06dat, statistic=boot.modmed.mlm, R=100,
-  L2ID = "id", X = "x", Y = "y", M = "m",
-  random.a=TRUE, random.b=TRUE, random.c=TRUE,
-  type="all",
-  parallel="snow",ncpus=ncpu,cl=cl)
-
-stopCluster(cl)
 }
 }
