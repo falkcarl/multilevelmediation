@@ -114,9 +114,12 @@
 #' }
 #' @export
 boot.modmed.mlm <- function(data, indices, L2ID, ...,
-                            type="indirect", modval1=NULL, modval2=NULL) {
+                            type="all", modval1=NULL, modval2=NULL,
+                            boot.lvl = c("both","1","2")) {
 
-  # TODO use only default type="all". Otherwise conflicts with extract.boot.modmed.mlm possible
+  # TODO use only default type="all". Otherwise conflicts with extract.boot.modmed.mlm possible (TV: fixed? changed default to "all")
+
+  boot.lvl <- match.arg(boot.lvl)
 
   # ad-hoc check if this is first run of analysis by comparing to indices
   if (all(indices == (1:nrow(data)))) {
@@ -124,21 +127,37 @@ boot.modmed.mlm <- function(data, indices, L2ID, ...,
     rdat <- data[indices, ]
   } else {
     # manually apply case-wise resampling
-    # Resample L2 units
-    L2 <- unique(data[, L2ID])
-    N <- length(L2)
-    L2_indices <- sample(L2, N, replace = TRUE)
 
-    # Resample L1 units
-    rdat <- lapply(L2_indices, function(x) {
-      L2_sub <- data[data[, L2ID] == x, , drop = FALSE] # in case there is only 1 obs
-      n_j <- nrow(L2_sub)
-      L1_idx <- sample(1:n_j, n_j, replace = TRUE)
-      L2_sub <- L2_sub[L1_idx, ]
-      L2_sub
-    })
+    if (boot.lvl == "both") {
+      # Resample at L2 and then L1 within each L2 unit
+      # Resample L2 units
+      L2 <- unique(data[, L2ID])
+      N <- length(L2)
+      L2_indices <- sample(L2, N, replace = TRUE)
+      # Resample L1 units
+      rdat <- lapply(L2_indices, function(x) {
+        L2_sub <- data[data[, L2ID] == x, , drop = FALSE] # in case there is only 1 obs
+        n_j <- nrow(L2_sub)
+        L1_idx <- sample(1:n_j, n_j, replace = TRUE)
+        L2_sub <- L2_sub[L1_idx, ]
+      })
+      rdat <- do.call("rbind", rdat)
 
-    rdat <- do.call("rbind", rdat)
+    } else if (boot.lvl == "2") {
+      # Resample L2 units
+      L2 <- unique(data[, L2ID])
+      N <- length(L2)
+      L2_indices <- sample(L2, N, replace = TRUE)
+      rdat <- lapply(L2_indices, function(x) {
+        L2_sub <- data[data[, L2ID] == x, , drop = FALSE] # in case there is only 1 obs
+      })
+      rdat <- do.call("rbind", rdat)
+
+    } else if (boot.lvl == "1") {
+      # Resample L1 units (use given indices from boot function)
+      rdat <- data[indices, ]
+    }
+
     row.names(rdat) <- NULL
   }
 
