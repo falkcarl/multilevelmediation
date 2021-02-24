@@ -51,14 +51,14 @@
 #' # bootstrap just the indirect effect
 #' #boot.result<-boot(BPG06dat, statistic=boot.modmed.mlm, R=100,
 #' # L2ID = "id", X = "x", Y = "y", M = "m",
-#' # random.a=TRUE, random.b=TRUE, random.c=TRUE,
+#' # random.a=TRUE, random.b=TRUE, random.cprime=TRUE,
 #' # type="indirect",
 #' # parallel="snow",ncpus=ncpu,cl=cl)
 #'
 #' # bootstrap all fixed and random effects (recommended)
 #' #boot.result<-boot(BPG06dat, statistic=boot.modmed.mlm, R=100,
 #' #   L2ID = "id", X = "x", Y = "y", M = "m",
-#' # random.a=TRUE, random.b=TRUE, random.c=TRUE,
+#' # random.a=TRUE, random.b=TRUE, random.cprime=TRUE,
 #' #   type="all",
 #' #  parallel="snow",ncpus=ncpu,cl=cl)
 #'
@@ -73,7 +73,7 @@
 #' # without cluster
 #' # boot.result<-boot(BPG06dat, statistic=boot.modmed.mlm, R=5,
 #' #   L2ID = "id", X = "x", Y = "y", M = "m",
-#' #  random.a=TRUE, random.b=TRUE, random.c=TRUE,
+#' #  random.a=TRUE, random.b=TRUE, random.cprime=TRUE,
 #' #  type="indirect")
 #'
 #' ## Moderated mediation
@@ -86,7 +86,7 @@
 #'
 #' boot.result2<-boot(simdat, statistic=boot.modmed.mlm, R=10000,
 #'  L2ID = "L2id", X = "X", Y = "Y", M = "M",
-#'   random.a=TRUE, random.b=TRUE, random.c=TRUE,
+#'   random.a=TRUE, random.b=TRUE, random.cprime=TRUE,
 #'   moderator = "mod", mod.a=TRUE, mod.b=TRUE,
 #'   random.mod.a = TRUE, random.mod.b = TRUE,
 #'   type="all",
@@ -94,7 +94,7 @@
 #'
 #'  test<-modmed.mlm(simdat,
 #'  L2ID = "L2id", X = "X", Y = "Y", M = "M",
-#'   random.a=TRUE, random.b=TRUE, random.c=TRUE,
+#'   random.a=TRUE, random.b=TRUE, random.cprime=TRUE,
 #'   moderator = "mod", mod.a=TRUE, mod.b=TRUE,
 #'   random.mod.a = TRUE, random.mod.b = TRUE)
 #'
@@ -176,7 +176,7 @@ boot.modmed.mlm <- function(data, indices, L2ID, ...,
 #' @param M (String) Name of column that contains the M mediating variable in \code{data}.
 #' @param random.a (Logical) Add random slope for 'a' path (i.e,. SmX)?
 #' @param random.b (Logical) Add random slope for 'b' path (i.e., SyM)?
-#' @param random.c (Logical) Add random slope for 'c' path (i.e., SyX)?
+#' @param random.cprime (Logical) Add random slope for 'cprime' direct effect path (i.e., SyX)?
 #' @param moderator Optional string that contains name of column that contains the moderator variable in \code{data}
 #' @param mod.a (Logical) Add moderator to 'a' path (i.e., SmX:W, where W is the moderator)?
 #' @param mod.b (Logical) Add moderator to 'b' path (i.e., SyM:W, where W is the moderator)?
@@ -200,7 +200,7 @@ boot.modmed.mlm <- function(data, indices, L2ID, ...,
 #'
 #' # Fit model
 #' fit<-modmed.mlm(BPG06dat,"id", "x", "y", "m",
-#'   random.a=TRUE, random.b=TRUE, random.c=TRUE)
+#'   random.a=TRUE, random.b=TRUE, random.cprime=TRUE)
 #'
 #' extract.modmed.mlm(fit)
 #' extract.modmed.mlm(fit, type="indirect")
@@ -220,34 +220,34 @@ boot.modmed.mlm <- function(data, indices, L2ID, ...,
 #'
 #' # moderation for a path
 #' fitmoda<-modmed.mlm(simdat,"L2id", "X", "Y", "M",
-#'   random.a=TRUE, random.b=TRUE, random.c=TRUE,
+#'   random.a=TRUE, random.b=TRUE, random.cprime=TRUE,
 #'   moderator = "mod", mod.a=TRUE)
 #'
 #' # moderation for b path
 #' fitmodb<-modmed.mlm(simdat,"L2id", "X", "Y", "M",
-#'   random.a=TRUE, random.b=TRUE, random.c=TRUE,
+#'   random.a=TRUE, random.b=TRUE, random.cprime=TRUE,
 #'   moderator = "mod", mod.b=TRUE)
 #'
 #' # moderation for both a and b paths
 #' fitmodab<-modmed.mlm(simdat,"L2id", "X", "Y", "M",
-#'   random.a=TRUE, random.b=TRUE, random.c=TRUE,
+#'   random.a=TRUE, random.b=TRUE, random.cprime=TRUE,
 #'   moderator = "mod", mod.a=TRUE, mod.b=TRUE)
 #'
 #' # moderation for both a and b paths and random effect for interaction a
 #' fitmodab2<-modmed.mlm(simdat,"L2id", "X", "Y", "M",
-#'   random.a=TRUE, random.b=TRUE, random.c=TRUE,
+#'   random.a=TRUE, random.b=TRUE, random.cprime=TRUE,
 #'   moderator = "mod", mod.a=TRUE, mod.b=TRUE,
 #'   random.mod.a = TRUE, random.mod.m = TRUE)
 #'
 #' # moderation for both a and b paths and random effect for interaction b
 #' fitmodab3<-modmed.mlm(simdat,"L2id", "X", "Y", "M",
-#'   random.a=TRUE, random.b=TRUE, random.c=TRUE,
+#'   random.a=TRUE, random.b=TRUE, random.cprime=TRUE,
 #'   moderator = "mod", mod.a=TRUE, mod.b=TRUE,
 #'   random.mod.b = TRUE, random.mod.y = TRUE)
 #'
 #' # moderation for both a and b paths and random effect for both interactions
 #' fitmodab4<-modmed.mlm(simdat,"L2id", "X", "Y", "M",
-#'   random.a=TRUE, random.b=TRUE, random.c=TRUE,
+#'   random.a=TRUE, random.b=TRUE, random.cprime=TRUE,
 #'   moderator = "mod", mod.a=TRUE, mod.b=TRUE,
 #'   random.mod.a = TRUE, random.mod.b = TRUE,
 #'   random.mod.m = TRUE, random.mod.y = TRUE)
@@ -343,30 +343,19 @@ boot.modmed.mlm <- function(data, indices, L2ID, ...,
 #' @importFrom stats as.formula
 #' @export
 modmed.mlm<-function(data, L2ID, X, Y, M,
-                     random.a = FALSE, random.b = FALSE, random.c = FALSE,
-                     moderator = NULL, mod.a = FALSE, mod.b = FALSE, mod.cprime = FALSE,
-                     random.mod.a = FALSE, random.mod.b = FALSE,
-                     random.mod.cprime = FALSE, random.mod.m = FALSE,
-                     random.mod.y = FALSE,
+                     moderator, mod.a = FALSE, mod.b = FALSE, mod.cprime = FALSE,
+                     covars.m = NULL, covars.y = NULL,
+                     random.a = FALSE, random.b = FALSE, random.cprime = FALSE,
+                     random.mod.a = FALSE, random.mod.b = FALSE, random.mod.cprime = FALSE,
+                     random.mod.m = FALSE, random.mod.y = FALSE,
+                     random.covars.m = NULL, random.covars.y = NULL,
                      method="REML", control = lmeControl(maxIter = 10000, msMaxIter = 10000, niterEM = 10000,
                                                          msMaxEval = 10000, tolerance = 1e-6),
                      returndata = FALSE){
 
   # Some input checking per Todd's code:
-  #FIXME: THESE MESSGEES HAPPEN EVERY LOOP. ANY WAY TO ONLY DO AT START?
-  # CFF: Huh?
-
-  if(any(c(random.mod.a, random.mod.b, random.mod.cprime, random.mod.m, random.mod.y))){
-  #TODO input checking of these
-  }
-
-  # Stop if X, Y, or M variables are not specified
-  if (is.null(X)) {stop("X is NULL, please specify name of X variable.")}
-  if (is.null(Y)) {stop("Y is NULL, please specify name of Y variable.")}
-  if (is.null(M)) {stop("M is NULL, please specify name of M variable.")}
-
-  # Stop if X, Y, or M are not in dataset
-  if(!all(c(X,Y,M) %in% colnames(data))){stop("Not all variables found in dataset. Please check names of X, Y, and M.")}
+  # TV: These input checks will happen at every loop of the bootstrap.
+  # TV: Is there a more efficient way? Or is the slowdown negligible?
 
   # Stop if X, Y, or M variables in data are not numeric
   # factors not currently able to be used to set up BPG syntax for lme model (is there a possible workaround?)
@@ -374,15 +363,6 @@ modmed.mlm<-function(data, L2ID, X, Y, M,
   if (!is.numeric(data[[Y]])) {stop("Y is of type ", class(data[[Y]]), ". Y must be numeric to fit model.")}
   if (!is.numeric(data[[M]])) {stop("M is of type ", class(data[[M]]), ". M must be numeric to fit model.")}
 
-  # check moderator
-  if(!is.null(moderator)){
-    if(!(moderator %in% colnames(data))){stop("moderator not found in dataset. Please check specified name.")}
-    if(!is.numeric(data[[moderator]])) {stop("moderator is of type ", class(data[[moderator]]), ". Currently, only numeric moderators are supported.")}
-  }
-
-  # Check that all random effects/path moderation args are logical values (will skip adding to formula otherwise)
-  stopifnot(is.logical(random.a), is.logical(random.b), is.logical(random.c),
-            is.logical(mod.a), is.logical(mod.b), is.logical(mod.cprime))
 
   # Use data frame with only relevant variables
   tmp <- data.frame(
@@ -390,15 +370,40 @@ modmed.mlm<-function(data, L2ID, X, Y, M,
     Y = data[[Y]],
     M = data[[M]],
     L2id = data[[L2ID]], # Save copy of the grouping (Level 2) variable
-    Md = data[[M]] # save copy of mediator (tv: why is this needed?) CF: pivot_longer will nuke the M column (delete comment when you see it?)
+    Md = data[[M]] # save copy of mediator
   )
 
-  # Save moderator if necessary
+  # Check and save moderator if necessary
   if (!is.null(moderator)) {
-    tmp$W <- data[[moderator]] # Save copy of the moderator
+    # Check name and data type of moderator
+    if (!(moderator %in% colnames(data))) {stop("Moderator not found in dataset. Please check specified name.")}
+    if (!is.numeric(data[[moderator]])) {stop("Moderator is of type ", class(data[[moderator]]), ". Currently, only numeric moderators are supported.")}
+
+    # Save copy of the moderator
+    tmp$W <- data[[moderator]]
+  } else if (any(mod.a, mod.b, mod.cprime)) {
+    # Give error if paths indicated as moderated, but no moderator name given
+    stop("No moderator was specified for the moderated path(s).")
   }
 
-  # TODO: add covariates. Ensure covariates do not have same name as existing vars
+  # Add covariates for M and Y outcome paths
+  # (covars.m and covars.y should be a vector of column names in the dataset)
+  if (!is.null(covars.m)) {
+    # Check if covariate names are the same as existing vars
+    if (any(covars.m %in% c(X, Y, M, moderator))) {
+      stop("Covariate(s) have the same name as X, Y, M, or moderator variables.")
+    }
+    # Save copy of covariate data
+    tmp[covars.m] = data[covars.m] #will add same variable twice if same name in list (eg c("cov1", "cov2", "cov2")) (although renames by adding a ".1" to it, so may not be a problem when lme is run?)
+  }
+  if (!is.null(covars.y)) {
+    # Check if covariate names are the same as existing vars
+    if (any(covars.y %in% c(X, Y, M, moderator))) {
+      stop("Covariate(s) have the same name as X, Y, M, or moderator variables.")
+    }
+    # Save copy of covariate data (still works if same covar is named for both m and y outcomes)
+    tmp[covars.y] = data[covars.y]
+  }
 
   # restructure data such that both m and y are in the Z column
   tmp <- pivot_longer(tmp, cols = c(Y, M), names_to = "Outcome",
@@ -415,7 +420,7 @@ modmed.mlm<-function(data, L2ID, X, Y, M,
   fixed.formula <- "Z ~ 0 + Sm + Sy + SmX + SyX + SyM" #use the default formula from BPG 2006
 
   # Add in the moderator to the paths if necessary
-  # Note: interactions w/ W must must use selector variables in this way
+  # Note: interactions w/ "W" must must use selector variables in this way
   if (mod.a == TRUE) {fixed.formula <- paste(fixed.formula, "+ Sm:W + SmX:W")}
   if (mod.b == TRUE || mod.cprime == TRUE) {
     fixed.formula <- paste(fixed.formula, "+ Sy:W") #if b or c path is moderated, Sy component will always be there (prevents adding redundant parameters if both b & c are moderated)
@@ -424,11 +429,22 @@ modmed.mlm<-function(data, L2ID, X, Y, M,
     if (mod.b == FALSE && mod.cprime == TRUE) {fixed.formula <- paste(fixed.formula, "+ SyX:W")}
   }
 
+  # Add any covariates to the paths if necessary
+  #TV: does the order of the variables matter for lme? Here the covariates are after the mod interactions in the formula
+  if (!is.null(covars.m)) {
+    covars.m_formula <-  paste0("+ Sm:", covars.m, collapse=" ") #write the formula for each covar specified
+    fixed.formula <- paste(fixed.formula, covars.m_formula)      #and add to main fixed fx formula
+  }
+  if (!is.null(covars.y)) {
+    covars.y_formula <-  paste0("+ Sy:", covars.y, collapse=" ") #write the formula for each covar specified
+    fixed.formula <- paste(fixed.formula, covars.y_formula)      #and add to main fixed fx formula
+  }
+
   # Create the formula for the random effects
   random.formula <- "~ 0 + Sm + Sy"
   if (random.a == TRUE) {random.formula <- paste(random.formula, "+ SmX")}
   if (random.b == TRUE) {random.formula <- paste(random.formula, "+ SyM")}
-  if (random.c == TRUE) {random.formula <- paste(random.formula, "+ SyX")}
+  if (random.cprime == TRUE) {random.formula <- paste(random.formula, "+ SyX")}
 
   # Add random effects for moderator here, if any
   if(random.mod.a && mod.a){random.formula <- paste(random.formula, "+ SmX:W")}
@@ -436,11 +452,27 @@ modmed.mlm<-function(data, L2ID, X, Y, M,
   if(random.mod.cprime && mod.cprime){random.formula <- paste(random.formula, "+ SyX:W")}
   if(random.mod.m && mod.a){random.formula <- paste(random.formula, "+ Sm:W")}
   if(random.mod.y && mod.b){random.formula <- paste(random.formula, "+ Sy:W")}
+  #TV: would there ever be a situation where Sm or Sy would be moderated, but not their paths? (eg SmX, SyM, etc)
+  #TV: eg, would random.mod.m ever be true if random.mod.a was not true?
 
-  #TODO: Need to add argument to make 3-level if necessary...(e.g., L2id/W)
+  # Add random effects for covariates here, if any
+  #TODO: TV: currently doesn't check whether random covariates have the same
+  #name as other variables in the model, or are the same covariates in the fixed fx formula.
+  # Is possible to specify random covars not in the fixed formula, but may give an error with lme (although can be implemented, would just have to save random covar to the data above)
+  if (!is.null(random.covars.m)) {
+    random.covars.m_formula <- paste0("+ Sm:", random.covars.m, collapse=" ")
+    random.formula <- paste(random.formula, random.covars.m_formula)
+  }
+  if (!is.null(random.covars.y)) {
+    random.covars.y_formula <- paste0("+ Sy:", random.covars.y, collapse=" ")
+    random.formula <- paste(random.formula, random.covars.y_formula)
+  }
 
-  random.formula <- paste(random.formula, "| L2id") # add in the grouping variable after all the variables are entered
+  # Add in the grouping variable after all the variables are entered
+  random.formula <- paste(random.formula, "| L2id")
 
+
+    # Run the model through nlme
   mod_med_tmp <- try(lme(fixed = as.formula(fixed.formula), # fixed effects
                          random = as.formula(random.formula), # random effects
                          weights = varIdent(form = ~ 1 | Sm), # heteroskedasticity
