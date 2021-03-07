@@ -9,9 +9,10 @@ boot.modmed.mlm(
   indices,
   L2ID,
   ...,
-  type = "indirect",
+  type = "all",
   modval1 = NULL,
-  modval2 = NULL
+  modval2 = NULL,
+  boot.lvl = c("both", "1", "2")
 )
 }
 \arguments{
@@ -62,14 +63,14 @@ data(BPG06dat)
 # bootstrap just the indirect effect
 #boot.result<-boot(BPG06dat, statistic=boot.modmed.mlm, R=100,
 # L2ID = "id", X = "x", Y = "y", M = "m",
-# random.a=TRUE, random.b=TRUE, random.c=TRUE,
+# random.a=TRUE, random.b=TRUE, random.cprime=TRUE,
 # type="indirect",
 # parallel="snow",ncpus=ncpu,cl=cl)
 
 # bootstrap all fixed and random effects (recommended)
 #boot.result<-boot(BPG06dat, statistic=boot.modmed.mlm, R=100,
 #   L2ID = "id", X = "x", Y = "y", M = "m",
-# random.a=TRUE, random.b=TRUE, random.c=TRUE,
+# random.a=TRUE, random.b=TRUE, random.cprime=TRUE,
 #   type="all",
 #  parallel="snow",ncpus=ncpu,cl=cl)
 
@@ -84,7 +85,7 @@ data(BPG06dat)
 # without cluster
 # boot.result<-boot(BPG06dat, statistic=boot.modmed.mlm, R=5,
 #   L2ID = "id", X = "x", Y = "y", M = "m",
-#  random.a=TRUE, random.b=TRUE, random.c=TRUE,
+#  random.a=TRUE, random.b=TRUE, random.cprime=TRUE,
 #  type="indirect")
 
 ## Moderated mediation
@@ -97,7 +98,7 @@ cl<-makeCluster(ncpu)
 
 boot.result2<-boot(simdat, statistic=boot.modmed.mlm, R=10000,
  L2ID = "L2id", X = "X", Y = "Y", M = "M",
-  random.a=TRUE, random.b=TRUE, random.c=TRUE,
+  random.a=TRUE, random.b=TRUE, random.cprime=TRUE,
   moderator = "mod", mod.a=TRUE, mod.b=TRUE,
   random.mod.a = TRUE, random.mod.b = TRUE,
   type="all",
@@ -105,7 +106,7 @@ boot.result2<-boot(simdat, statistic=boot.modmed.mlm, R=10000,
 
  test<-modmed.mlm(simdat,
  L2ID = "L2id", X = "X", Y = "Y", M = "M",
-  random.a=TRUE, random.b=TRUE, random.c=TRUE,
+  random.a=TRUE, random.b=TRUE, random.cprime=TRUE,
   moderator = "mod", mod.a=TRUE, mod.b=TRUE,
   random.mod.a = TRUE, random.mod.b = TRUE)
 

@@ -10,18 +10,22 @@ modmed.mlm(
   X,
   Y,
   M,
-  random.a = FALSE,
-  random.b = FALSE,
-  random.c = FALSE,
   moderator = NULL,
   mod.a = FALSE,
   mod.b = FALSE,
   mod.cprime = FALSE,
+  covars.m = NULL,
+  covars.y = NULL,
+  random.a = FALSE,
+  random.b = FALSE,
+  random.cprime = FALSE,
   random.mod.a = FALSE,
   random.mod.b = FALSE,
   random.mod.cprime = FALSE,
   random.mod.m = FALSE,
   random.mod.y = FALSE,
+  random.covars.m = NULL,
+  random.covars.y = NULL,
   method = "REML",
   control = lmeControl(maxIter = 10000, msMaxIter = 10000, niterEM = 10000, msMaxEval =
     10000, tolerance = 1e-06),
@@ -39,12 +43,6 @@ modmed.mlm(
 
 \item{M}{(String) Name of column that contains the M mediating variable in \code{data}.}
 
-\item{random.a}{(Logical) Add random slope for 'a' path (i.e,. SmX)?}
-
-\item{random.b}{(Logical) Add random slope for 'b' path (i.e., SyM)?}
-
-\item{random.c}{(Logical) Add random slope for 'c' path (i.e., SyX)?}
-
 \item{moderator}{Optional string that contains name of column that contains the moderator variable in \code{data}}
 
 \item{mod.a}{(Logical) Add moderator to 'a' path (i.e., SmX:W, where W is the moderator)?}
@@ -52,6 +50,12 @@ modmed.mlm(
 \item{mod.b}{(Logical) Add moderator to 'b' path (i.e., SyM:W, where W is the moderator)?}
 
 \item{mod.cprime}{(Logical) Add moderator to 'c' path (i.e., SyX:W, where W is the moderator)}
+
+\item{random.a}{(Logical) Add random slope for 'a' path (i.e,. SmX)?}
+
+\item{random.b}{(Logical) Add random slope for 'b' path (i.e., SyM)?}
+
+\item{random.cprime}{(Logical) Add random slope for 'cprime' direct effect path (i.e., SyX)?}
 
 \item{random.mod.a}{(Logical) Add random slope for 'a' path moderator? (not yet supported)}
 
@@ -85,7 +89,7 @@ data(BPG06dat)
 
 # Fit model
 fit<-modmed.mlm(BPG06dat,"id", "x", "y", "m",
-  random.a=TRUE, random.b=TRUE, random.c=TRUE)
+  random.a=TRUE, random.b=TRUE, random.cprime=TRUE)
 
 extract.modmed.mlm(fit)
 extract.modmed.mlm(fit, type="indirect")
@@ -105,34 +109,34 @@ data(simdat)
 
 # moderation for a path
 fitmoda<-modmed.mlm(simdat,"L2id", "X", "Y", "M",
-  random.a=TRUE, random.b=TRUE, random.c=TRUE,
+  random.a=TRUE, random.b=TRUE, random.cprime=TRUE,
   moderator = "mod", mod.a=TRUE)
 
 # moderation for b path
 fitmodb<-modmed.mlm(simdat,"L2id", "X", "Y", "M",
-  random.a=TRUE, random.b=TRUE, random.c=TRUE,
+  random.a=TRUE, random.b=TRUE, random.cprime=TRUE,
   moderator = "mod", mod.b=TRUE)
 
 # moderation for both a and b paths
 fitmodab<-modmed.mlm(simdat,"L2id", "X", "Y", "M",
-  random.a=TRUE, random.b=TRUE, random.c=TRUE,
+  random.a=TRUE, random.b=TRUE, random.cprime=TRUE,
   moderator = "mod", mod.a=TRUE, mod.b=TRUE)
 
 # moderation for both a and b paths and random effect for interaction a
 fitmodab2<-modmed.mlm(simdat,"L2id", "X", "Y", "M",
-  random.a=TRUE, random.b=TRUE, random.c=TRUE,
+  random.a=TRUE, random.b=TRUE, random.cprime=TRUE,
   moderator = "mod", mod.a=TRUE, mod.b=TRUE,
   random.mod.a = TRUE, random.mod.m = TRUE)
 
 # moderation for both a and b paths and random effect for interaction b
 fitmodab3<-modmed.mlm(simdat,"L2id", "X", "Y", "M",
-  random.a=TRUE, random.b=TRUE, random.c=TRUE,
+  random.a=TRUE, random.b=TRUE, random.cprime=TRUE,
   moderator = "mod", mod.a=TRUE, mod.b=TRUE,
   random.mod.b = TRUE, random.mod.y = TRUE)
 
 # moderation for both a and b paths and random effect for both interactions
 fitmodab4<-modmed.mlm(simdat,"L2id", "X", "Y", "M",
-  random.a=TRUE, random.b=TRUE, random.c=TRUE,
+  random.a=TRUE, random.b=TRUE, random.cprime=TRUE,
   moderator = "mod", mod.a=TRUE, mod.b=TRUE,
   random.mod.a = TRUE, random.mod.b = TRUE,
   random.mod.m = TRUE, random.mod.y = TRUE)
