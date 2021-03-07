@@ -343,7 +343,7 @@ boot.modmed.mlm <- function(data, indices, L2ID, ...,
 #' @importFrom stats as.formula
 #' @export
 modmed.mlm<-function(data, L2ID, X, Y, M,
-                     moderator, mod.a = FALSE, mod.b = FALSE, mod.cprime = FALSE,
+                     moderator = NULL, mod.a = FALSE, mod.b = FALSE, mod.cprime = FALSE,
                      covars.m = NULL, covars.y = NULL,
                      random.a = FALSE, random.b = FALSE, random.cprime = FALSE,
                      random.mod.a = FALSE, random.mod.b = FALSE, random.mod.cprime = FALSE,
