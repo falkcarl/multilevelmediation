@@ -343,7 +343,7 @@ boot.modmed.mlm <- function(data, indices, L2ID, ...,
 #' @importFrom stats as.formula
 #' @export
 modmed.mlm<-function(data, L2ID, X, Y, M,
-                     moderator, mod.a = FALSE, mod.b = FALSE, mod.cprime = FALSE,
+                     moderator = NULL, mod.a = FALSE, mod.b = FALSE, mod.cprime = FALSE,
                      covars.m = NULL, covars.y = NULL,
                      random.a = FALSE, random.b = FALSE, random.cprime = FALSE,
                      random.mod.a = FALSE, random.mod.b = FALSE, random.mod.cprime = FALSE,
@@ -537,22 +537,33 @@ extract.modmed.mlm <- function(fit, type=c("all","fixef","recov","recov.vec","in
     # depending on type and fit$call, it is possible to guess the length of output here
     # This is a bit tenuous if support for more variables changes, however
 
+    # Grab the argument values that differ from default
     args <- as.list(args(modmed.mlm))
     calledargs <- as.list(fit$call)
     args[names(calledargs)] <- calledargs
 
-    # TODO: add check for covariates here
-
+    # Grab if a, b, c paths were moderated
     moda <- unlist(args[grepl("^mod\\.a",names(args))])
     modb <- unlist(args[grepl("^mod\\.b",names(args))])
     modc <- unlist(args[grepl("^mod\\.c",names(args))])
 
-    nfixefa <- 2 + ifelse(any(moda),2,0) # number of fixed effects first model
-    nfixefb <- 3 + ifelse(any(modb)||any(modc),1,0) + any(modb) + any(modc) #number of fixed effects second model
+    # Grab number of covariates for m and y outcomes
+    #FIXME TV: I couldn't figure out a way to get more than 1 covariate at a time
+    #TV: For some reason the match.call() in modmed.mlm doesn't save the names of
+    #the covariates when you use something like c("cov1","cov2")
+    #TV: This becomes a problem if the model fails to converge; the number of NAs returned is not the same and throws an error
+    #TV: So for now it can only handle 1 covariate that is specified as a string (without using c(), which might give an error)
+
+    cova = length(args$covars.m)
+    covb = length(args$covars.y)
+
+    nfixefa <- 2 + ifelse(any(moda),2,0) + cova # number of fixed effects first model
+    nfixefb <- 3 + ifelse(any(modb)||any(modc),1,0) + any(modb) + any(modc) + covb #number of fixed effects second model
     nfex <- nfixefa + nfixefb # combined
 
     # re due to 2 random intercepts + abc paths
-    nre <- 2 + sum(unlist(args[grepl("^random\\.[abc]$",names(args))]))
+    #nre <- 2 + sum(unlist(args[grepl("^random\\.[abc]$",names(args))]))
+    nre <- 2 + sum(unlist(args[grepl("^random\\.([ab]|cprime)$",names(args))]))
 
     # re due to moderator effects
     nre <- nre + sum(unlist(args[grepl("^random\\.mod\\.([abym]|cprime)$",names(args))]))
