@@ -536,9 +536,24 @@ extract.modmed.mlm <- function(fit, type=c("all","fixef","recov","recov.vec","in
     # Depending on type and fit$call, it is possible to guess the length of output here
     # This is a bit tenuous if support for more variables changes, however
 
+    # https://stackoverflow.com/questions/17256834/getting-the-arguments-of-a-parent-function-in-r-with-names
+    # FIXME: this could get broken if we do more than just 2 level bootstrapping w/ boot package
+    # Called directly, or from boot?
+    if(sys.nframe()>2){
+      funcname<-match.call(def=sys.function(-2),call=sys.call(-2))[[1]]
+      if(as.character(funcname) == "boot"){
+        # from boot
+        calledargs<-match.call(def=sys.function(-2),call=sys.call(-2))
+      } else {
+        stop("Can't detect calling arguments for extract.modmed.mlm")
+      }
+    } else {
+      # directly
+      calledargs <- as.list(fit$call)
+    }
+
     # Grab the argument values that differ from default
     args <- as.list(args(modmed.mlm))
-    calledargs <- as.list(fit$call)
     args[names(calledargs)] <- calledargs
 
     # Grab if a, b, c paths were moderated
