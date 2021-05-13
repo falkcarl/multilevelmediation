@@ -355,7 +355,7 @@ modmed.mlm<-function(data, L2ID, X, Y, M,
 
   # Some input checking per Todd's code:
   # TV: These input checks will happen at every loop of the bootstrap.
-  # TV: Is there a more efficient way? Or is the slowdown negligible?
+  # TV: Is there a more efficient way? Or is the slowdown negligible? CFF: probably not that slow due to this
 
   # Stop if X, Y, or M variables in data are not numeric
   # factors not currently able to be used to set up BPG syntax for lme model (is there a possible workaround?)
@@ -533,8 +533,7 @@ extract.modmed.mlm <- function(fit, type=c("all","fixef","recov","recov.vec","in
   if(!fit$conv || is.null(fit$model)){
 
     # If model fitting was a problem
-    # Can I just return NA? Or does it need to be of a certain length?
-    # depending on type and fit$call, it is possible to guess the length of output here
+    # Depending on type and fit$call, it is possible to guess the length of output here
     # This is a bit tenuous if support for more variables changes, however
 
     # Grab the argument values that differ from default
@@ -548,14 +547,8 @@ extract.modmed.mlm <- function(fit, type=c("all","fixef","recov","recov.vec","in
     modc <- unlist(args[grepl("^mod\\.c",names(args))])
 
     # Grab number of covariates for m and y outcomes
-    #FIXME TV: I couldn't figure out a way to get more than 1 covariate at a time
-    #TV: For some reason the match.call() in modmed.mlm doesn't save the names of
-    #the covariates when you use something like c("cov1","cov2")
-    #TV: This becomes a problem if the model fails to converge; the number of NAs returned is not the same and throws an error
-    #TV: So for now it can only handle 1 covariate that is specified as a string (without using c(), which might give an error)
-
-    cova = length(args$covars.m)
-    covb = length(args$covars.y)
+    cova = length(eval(args$covars.m))
+    covb = length(eval(args$covars.y))
 
     nfixefa <- 2 + ifelse(any(moda),2,0) + cova # number of fixed effects first model
     nfixefb <- 3 + ifelse(any(modb)||any(modc),1,0) + any(modb) + any(modc) + covb #number of fixed effects second model
