@@ -301,3 +301,525 @@
          re.SmSyM    re.SySyM   re.SyMSyM 
       -0.02928484 -0.01768606  0.13410969 
 
+# moderated a
+
+    Code
+      extract.modmed.mlm(fitmoda, "indirect", modval1 = 0)
+    Output
+      [1] 0.206372
+
+---
+
+    Code
+      extract.modmed.mlm(fitmoda, "indirect", modval1 = 1)
+    Output
+      [1] 0.2479163
+
+---
+
+    Code
+      extract.modmed.mlm(fitmoda, "indirect.diff", modval1 = 0, modval2 = 1)
+    Output
+      [1] -0.04154434
+
+---
+
+    Code
+      extract.modmed.mlm(fitmoda, "indirect", modval1 = 0) - extract.modmed.mlm(
+        fitmoda, "indirect", modval1 = 1)
+    Output
+      [1] -0.04154434
+
+---
+
+    Code
+      extract.modmed.mlm(fitmoda, "a", modval1 = 0)
+    Output
+      [1] 0.2824568
+
+---
+
+    Code
+      extract.modmed.mlm(fitmoda, "a", modval1 = 1)
+    Output
+      [1] 0.3988152
+
+---
+
+    Code
+      extract.modmed.mlm(fitmoda, "a.diff", modval1 = 0, modval2 = 1)
+    Output
+      [1] -0.1163584
+
+---
+
+    Code
+      extract.modmed.mlm(fitmoda, "a", modval1 = 0) - extract.modmed.mlm(fitmoda, "a",
+        modval1 = 1)
+    Output
+      [1] -0.1163584
+
+---
+
+    Code
+      extract.modmed.mlm(fitmoda, "b", modval1 = 0)
+    Output
+      [1] 0.3570378
+
+---
+
+    Code
+      extract.modmed.mlm(fitmoda, "b", modval1 = 1)
+    Output
+      [1] 0.3570378
+
+---
+
+    Code
+      extract.modmed.mlm(fitmoda, "b.diff", modval1 = 0, modval2 = 1)
+    Output
+      [1] 0
+
+---
+
+    Code
+      extract.modmed.mlm(fitmoda, "b", modval1 = 0) - extract.modmed.mlm(fitmoda, "b",
+        modval1 = 1)
+    Output
+      [1] 0
+
+# moderated b
+
+    Code
+      extract.modmed.mlm(fitmodb, "indirect", modval1 = 0)
+    Output
+      [1] 0.3029877
+
+---
+
+    Code
+      extract.modmed.mlm(fitmodb, "indirect", modval1 = 1)
+    Output
+      [1] 0.1880407
+
+---
+
+    Code
+      extract.modmed.mlm(fitmodb, "indirect.diff", modval1 = 0, modval2 = 1)
+    Output
+      [1] 0.114947
+
+---
+
+    Code
+      extract.modmed.mlm(fitmodb, "indirect", modval1 = 0) - extract.modmed.mlm(
+        fitmodb, "indirect", modval1 = 1)
+    Output
+      [1] 0.114947
+
+---
+
+    Code
+      extract.modmed.mlm(fitmodb, "a", modval1 = 0)
+    Output
+      [1] 0.3466759
+
+---
+
+    Code
+      extract.modmed.mlm(fitmodb, "a", modval1 = 1)
+    Output
+      [1] 0.3466759
+
+---
+
+    Code
+      extract.modmed.mlm(fitmodb, "a.diff", modval1 = 0, modval2 = 1)
+    Output
+      [1] 0
+
+---
+
+    Code
+      extract.modmed.mlm(fitmodb, "a", modval1 = 0) - extract.modmed.mlm(fitmodb, "a",
+        modval1 = 1)
+    Output
+      [1] 0
+
+---
+
+    Code
+      extract.modmed.mlm(fitmodb, "b", modval1 = 0)
+    Output
+      [1] 0.5390711
+
+---
+
+    Code
+      extract.modmed.mlm(fitmodb, "b", modval1 = 1)
+    Output
+      [1] 0.207502
+
+---
+
+    Code
+      extract.modmed.mlm(fitmodb, "b.diff", modval1 = 0, modval2 = 1)
+    Output
+      [1] 0.3315691
+
+---
+
+    Code
+      extract.modmed.mlm(fitmodb, "b", modval1 = 0) - extract.modmed.mlm(fitmodb, "b",
+        modval1 = 1)
+    Output
+      [1] 0.3315691
+
+# moderated a and b
+
+    Code
+      extract.modmed.mlm(fitmodab, "indirect", modval1 = 0)
+    Output
+      [1] 0.2704213
+
+---
+
+    Code
+      extract.modmed.mlm(fitmodab, "indirect", modval1 = 1)
+    Output
+      [1] 0.2006622
+
+---
+
+    Code
+      extract.modmed.mlm(fitmodab, "indirect.diff", modval1 = 0, modval2 = 1)
+    Output
+      [1] 0.06975914
+
+---
+
+    Code
+      extract.modmed.mlm(fitmodab, "indirect", modval1 = 0) - extract.modmed.mlm(
+        fitmodab, "indirect", modval1 = 1)
+    Output
+      [1] 0.06975914
+
+---
+
+    Code
+      extract.modmed.mlm(fitmodab, "a", modval1 = 0)
+    Output
+      [1] 0.2831149
+
+---
+
+    Code
+      extract.modmed.mlm(fitmodab, "a", modval1 = 1)
+    Output
+      [1] 0.3998559
+
+---
+
+    Code
+      extract.modmed.mlm(fitmodab, "a.diff", modval1 = 0, modval2 = 1)
+    Output
+      [1] -0.1167409
+
+---
+
+    Code
+      extract.modmed.mlm(fitmodab, "a", modval1 = 0) - extract.modmed.mlm(fitmodab,
+        "a", modval1 = 1)
+    Output
+      [1] -0.1167409
+
+---
+
+    Code
+      extract.modmed.mlm(fitmodab, "b", modval1 = 0)
+    Output
+      [1] 0.5384093
+
+---
+
+    Code
+      extract.modmed.mlm(fitmodab, "b", modval1 = 1)
+    Output
+      [1] 0.2067559
+
+---
+
+    Code
+      extract.modmed.mlm(fitmodab, "b.diff", modval1 = 0, modval2 = 1)
+    Output
+      [1] 0.3316534
+
+---
+
+    Code
+      extract.modmed.mlm(fitmodab, "b", modval1 = 0) - extract.modmed.mlm(fitmodab,
+        "b", modval1 = 1)
+    Output
+      [1] 0.3316534
+
+# moderated a and b rand interaction a
+
+    Code
+      extract.modmed.mlm(fitmodab2, "indirect", modval1 = 0)
+    Output
+      [1] 0.3089283
+
+---
+
+    Code
+      extract.modmed.mlm(fitmodab2, "indirect", modval1 = 1)
+    Output
+      [1] 0.161422
+
+---
+
+    Code
+      extract.modmed.mlm(fitmodab2, "indirect.diff", modval1 = 0, modval2 = 1)
+    Output
+      [1] 0.1475063
+
+---
+
+    Code
+      extract.modmed.mlm(fitmodab2, "indirect", modval1 = 0) - extract.modmed.mlm(
+        fitmodab2, "indirect", modval1 = 1)
+    Output
+      [1] 0.1475063
+
+---
+
+    Code
+      extract.modmed.mlm(fitmodab2, "a", modval1 = 0)
+    Output
+      [1] 0.286757
+
+---
+
+    Code
+      extract.modmed.mlm(fitmodab2, "a", modval1 = 1)
+    Output
+      [1] 0.3806721
+
+---
+
+    Code
+      extract.modmed.mlm(fitmodab2, "a.diff", modval1 = 0, modval2 = 1)
+    Output
+      [1] -0.09391512
+
+---
+
+    Code
+      extract.modmed.mlm(fitmodab2, "a", modval1 = 0) - extract.modmed.mlm(fitmodab2,
+        "a", modval1 = 1)
+    Output
+      [1] -0.09391512
+
+---
+
+    Code
+      extract.modmed.mlm(fitmodab2, "b", modval1 = 0)
+    Output
+      [1] 0.5325093
+
+---
+
+    Code
+      extract.modmed.mlm(fitmodab2, "b", modval1 = 1)
+    Output
+      [1] 0.2099432
+
+---
+
+    Code
+      extract.modmed.mlm(fitmodab2, "b.diff", modval1 = 0, modval2 = 1)
+    Output
+      [1] 0.322566
+
+---
+
+    Code
+      extract.modmed.mlm(fitmodab2, "b", modval1 = 0) - extract.modmed.mlm(fitmodab2,
+        "b", modval1 = 1)
+    Output
+      [1] 0.322566
+
+# moderated a and b rand interaction b
+
+    Code
+      extract.modmed.mlm(fitmodab3, "indirect", modval1 = 0)
+    Output
+      [1] 0.2929382
+
+---
+
+    Code
+      extract.modmed.mlm(fitmodab3, "indirect", modval1 = 1)
+    Output
+      [1] 0.1902641
+
+---
+
+    Code
+      extract.modmed.mlm(fitmodab3, "indirect.diff", modval1 = 0, modval2 = 1)
+    Output
+      [1] 0.1026741
+
+---
+
+    Code
+      extract.modmed.mlm(fitmodab3, "indirect", modval1 = 0) - extract.modmed.mlm(
+        fitmodab3, "indirect", modval1 = 1)
+    Output
+      [1] 0.1026741
+
+---
+
+    Code
+      extract.modmed.mlm(fitmodab3, "a", modval1 = 0)
+    Output
+      [1] 0.2874946
+
+---
+
+    Code
+      extract.modmed.mlm(fitmodab3, "a", modval1 = 1)
+    Output
+      [1] 0.4079787
+
+---
+
+    Code
+      extract.modmed.mlm(fitmodab3, "a.diff", modval1 = 0, modval2 = 1)
+    Output
+      [1] -0.1204841
+
+---
+
+    Code
+      extract.modmed.mlm(fitmodab3, "a", modval1 = 0) - extract.modmed.mlm(fitmodab3,
+        "a", modval1 = 1)
+    Output
+      [1] -0.1204841
+
+---
+
+    Code
+      extract.modmed.mlm(fitmodab3, "b", modval1 = 0)
+    Output
+      [1] 0.5946357
+
+---
+
+    Code
+      extract.modmed.mlm(fitmodab3, "b", modval1 = 1)
+    Output
+      [1] 0.2143952
+
+---
+
+    Code
+      extract.modmed.mlm(fitmodab3, "b.diff", modval1 = 0, modval2 = 1)
+    Output
+      [1] 0.3802405
+
+---
+
+    Code
+      extract.modmed.mlm(fitmodab3, "b", modval1 = 0) - extract.modmed.mlm(fitmodab3,
+        "b", modval1 = 1)
+    Output
+      [1] 0.3802405
+
+# moderated a and b rand interaction both
+
+    Code
+      extract.modmed.mlm(fitmodab4, "indirect", modval1 = 0)
+    Output
+      [1] 0.3091362
+
+---
+
+    Code
+      extract.modmed.mlm(fitmodab4, "indirect", modval1 = 1)
+    Output
+      [1] 0.1511675
+
+---
+
+    Code
+      extract.modmed.mlm(fitmodab4, "indirect.diff", modval1 = 0, modval2 = 1)
+    Output
+      [1] 0.1579687
+
+---
+
+    Code
+      extract.modmed.mlm(fitmodab4, "indirect", modval1 = 0) - extract.modmed.mlm(
+        fitmodab4, "indirect", modval1 = 1)
+    Output
+      [1] 0.1579687
+
+---
+
+    Code
+      extract.modmed.mlm(fitmodab4, "a", modval1 = 0)
+    Output
+      [1] 0.2909437
+
+---
+
+    Code
+      extract.modmed.mlm(fitmodab4, "a", modval1 = 1)
+    Output
+      [1] 0.3874318
+
+---
+
+    Code
+      extract.modmed.mlm(fitmodab4, "a.diff", modval1 = 0, modval2 = 1)
+    Output
+      [1] -0.0964881
+
+---
+
+    Code
+      extract.modmed.mlm(fitmodab4, "a", modval1 = 0) - extract.modmed.mlm(fitmodab4,
+        "a", modval1 = 1)
+    Output
+      [1] -0.0964881
+
+---
+
+    Code
+      extract.modmed.mlm(fitmodab4, "b", modval1 = 0)
+    Output
+      [1] 0.5846794
+
+---
+
+    Code
+      extract.modmed.mlm(fitmodab4, "b", modval1 = 1)
+    Output
+      [1] 0.2282893
+
+---
+
+    Code
+      extract.modmed.mlm(fitmodab4, "b.diff", modval1 = 0, modval2 = 1)
+    Output
+      [1] 0.3563901
+
+---
+
+    Code
+      extract.modmed.mlm(fitmodab4, "b", modval1 = 0) - extract.modmed.mlm(fitmodab4,
+        "b", modval1 = 1)
+    Output
+      [1] 0.3563901
+
