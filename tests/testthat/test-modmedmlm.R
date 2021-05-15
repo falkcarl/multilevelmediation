@@ -237,3 +237,22 @@ test_that("moderated a and b rand interaction both", {
     extract.modmed.mlm(fitmodab4, "b", modval1=1))  # should match prev line
 
 })
+
+
+# takes too long?
+#test_that("boot rand a b", {
+#  boot.result<-boot(BPG06dat, statistic=boot.modmed.mlm, R=50,
+#    L2ID = "id", X = "x", Y = "y", M = "m",
+#      random.a=TRUE, random.b=TRUE, random.cprime=TRUE,
+#      type="indirect")
+#  boot.result$t0 # point estimates for everything based on original data
+#  boot.ci(boot.result, index=1, type="perc") # percentile interval of first element
+#  extract.boot.modmed.mlm(boot.result, type="indirect", ci.conf=.95)
+#})
+
+# to see code coverage of tests
+#library(covr)
+#covr <- package_coverage(path="./path/to/package")
+#covr <- package_coverage(path=".")
+#covr
+#report(covr)
