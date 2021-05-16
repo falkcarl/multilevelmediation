@@ -27,7 +27,7 @@ then resampling is done as described in details.}
 
 \item{...}{Arguments passed to \code{modmed.mlm} to define the mediation analysis model.}
 
-\item{type}{String that defines what information to extract from the model. Default and options are in \code{extract.modmed.mlm}.
+\item{type}{Character that defines what information to extract from the model. Default and options are in \code{extract.modmed.mlm}.
 As examples, "indirect" will compute the indirect effect, "all" will save all random and fixed effects for possible additional
 computations, "indirect.diff" will compute the difference in the indirect effect at two values of a possible moderating variable.}
 
@@ -38,6 +38,8 @@ to compute the indirect effect or other effects at that value. See \code{extract
 at two values of the moderator. If given and an appropriate option for such a difference is chosen for \code{type},
 this value and that of \code{modval1} will be passed to \code{extract.modmed.mlm} to compute and save the difference.
 This is useful for obtaining a CI for the difference in the indirect effect at two different levels of the moderator.}
+
+\item{boot.lvl}{Character that defines at what level resampling should occur. Options are "both", "1", or "2".}
 }
 \description{
 Custom boot function for (moderated) mediation with 2-level multilevel models
@@ -90,38 +92,38 @@ data(BPG06dat)
 
 ## Moderated mediation
 
-data(simdat)
-ncpu<-12
-cl<-makeCluster(ncpu)
+#data(simdat)
+#ncpu<-12
+#cl<-makeCluster(ncpu)
 
 # Bootstrap w/ moderation of a and b paths
 
-boot.result2<-boot(simdat, statistic=boot.modmed.mlm, R=10000,
- L2ID = "L2id", X = "X", Y = "Y", M = "M",
-  random.a=TRUE, random.b=TRUE, random.cprime=TRUE,
-  moderator = "mod", mod.a=TRUE, mod.b=TRUE,
-  random.mod.a = TRUE, random.mod.b = TRUE,
-  type="all",
-  parallel="snow",ncpus=ncpu,cl=cl)
+#boot.result2<-boot(simdat, statistic=boot.modmed.mlm, R=10000,
+# L2ID = "L2id", X = "X", Y = "Y", M = "M",
+#   random.a=TRUE, random.b=TRUE, random.cprime=TRUE,
+#   moderator = "mod", mod.a=TRUE, mod.b=TRUE,
+#   random.mod.a = TRUE, random.mod.b = TRUE,
+#   type="all",
+#   parallel="snow",ncpus=ncpu,cl=cl)
 
- test<-modmed.mlm(simdat,
- L2ID = "L2id", X = "X", Y = "Y", M = "M",
-  random.a=TRUE, random.b=TRUE, random.cprime=TRUE,
-  moderator = "mod", mod.a=TRUE, mod.b=TRUE,
-  random.mod.a = TRUE, random.mod.b = TRUE)
+#  test<-modmed.mlm(simdat,
+#  L2ID = "L2id", X = "X", Y = "Y", M = "M",
+#   random.a=TRUE, random.b=TRUE, random.cprime=TRUE,
+#   moderator = "mod", mod.a=TRUE, mod.b=TRUE,
+#   random.mod.a = TRUE, random.mod.b = TRUE)
 
-stopCluster(cl)
+# stopCluster(cl)
 
 # indirect effect point estimate and 95\% CI when moderator = 0
-extract.boot.modmed.mlm(boot.result2, type="indirect")
-extract.boot.modmed.mlm(boot.result2, type="indirect", modval1=0)
+#extract.boot.modmed.mlm(boot.result2, type="indirect")
+#extract.boot.modmed.mlm(boot.result2, type="indirect", modval1=0)
 
 # indirect effect point estimate and 95\% CI when moderator = 1
-extract.boot.modmed.mlm(boot.result2, type="indirect", modval1=1)
+#extract.boot.modmed.mlm(boot.result2, type="indirect", modval1=1)
 
 # indirect effect difference point estimate and 95\% CI
-extract.boot.modmed.mlm(boot.result2, type="indirect.diff",
-  modval1=0, modval2=1)
+#extract.boot.modmed.mlm(boot.result2, type="indirect.diff",
+#   modval1=0, modval2=1)
 
 }
 }

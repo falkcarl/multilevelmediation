@@ -28,22 +28,22 @@ modmed.mlm(
   random.covars.y = NULL,
   method = "REML",
   control = lmeControl(maxIter = 10000, msMaxIter = 10000, niterEM = 10000, msMaxEval =
-    10000, tolerance = 1e-06),
+    10000, tolerance = 0.000001),
   returndata = FALSE
 )
 }
 \arguments{
 \item{data}{Data frame in long format.}
 
-\item{L2ID}{(String) Name of column that contains grouping variable in \code{data} (e.g., \code{"SubjectID"}).}
+\item{L2ID}{(Character) Name of column that contains grouping variable in \code{data} (e.g., \code{"SubjectID"}).}
 
-\item{X}{(String) Name of column that contains the X independent variable in \code{data}.}
+\item{X}{(Character) Name of column that contains the X independent variable in \code{data}.}
 
-\item{Y}{(String) Name of column that contains the Y dependent variable in \code{data}.}
+\item{Y}{(Character) Name of column that contains the Y dependent variable in \code{data}.}
 
-\item{M}{(String) Name of column that contains the M mediating variable in \code{data}.}
+\item{M}{(Character) Name of column that contains the M mediating variable in \code{data}.}
 
-\item{moderator}{Optional string that contains name of column that contains the moderator variable in \code{data}}
+\item{moderator}{Optional Character that contains name of column that contains the moderator variable in \code{data}}
 
 \item{mod.a}{(Logical) Add moderator to 'a' path (i.e., SmX:W, where W is the moderator)?}
 
@@ -51,21 +51,29 @@ modmed.mlm(
 
 \item{mod.cprime}{(Logical) Add moderator to 'c' path (i.e., SyX:W, where W is the moderator)}
 
+\item{covars.m}{(Character vector) Optional covariates to include in the model for M.}
+
+\item{covars.y}{(Character vector) Optional covariates to include in the model for Y.}
+
 \item{random.a}{(Logical) Add random slope for 'a' path (i.e,. SmX)?}
 
 \item{random.b}{(Logical) Add random slope for 'b' path (i.e., SyM)?}
 
 \item{random.cprime}{(Logical) Add random slope for 'cprime' direct effect path (i.e., SyX)?}
 
-\item{random.mod.a}{(Logical) Add random slope for 'a' path moderator? (not yet supported)}
+\item{random.mod.a}{(Logical) Add random slope for 'a' path moderator?}
 
-\item{random.mod.b}{(Logical) Add random slope for 'b' path moderator? (not yet supported)}
+\item{random.mod.b}{(Logical) Add random slope for 'b' path moderator?}
 
-\item{random.mod.cprime}{(Logical) Add random slope for 'c' path moderator? (not yet supported)}
+\item{random.mod.cprime}{(Logical) Add random slope for 'c' path moderator?}
 
-\item{random.mod.m}{(Logical) Add random slope for effect of moderator on M? (not yet supported)}
+\item{random.mod.m}{(Logical) Add random slope for effect of moderator on M?}
 
-\item{random.mod.y}{(Logical) Add random slope for effect of moderator on Y? (not yet supported)}
+\item{random.mod.y}{(Logical) Add random slope for effect of moderator on Y?}
+
+\item{random.covars.m}{(Logical vector) Add random slopes for covariates on M?}
+
+\item{random.covars.y}{(Logical vector) Add random slopes for covariates on Y?}
 
 \item{method}{Argument passed to \code{\link[nlme]{lme}} to control estimation method.}
 
@@ -155,74 +163,86 @@ AIC(fitmodab4$model) # AIC here is best. Great simulated data we have here
 extract.modmed.mlm(fitmodab4, "indirect")
 extract.modmed.mlm(fitmodab4, "indirect", modval1=0) # should match above
 extract.modmed.mlm(fitmodab4, "indirect", modval1=1)
-extract.modmed.mlm(fitmodab4, "indirect.diff", modval1 = 0, modval2=1) # should match difference between the two above?
-extract.modmed.mlm(fitmodab4, "indirect", modval1=0)-extract.modmed.mlm(fitmodab4, "indirect", modval1=1) # should match prev line
+extract.modmed.mlm(fitmodab4, "indirect.diff", modval1 = 0, modval2=1)
+extract.modmed.mlm(fitmodab4, "indirect", modval1=0)-
+  extract.modmed.mlm(fitmodab4, "indirect", modval1=1) # should match prev line
 
 extract.modmed.mlm(fitmodab4, "a")
 extract.modmed.mlm(fitmodab4, "a", modval1=0) # should match above
 extract.modmed.mlm(fitmodab4, "a", modval1=1)
-extract.modmed.mlm(fitmodab4, "a.diff", modval1 = 0, modval2=1) # should match difference between the two above?
-extract.modmed.mlm(fitmodab4, "a", modval1=0)-extract.modmed.mlm(fitmodab4, "a", modval1=1)  # should match prev line
+extract.modmed.mlm(fitmodab4, "a.diff", modval1 = 0, modval2=1)
+extract.modmed.mlm(fitmodab4, "a", modval1=0)-
+  extract.modmed.mlm(fitmodab4, "a", modval1=1)  # should match prev line
 
 extract.modmed.mlm(fitmodab4, "b")
 extract.modmed.mlm(fitmodab4, "b", modval1=0) # should match above
 extract.modmed.mlm(fitmodab4, "b", modval1=1)
-extract.modmed.mlm(fitmodab4, "b.diff", modval1 = 0, modval2=1) # should match difference between the two above?
-extract.modmed.mlm(fitmodab4, "b", modval1=0)-extract.modmed.mlm(fitmodab4, "b", modval1=1)  # should match prev line
+extract.modmed.mlm(fitmodab4, "b.diff", modval1 = 0, modval2=1)
+extract.modmed.mlm(fitmodab4, "b", modval1=0)-
+  extract.modmed.mlm(fitmodab4, "b", modval1=1)  # should match prev line
 
 extract.modmed.mlm(fitmodab3, "indirect")
 extract.modmed.mlm(fitmodab3, "indirect", modval1=0) # should match above
 extract.modmed.mlm(fitmodab3, "indirect", modval1=1)
-extract.modmed.mlm(fitmodab3, "indirect.diff", modval1 = 0, modval2=1) # should match difference between the two above?
-extract.modmed.mlm(fitmodab3, "indirect", modval1=0)-extract.modmed.mlm(fitmodab3, "indirect", modval1=1) # should match prev line
+extract.modmed.mlm(fitmodab3, "indirect.diff", modval1 = 0, modval2=1)
+extract.modmed.mlm(fitmodab3, "indirect", modval1=0)-
+  extract.modmed.mlm(fitmodab3, "indirect", modval1=1) # should match prev line
 
 extract.modmed.mlm(fitmodab3, "a")
 extract.modmed.mlm(fitmodab3, "a", modval1=0) # should match above
 extract.modmed.mlm(fitmodab3, "a", modval1=1)
-extract.modmed.mlm(fitmodab3, "a.diff", modval1 = 0, modval2=1) # should match difference between the two above?
-extract.modmed.mlm(fitmodab3, "a", modval1=0)-extract.modmed.mlm(fitmodab3, "a", modval1=1)  # should match prev line
+extract.modmed.mlm(fitmodab3, "a.diff", modval1 = 0, modval2=1)
+extract.modmed.mlm(fitmodab3, "a", modval1=0)-
+  extract.modmed.mlm(fitmodab3, "a", modval1=1)  # should match prev line
 
 extract.modmed.mlm(fitmodab3, "b")
 extract.modmed.mlm(fitmodab3, "b", modval1=0) # should match above
 extract.modmed.mlm(fitmodab3, "b", modval1=1)
-extract.modmed.mlm(fitmodab3, "b.diff", modval1 = 0, modval2=1) # should match difference between the two above?
-extract.modmed.mlm(fitmodab3, "b", modval1=0)-extract.modmed.mlm(fitmodab3, "b", modval1=1)  # should match prev line
+extract.modmed.mlm(fitmodab3, "b.diff", modval1 = 0, modval2=1)
+extract.modmed.mlm(fitmodab3, "b", modval1=0)-
+  extract.modmed.mlm(fitmodab3, "b", modval1=1)  # should match prev line
 
 extract.modmed.mlm(fitmodab2, "indirect")
 extract.modmed.mlm(fitmodab2, "indirect", modval1=0) # should match above
 extract.modmed.mlm(fitmodab2, "indirect", modval1=1)
-extract.modmed.mlm(fitmodab2, "indirect.diff", modval1 = 0, modval2=1) # should match difference between the two above?
-extract.modmed.mlm(fitmodab2, "indirect", modval1=0)-extract.modmed.mlm(fitmodab2, "indirect", modval1=1) # should match prev line
+extract.modmed.mlm(fitmodab2, "indirect.diff", modval1 = 0, modval2=1)
+extract.modmed.mlm(fitmodab2, "indirect", modval1=0)-
+  extract.modmed.mlm(fitmodab2, "indirect", modval1=1) # should match prev line
 
 extract.modmed.mlm(fitmodab2, "a")
 extract.modmed.mlm(fitmodab2, "a", modval1=0) # should match above
 extract.modmed.mlm(fitmodab2, "a", modval1=1)
-extract.modmed.mlm(fitmodab2, "a.diff", modval1 = 0, modval2=1) # should match difference between the two above?
-extract.modmed.mlm(fitmodab2, "a", modval1=0)-extract.modmed.mlm(fitmodab2, "a", modval1=1)  # should match prev line
+extract.modmed.mlm(fitmodab2, "a.diff", modval1 = 0, modval2=1)
+extract.modmed.mlm(fitmodab2, "a", modval1=0)-
+  extract.modmed.mlm(fitmodab2, "a", modval1=1)  # should match prev line
 
 extract.modmed.mlm(fitmodab2, "b")
 extract.modmed.mlm(fitmodab2, "b", modval1=0) # should match above
 extract.modmed.mlm(fitmodab2, "b", modval1=1)
-extract.modmed.mlm(fitmodab2, "b.diff", modval1 = 0, modval2=1) # should match difference between the two above?
-extract.modmed.mlm(fitmodab2, "b", modval1=0)-extract.modmed.mlm(fitmodab2, "b", modval1=1)  # should match prev line
+extract.modmed.mlm(fitmodab2, "b.diff", modval1 = 0, modval2=1)
+extract.modmed.mlm(fitmodab2, "b", modval1=0)-
+  extract.modmed.mlm(fitmodab2, "b", modval1=1)  # should match prev line
 
 extract.modmed.mlm(fitmodab, "indirect")
 extract.modmed.mlm(fitmodab, "indirect", modval1=0) # should match above
 extract.modmed.mlm(fitmodab, "indirect", modval1=1)
-extract.modmed.mlm(fitmodab, "indirect.diff", modval1 = 0, modval2=1) # should match difference between the two above?
-extract.modmed.mlm(fitmodab, "indirect", modval1=0)-extract.modmed.mlm(fitmodab, "indirect", modval1=1) # should match prev line
+extract.modmed.mlm(fitmodab, "indirect.diff", modval1 = 0, modval2=1)
+extract.modmed.mlm(fitmodab, "indirect", modval1=0)-
+  extract.modmed.mlm(fitmodab, "indirect", modval1=1) # should match prev line
 
 extract.modmed.mlm(fitmodab, "a")
 extract.modmed.mlm(fitmodab, "a", modval1=0) # should match above
 extract.modmed.mlm(fitmodab, "a", modval1=1)
-extract.modmed.mlm(fitmodab, "a.diff", modval1 = 0, modval2=1) # should match difference between the two above?
-extract.modmed.mlm(fitmodab, "a", modval1=0)-extract.modmed.mlm(fitmodab, "a", modval1=1)  # should match prev line
+extract.modmed.mlm(fitmodab, "a.diff", modval1 = 0, modval2=1)
+extract.modmed.mlm(fitmodab, "a", modval1=0)-
+  extract.modmed.mlm(fitmodab, "a", modval1=1)  # should match prev line
 
 extract.modmed.mlm(fitmodab, "b")
 extract.modmed.mlm(fitmodab, "b", modval1=0) # should match above
 extract.modmed.mlm(fitmodab, "b", modval1=1)
-extract.modmed.mlm(fitmodab, "b.diff", modval1 = 0, modval2=1) # should match difference between the two above?
-extract.modmed.mlm(fitmodab, "b", modval1=0)-extract.modmed.mlm(fitmodab, "b", modval1=1)  # should match prev line
+extract.modmed.mlm(fitmodab, "b.diff", modval1 = 0, modval2=1)
+extract.modmed.mlm(fitmodab, "b", modval1=0)-
+  extract.modmed.mlm(fitmodab, "b", modval1=1)  # should match prev line
 
 }
 }

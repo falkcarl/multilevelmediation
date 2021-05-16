@@ -4,7 +4,7 @@
 \alias{extract.modmed.mlm}
 \title{Post-processing of a model fit with modmed.mlm}
 \usage{
-extract.modmed.mlm(
+\method{extract}{modmed.mlm}(
   fit,
   type = c("all", "fixef", "recov", "recov.vec", "indirect", "a", "b", "cprime",
     "covab", "indirect.diff", "a.diff", "b.diff", "cprime.diff"),
@@ -15,7 +15,7 @@ extract.modmed.mlm(
 \arguments{
 \item{fit}{Result of \code{modmed.mlm}.}
 
-\item{type}{String indicating which piece of information to extract from the model
+\item{type}{Character indicating which piece of information to extract from the model
 "all": fixed effects and var-cov matrix of random effects, as a single vector.
 "fixef": just fixed effects.
 "recov": var-cov matrix of random effects, as a matrix.

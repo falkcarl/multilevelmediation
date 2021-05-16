@@ -4,7 +4,7 @@
 \alias{extract.boot.modmed.mlm}
 \title{Post-processing of bootstrap results from boot.modmed.mlm}
 \usage{
-extract.boot.modmed.mlm(
+\method{extract}{boot.modmed.mlm}(
   boot.obj,
   type = c("indirect", "a", "b", "cprime", "covab", "indirect.diff", "a.diff",
     "b.diff", "cprime.diff"),
@@ -17,7 +17,7 @@ extract.boot.modmed.mlm(
 \arguments{
 \item{boot.obj}{Result of \code{\link{boot::boot}} using \code{boot.modmed.mlm}}
 
-\item{type}{String indicating which piece of information to extract from the model
+\item{type}{Character indicating which piece of information to extract from the model
 "indirect": value of the indirect effect.
 "a": Current value of a path.
 "b": Current value of b path.
@@ -28,7 +28,7 @@ extract.boot.modmed.mlm(
 "b.diff": difference in b at two values of the moderator (set by \code{modval1} and \code{modval2}).
 "cprime.diff": difference cprime at two values of the moderator (set by \code{modval1} and \code{modval2}).}
 
-\item{ci.type}{String indicating the type of confidence interval to compute.
+\item{ci.type}{Character indicating the type of confidence interval to compute.
 Currently only percentile confidence intervals are supported with "perc".}
 
 \item{ci.conf}{Numeric value indicating the confidence level for the interval.}

@@ -1,7 +1,7 @@
 ######################################################################
 ## Functions for use with bootstrapping
 ##
-## Copyright 2019-2020 Carl F. Falk, Todd Vogel
+## Copyright 2019-2021 Carl F. Falk, Todd Vogel
 ##
 ## This program is free software: you can redistribute it and/or
 ## modify it under the terms of the GNU General Public License as
@@ -23,7 +23,7 @@
 #'   then resampling is done as described in details.
 #' @param L2ID Name of column that contains grouping variable in 'data' (e.g., "SubjectID")
 #' @param ... Arguments passed to \code{modmed.mlm} to define the mediation analysis model.
-#' @param type String that defines what information to extract from the model. Default and options are in \code{extract.modmed.mlm}.
+#' @param type Character that defines what information to extract from the model. Default and options are in \code{extract.modmed.mlm}.
 #'   As examples, "indirect" will compute the indirect effect, "all" will save all random and fixed effects for possible additional
 #'   computations, "indirect.diff" will compute the difference in the indirect effect at two values of a possible moderating variable.
 #' @param modval1 (Optional) Numeric. If the model has a moderator, this value will be passed to \code{extract.modmed.mlm}
@@ -32,6 +32,7 @@
 #'   at two values of the moderator. If given and an appropriate option for such a difference is chosen for \code{type},
 #'   this value and that of \code{modval1} will be passed to \code{extract.modmed.mlm} to compute and save the difference.
 #'   This is useful for obtaining a CI for the difference in the indirect effect at two different levels of the moderator.
+#' @param boot.lvl Character that defines at what level resampling should occur. Options are "both", "1", or "2".
 #' @details TO DO. Implements custom function to do resampling at level 2, then level 1. For use with boot package.
 #'   Capable of doing moderation as well. Need to detail which kinds of moderation, which mediation models (e.g., 1-1-1 only?).
 #'   This resamples L2 units, then L1 units within each L2 unit
@@ -78,41 +79,41 @@
 #'
 #' ## Moderated mediation
 #'
-#' data(simdat)
-#' ncpu<-12
-#' cl<-makeCluster(ncpu)
+#' #data(simdat)
+#' #ncpu<-12
+#' #cl<-makeCluster(ncpu)
 #'
 #' # Bootstrap w/ moderation of a and b paths
 #'
-#' boot.result2<-boot(simdat, statistic=boot.modmed.mlm, R=10000,
-#'  L2ID = "L2id", X = "X", Y = "Y", M = "M",
-#'   random.a=TRUE, random.b=TRUE, random.cprime=TRUE,
-#'   moderator = "mod", mod.a=TRUE, mod.b=TRUE,
-#'   random.mod.a = TRUE, random.mod.b = TRUE,
-#'   type="all",
-#'   parallel="snow",ncpus=ncpu,cl=cl)
+#' #boot.result2<-boot(simdat, statistic=boot.modmed.mlm, R=10000,
+#' # L2ID = "L2id", X = "X", Y = "Y", M = "M",
+#' #   random.a=TRUE, random.b=TRUE, random.cprime=TRUE,
+#' #   moderator = "mod", mod.a=TRUE, mod.b=TRUE,
+#' #   random.mod.a = TRUE, random.mod.b = TRUE,
+#' #   type="all",
+#' #   parallel="snow",ncpus=ncpu,cl=cl)
 #'
-#'  test<-modmed.mlm(simdat,
-#'  L2ID = "L2id", X = "X", Y = "Y", M = "M",
-#'   random.a=TRUE, random.b=TRUE, random.cprime=TRUE,
-#'   moderator = "mod", mod.a=TRUE, mod.b=TRUE,
-#'   random.mod.a = TRUE, random.mod.b = TRUE)
+#' #  test<-modmed.mlm(simdat,
+#' #  L2ID = "L2id", X = "X", Y = "Y", M = "M",
+#' #   random.a=TRUE, random.b=TRUE, random.cprime=TRUE,
+#' #   moderator = "mod", mod.a=TRUE, mod.b=TRUE,
+#' #   random.mod.a = TRUE, random.mod.b = TRUE)
 #'
-#' stopCluster(cl)
+#' # stopCluster(cl)
 #'
 #' # indirect effect point estimate and 95% CI when moderator = 0
-#' extract.boot.modmed.mlm(boot.result2, type="indirect")
-#' extract.boot.modmed.mlm(boot.result2, type="indirect", modval1=0)
+#' #extract.boot.modmed.mlm(boot.result2, type="indirect")
+#' #extract.boot.modmed.mlm(boot.result2, type="indirect", modval1=0)
 #'
 #' # indirect effect point estimate and 95% CI when moderator = 1
-#' extract.boot.modmed.mlm(boot.result2, type="indirect", modval1=1)
+#' #extract.boot.modmed.mlm(boot.result2, type="indirect", modval1=1)
 #'
 #' # indirect effect difference point estimate and 95% CI
-#' extract.boot.modmed.mlm(boot.result2, type="indirect.diff",
-#'   modval1=0, modval2=1)
+#' #extract.boot.modmed.mlm(boot.result2, type="indirect.diff",
+#' #   modval1=0, modval2=1)
 #'
 #' }
-#' @export
+#' @export boot.modmed.mlm
 boot.modmed.mlm <- function(data, indices, L2ID, ...,
                             type="all", modval1=NULL, modval2=NULL,
                             boot.lvl = c("both","1","2")) {
@@ -170,22 +171,26 @@ boot.modmed.mlm <- function(data, indices, L2ID, ...,
 #' Custom model fitting function for two-level (moderated) mediation
 #'
 #' @param data Data frame in long format.
-#' @param L2ID (String) Name of column that contains grouping variable in \code{data} (e.g., \code{"SubjectID"}).
-#' @param X (String) Name of column that contains the X independent variable in \code{data}.
-#' @param Y (String) Name of column that contains the Y dependent variable in \code{data}.
-#' @param M (String) Name of column that contains the M mediating variable in \code{data}.
+#' @param L2ID (Character) Name of column that contains grouping variable in \code{data} (e.g., \code{"SubjectID"}).
+#' @param X (Character) Name of column that contains the X independent variable in \code{data}.
+#' @param Y (Character) Name of column that contains the Y dependent variable in \code{data}.
+#' @param M (Character) Name of column that contains the M mediating variable in \code{data}.
 #' @param random.a (Logical) Add random slope for 'a' path (i.e,. SmX)?
 #' @param random.b (Logical) Add random slope for 'b' path (i.e., SyM)?
 #' @param random.cprime (Logical) Add random slope for 'cprime' direct effect path (i.e., SyX)?
-#' @param moderator Optional string that contains name of column that contains the moderator variable in \code{data}
+#' @param moderator Optional Character that contains name of column that contains the moderator variable in \code{data}
 #' @param mod.a (Logical) Add moderator to 'a' path (i.e., SmX:W, where W is the moderator)?
 #' @param mod.b (Logical) Add moderator to 'b' path (i.e., SyM:W, where W is the moderator)?
 #' @param mod.cprime (Logical) Add moderator to 'c' path (i.e., SyX:W, where W is the moderator)
-#' @param random.mod.a (Logical) Add random slope for 'a' path moderator? (not yet supported)
-#' @param random.mod.b (Logical) Add random slope for 'b' path moderator? (not yet supported)
-#' @param random.mod.cprime (Logical) Add random slope for 'c' path moderator? (not yet supported)
-#' @param random.mod.m (Logical) Add random slope for effect of moderator on M? (not yet supported)
-#' @param random.mod.y (Logical) Add random slope for effect of moderator on Y? (not yet supported)
+#' @param covars.m (Character vector) Optional covariates to include in the model for M.
+#' @param covars.y (Character vector) Optional covariates to include in the model for Y.
+#' @param random.mod.a (Logical) Add random slope for 'a' path moderator?
+#' @param random.mod.b (Logical) Add random slope for 'b' path moderator?
+#' @param random.mod.cprime (Logical) Add random slope for 'c' path moderator?
+#' @param random.mod.m (Logical) Add random slope for effect of moderator on M?
+#' @param random.mod.y (Logical) Add random slope for effect of moderator on Y?
+#' @param random.covars.m (Logical vector) Add random slopes for covariates on M?
+#' @param random.covars.y (Logical vector) Add random slopes for covariates on Y?
 #' @param method Argument passed to \code{\link[nlme]{lme}} to control estimation method.
 #' @param control Argument passed to \code{\link[nlme]{lme}} that controls other estimation options.
 #' @param returndata (Logical) Whether to save restructured data in its own slot. Note: nlme may do this automatically. Defaults to \code{FALSE}.
@@ -266,82 +271,93 @@ boot.modmed.mlm <- function(data, indices, L2ID, ...,
 #' extract.modmed.mlm(fitmodab4, "indirect")
 #' extract.modmed.mlm(fitmodab4, "indirect", modval1=0) # should match above
 #' extract.modmed.mlm(fitmodab4, "indirect", modval1=1)
-#' extract.modmed.mlm(fitmodab4, "indirect.diff", modval1 = 0, modval2=1) # should match difference between the two above?
-#' extract.modmed.mlm(fitmodab4, "indirect", modval1=0)-extract.modmed.mlm(fitmodab4, "indirect", modval1=1) # should match prev line
+#' extract.modmed.mlm(fitmodab4, "indirect.diff", modval1 = 0, modval2=1)
+#' extract.modmed.mlm(fitmodab4, "indirect", modval1=0)-
+#'   extract.modmed.mlm(fitmodab4, "indirect", modval1=1) # should match prev line
 #'
 #' extract.modmed.mlm(fitmodab4, "a")
 #' extract.modmed.mlm(fitmodab4, "a", modval1=0) # should match above
 #' extract.modmed.mlm(fitmodab4, "a", modval1=1)
-#' extract.modmed.mlm(fitmodab4, "a.diff", modval1 = 0, modval2=1) # should match difference between the two above?
-#' extract.modmed.mlm(fitmodab4, "a", modval1=0)-extract.modmed.mlm(fitmodab4, "a", modval1=1)  # should match prev line
+#' extract.modmed.mlm(fitmodab4, "a.diff", modval1 = 0, modval2=1)
+#' extract.modmed.mlm(fitmodab4, "a", modval1=0)-
+#'   extract.modmed.mlm(fitmodab4, "a", modval1=1)  # should match prev line
 #'
 #' extract.modmed.mlm(fitmodab4, "b")
 #' extract.modmed.mlm(fitmodab4, "b", modval1=0) # should match above
 #' extract.modmed.mlm(fitmodab4, "b", modval1=1)
-#' extract.modmed.mlm(fitmodab4, "b.diff", modval1 = 0, modval2=1) # should match difference between the two above?
-#' extract.modmed.mlm(fitmodab4, "b", modval1=0)-extract.modmed.mlm(fitmodab4, "b", modval1=1)  # should match prev line
+#' extract.modmed.mlm(fitmodab4, "b.diff", modval1 = 0, modval2=1)
+#' extract.modmed.mlm(fitmodab4, "b", modval1=0)-
+#'   extract.modmed.mlm(fitmodab4, "b", modval1=1)  # should match prev line
 #'
 #' extract.modmed.mlm(fitmodab3, "indirect")
 #' extract.modmed.mlm(fitmodab3, "indirect", modval1=0) # should match above
 #' extract.modmed.mlm(fitmodab3, "indirect", modval1=1)
-#' extract.modmed.mlm(fitmodab3, "indirect.diff", modval1 = 0, modval2=1) # should match difference between the two above?
-#' extract.modmed.mlm(fitmodab3, "indirect", modval1=0)-extract.modmed.mlm(fitmodab3, "indirect", modval1=1) # should match prev line
+#' extract.modmed.mlm(fitmodab3, "indirect.diff", modval1 = 0, modval2=1)
+#' extract.modmed.mlm(fitmodab3, "indirect", modval1=0)-
+#'   extract.modmed.mlm(fitmodab3, "indirect", modval1=1) # should match prev line
 #'
 #' extract.modmed.mlm(fitmodab3, "a")
 #' extract.modmed.mlm(fitmodab3, "a", modval1=0) # should match above
 #' extract.modmed.mlm(fitmodab3, "a", modval1=1)
-#' extract.modmed.mlm(fitmodab3, "a.diff", modval1 = 0, modval2=1) # should match difference between the two above?
-#' extract.modmed.mlm(fitmodab3, "a", modval1=0)-extract.modmed.mlm(fitmodab3, "a", modval1=1)  # should match prev line
+#' extract.modmed.mlm(fitmodab3, "a.diff", modval1 = 0, modval2=1)
+#' extract.modmed.mlm(fitmodab3, "a", modval1=0)-
+#'   extract.modmed.mlm(fitmodab3, "a", modval1=1)  # should match prev line
 #'
 #' extract.modmed.mlm(fitmodab3, "b")
 #' extract.modmed.mlm(fitmodab3, "b", modval1=0) # should match above
 #' extract.modmed.mlm(fitmodab3, "b", modval1=1)
-#' extract.modmed.mlm(fitmodab3, "b.diff", modval1 = 0, modval2=1) # should match difference between the two above?
-#' extract.modmed.mlm(fitmodab3, "b", modval1=0)-extract.modmed.mlm(fitmodab3, "b", modval1=1)  # should match prev line
+#' extract.modmed.mlm(fitmodab3, "b.diff", modval1 = 0, modval2=1)
+#' extract.modmed.mlm(fitmodab3, "b", modval1=0)-
+#'   extract.modmed.mlm(fitmodab3, "b", modval1=1)  # should match prev line
 #'
 #' extract.modmed.mlm(fitmodab2, "indirect")
 #' extract.modmed.mlm(fitmodab2, "indirect", modval1=0) # should match above
 #' extract.modmed.mlm(fitmodab2, "indirect", modval1=1)
-#' extract.modmed.mlm(fitmodab2, "indirect.diff", modval1 = 0, modval2=1) # should match difference between the two above?
-#' extract.modmed.mlm(fitmodab2, "indirect", modval1=0)-extract.modmed.mlm(fitmodab2, "indirect", modval1=1) # should match prev line
+#' extract.modmed.mlm(fitmodab2, "indirect.diff", modval1 = 0, modval2=1)
+#' extract.modmed.mlm(fitmodab2, "indirect", modval1=0)-
+#'   extract.modmed.mlm(fitmodab2, "indirect", modval1=1) # should match prev line
 #'
 #' extract.modmed.mlm(fitmodab2, "a")
 #' extract.modmed.mlm(fitmodab2, "a", modval1=0) # should match above
 #' extract.modmed.mlm(fitmodab2, "a", modval1=1)
-#' extract.modmed.mlm(fitmodab2, "a.diff", modval1 = 0, modval2=1) # should match difference between the two above?
-#' extract.modmed.mlm(fitmodab2, "a", modval1=0)-extract.modmed.mlm(fitmodab2, "a", modval1=1)  # should match prev line
+#' extract.modmed.mlm(fitmodab2, "a.diff", modval1 = 0, modval2=1)
+#' extract.modmed.mlm(fitmodab2, "a", modval1=0)-
+#'   extract.modmed.mlm(fitmodab2, "a", modval1=1)  # should match prev line
 #'
 #' extract.modmed.mlm(fitmodab2, "b")
 #' extract.modmed.mlm(fitmodab2, "b", modval1=0) # should match above
 #' extract.modmed.mlm(fitmodab2, "b", modval1=1)
-#' extract.modmed.mlm(fitmodab2, "b.diff", modval1 = 0, modval2=1) # should match difference between the two above?
-#' extract.modmed.mlm(fitmodab2, "b", modval1=0)-extract.modmed.mlm(fitmodab2, "b", modval1=1)  # should match prev line
+#' extract.modmed.mlm(fitmodab2, "b.diff", modval1 = 0, modval2=1)
+#' extract.modmed.mlm(fitmodab2, "b", modval1=0)-
+#'   extract.modmed.mlm(fitmodab2, "b", modval1=1)  # should match prev line
 #'
 #' extract.modmed.mlm(fitmodab, "indirect")
 #' extract.modmed.mlm(fitmodab, "indirect", modval1=0) # should match above
 #' extract.modmed.mlm(fitmodab, "indirect", modval1=1)
-#' extract.modmed.mlm(fitmodab, "indirect.diff", modval1 = 0, modval2=1) # should match difference between the two above?
-#' extract.modmed.mlm(fitmodab, "indirect", modval1=0)-extract.modmed.mlm(fitmodab, "indirect", modval1=1) # should match prev line
+#' extract.modmed.mlm(fitmodab, "indirect.diff", modval1 = 0, modval2=1)
+#' extract.modmed.mlm(fitmodab, "indirect", modval1=0)-
+#'   extract.modmed.mlm(fitmodab, "indirect", modval1=1) # should match prev line
 #'
 #' extract.modmed.mlm(fitmodab, "a")
 #' extract.modmed.mlm(fitmodab, "a", modval1=0) # should match above
 #' extract.modmed.mlm(fitmodab, "a", modval1=1)
-#' extract.modmed.mlm(fitmodab, "a.diff", modval1 = 0, modval2=1) # should match difference between the two above?
-#' extract.modmed.mlm(fitmodab, "a", modval1=0)-extract.modmed.mlm(fitmodab, "a", modval1=1)  # should match prev line
+#' extract.modmed.mlm(fitmodab, "a.diff", modval1 = 0, modval2=1)
+#' extract.modmed.mlm(fitmodab, "a", modval1=0)-
+#'   extract.modmed.mlm(fitmodab, "a", modval1=1)  # should match prev line
 #'
 #' extract.modmed.mlm(fitmodab, "b")
 #' extract.modmed.mlm(fitmodab, "b", modval1=0) # should match above
 #' extract.modmed.mlm(fitmodab, "b", modval1=1)
-#' extract.modmed.mlm(fitmodab, "b.diff", modval1 = 0, modval2=1) # should match difference between the two above?
-#' extract.modmed.mlm(fitmodab, "b", modval1=0)-extract.modmed.mlm(fitmodab, "b", modval1=1)  # should match prev line
+#' extract.modmed.mlm(fitmodab, "b.diff", modval1 = 0, modval2=1)
+#' extract.modmed.mlm(fitmodab, "b", modval1=0)-
+#'   extract.modmed.mlm(fitmodab, "b", modval1=1)  # should match prev line
 #'
 #' }
 #' @import nlme
 #' @importFrom matrixcalc vech
-#' @importFrom tidyr pivot_longer
 #' @importFrom MCMCpack xpnd
 #' @importFrom stats as.formula
-#' @export
+#' @export modmed.mlm
 modmed.mlm<-function(data, L2ID, X, Y, M,
                      moderator = NULL, mod.a = FALSE, mod.b = FALSE, mod.cprime = FALSE,
                      covars.m = NULL, covars.y = NULL,
@@ -426,7 +442,7 @@ modmed.mlm<-function(data, L2ID, X, Y, M,
   random.formula <- paste(random.formula, "| L2id")
 
 
-    # Run the model through nlme
+  # Run the model through nlme
   mod_med_tmp <- try(lme(fixed = as.formula(fixed.formula), # fixed effects
                          random = as.formula(random.formula), # random effects
                          weights = varIdent(form = ~ 1 | Sm), # heteroskedasticity
@@ -457,7 +473,7 @@ modmed.mlm<-function(data, L2ID, X, Y, M,
 #' Post-processing of a model fit with modmed.mlm
 #'
 #' @param fit Result of \code{modmed.mlm}.
-#' @param type String indicating which piece of information to extract from the model
+#' @param type Character indicating which piece of information to extract from the model
 #'   "all": fixed effects and var-cov matrix of random effects, as a single vector.
 #'   "fixef": just fixed effects.
 #'   "recov": var-cov matrix of random effects, as a matrix.
@@ -477,7 +493,7 @@ modmed.mlm<-function(data, L2ID, X, Y, M,
 #' @param modval2 Second value of the moderator at which to compute the indirect effect.
 #' @details
 #'   For any of the .diff values, these are always the value of the effect at modval1 minus modval2.
-#' @export
+#' @export extract.modmed.mlm
 extract.modmed.mlm <- function(fit, type=c("all","fixef","recov","recov.vec","indirect","a","b","cprime","covab",
                                            "indirect.diff","a.diff","b.diff","cprime.diff"),
                                modval1 = NULL, modval2 = NULL){
@@ -494,10 +510,10 @@ extract.modmed.mlm <- function(fit, type=c("all","fixef","recov","recov.vec","in
     # FIXME: this could get broken if we do more than just 2 level bootstrapping w/ boot package
     # Called directly, or from boot?
     if(sys.nframe()>2){
-      funcname<-match.call(def=sys.function(-2),call=sys.call(-2))[[1]]
+      funcname<-match.call(definition=sys.function(-2),call=sys.call(-2))[[1]]
       if(as.character(funcname) == "boot"){
         # from boot
-        calledargs<-match.call(def=sys.function(-2),call=sys.call(-2))
+        calledargs<-match.call(definition=sys.function(-2),call=sys.call(-2))
       } else {
         stop("Can't detect calling arguments for extract.modmed.mlm")
       }
@@ -602,7 +618,7 @@ extract.modmed.mlm <- function(fit, type=c("all","fixef","recov","recov.vec","in
 #' Post-processing of bootstrap results from boot.modmed.mlm
 #'
 #' @param boot.obj Result of \code{\link{boot::boot}} using \code{boot.modmed.mlm}
-#' @param type String indicating which piece of information to extract from the model
+#' @param type Character indicating which piece of information to extract from the model
 #'   "indirect": value of the indirect effect.
 #'   "a": Current value of a path.
 #'   "b": Current value of b path.
@@ -612,7 +628,7 @@ extract.modmed.mlm <- function(fit, type=c("all","fixef","recov","recov.vec","in
 #'   "a.diff": difference in a at two values of the moderator (set by \code{modval1} and \code{modval2}).
 #'   "b.diff": difference in b at two values of the moderator (set by \code{modval1} and \code{modval2}).
 #'   "cprime.diff": difference cprime at two values of the moderator (set by \code{modval1} and \code{modval2}).
-#' @param ci.type String indicating the type of confidence interval to compute.
+#' @param ci.type Character indicating the type of confidence interval to compute.
 #'   Currently only percentile confidence intervals are supported with "perc".
 #' @param ci.conf Numeric value indicating the confidence level for the interval.
 #' @param modval1 If enabled, other quantities such as the indirect effect, a, b, and cprime, will be computed
@@ -623,11 +639,12 @@ extract.modmed.mlm <- function(fit, type=c("all","fixef","recov","recov.vec","in
 #'   This function generally assumes that type="all" was used when initially fitting the model, making all necessary
 #'   information available for computation of indirect effects, differences between effects, and so on. If type="all"
 #'   was not used, there is no guarantee that confidence intervals for the effects of interest can be extracted.
-#' @export
+#' @export extract.boot.modmed.mlm
 #' @examples
 #' \donttest{
 #'
 #' }
+#' @importFrom stats quantile
 extract.boot.modmed.mlm <- function(boot.obj, type=c("indirect","a","b","cprime","covab",
                                            "indirect.diff","a.diff","b.diff","cprime.diff"), ci.type="perc", ci.conf=.95,
                                modval1 = NULL, modval2 = NULL){
