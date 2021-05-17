@@ -464,7 +464,32 @@ modmed.mlm<-function(data, L2ID, X, Y, M,
 
   if(returndata) out$data <- tmp
 
-  out$call <- match.call()
+  #out$call <- match.call()
+  out$args<-list(
+    L2ID = L2ID,
+    X = X,
+    Y = Y,
+    M = M,
+    moderator = moderator,
+    mod.a = mod.a,
+    mod.b = mod.b,
+    mod.cprime = mod.cprime,
+    covars.m = covars.m,
+    covars.y = covars.y,
+    random.a = random.a,
+    random.b = random.b,
+    random.cprime = random.cprime,
+    random.mod.a = random.mod.a,
+    random.mod.b = random.mod.b,
+    random.mod.cprime = random.mod.cprime,
+    random.mod.m = random.mod.m,
+    random.mod.y = random.mod.y,
+    random.covars.m = random.covars.m,
+    random.covars.y = random.covars.y,
+    method = method,
+    control = control,
+    returndata = returndata
+  )
 
   return(out)
 
@@ -499,32 +524,14 @@ extract.modmed.mlm <- function(fit, type=c("all","fixef","recov","recov.vec","in
                                modval1 = NULL, modval2 = NULL){
 
   type <- match.arg(type)
+  args <- fit$args
 
   if(!fit$conv || is.null(fit$model)){
 
     # If model fitting was a problem
-    # Depending on type and fit$call, it is possible to guess the length of output here
+    # Depending on type and fit$args, it is possible to guess the length of output here
     # This is a bit tenuous if support for more variables changes, however
 
-    # https://stackoverflow.com/questions/17256834/getting-the-arguments-of-a-parent-function-in-r-with-names
-    # FIXME: this could get broken if we do more than just 2 level bootstrapping w/ boot package
-    # Called directly, or from boot?
-    if(sys.nframe()>2){
-      funcname<-match.call(definition=sys.function(-2),call=sys.call(-2))[[1]]
-      if(as.character(funcname) == "boot"){
-        # from boot
-        calledargs<-match.call(definition=sys.function(-2),call=sys.call(-2))
-      } else {
-        stop("Can't detect calling arguments for extract.modmed.mlm")
-      }
-    } else {
-      # directly
-      calledargs <- as.list(fit$call)
-    }
-
-    # Grab the argument values that differ from default
-    args <- as.list(args(modmed.mlm))
-    args[names(calledargs)] <- calledargs
 
     # Grab if a, b, c paths were moderated
     moda <- unlist(args[grepl("^mod\\.a",names(args))])
@@ -566,7 +573,7 @@ extract.modmed.mlm <- function(fit, type=c("all","fixef","recov","recov.vec","in
     # computations if the model is ok
 
     # get original arguments
-    args<-as.list(fit$call)
+    #args<-as.list(fit$call)
 
     # extract var-cov matrix among random effects
     vc <- VarCorr(fit$model)
@@ -651,6 +658,7 @@ extract.boot.modmed.mlm <- function(boot.obj, type=c("indirect","a","b","cprime"
   type <- match.arg(type)
   ci.type <- match.arg(ci.type)
 
+  # match.call is tricky; could break if this is inside a function?
   # guess what options were used for modmed.mlm by extracting from it and from boot.modmed.mlm call
   args <- as.list(args(modmed.mlm))
   calledargs <- as.list(boot.obj$call)
