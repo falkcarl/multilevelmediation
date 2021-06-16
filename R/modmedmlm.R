@@ -32,7 +32,10 @@
 #'   at two values of the moderator. If given and an appropriate option for such a difference is chosen for \code{type},
 #'   this value and that of \code{modval1} will be passed to \code{extract.modmed.mlm} to compute and save the difference.
 #'   This is useful for obtaining a CI for the difference in the indirect effect at two different levels of the moderator.
-#' @param boot.lvl Character that defines at what level resampling should occur. Options are "both", "1", or "2".
+#' @param boot.lvl Character that defines at what level resampling should occur. Options are "both", "1", or "2". "both" will sample L2 units
+#'   and then L1 units w/in each cluster. This has been noted to result in unequal sample sizes if the original clusters did not have equal sample sizes.
+#'   "2" resamples only L2 units and leaves all L1 units intact. "1" will assume that whatever indices are fed from the boot function will
+#'   be used. This probably only makes sense if \code{strata} is specified.
 #' @details TO DO. Implements custom function to do resampling at level 2, then level 1. For use with boot package.
 #'   Capable of doing moderation as well. Need to detail which kinds of moderation, which mediation models (e.g., 1-1-1 only?).
 #'   This resamples L2 units, then L1 units within each L2 unit
@@ -118,8 +121,6 @@ boot.modmed.mlm <- function(data, indices, L2ID, ...,
                             type="all", modval1=NULL, modval2=NULL,
                             boot.lvl = c("both","1","2")) {
 
-  # TODO use only default type="all". Otherwise conflicts with extract.boot.modmed.mlm possible (TV: fixed? changed default to "all")
-
   boot.lvl <- match.arg(boot.lvl)
 
   # ad-hoc check if this is first run of analysis by comparing to indices
@@ -194,7 +195,7 @@ boot.modmed.mlm <- function(data, indices, L2ID, ...,
 #' @param method Argument passed to \code{\link[nlme]{lme}} to control estimation method.
 #' @param control Argument passed to \code{\link[nlme]{lme}} that controls other estimation options.
 #' @param returndata (Logical) Whether to save restructured data in its own slot. Note: nlme may do this automatically. Defaults to \code{FALSE}.
-#' @details TO DO. Implements custom function to do moderated mediation with multilevel models.
+#' @details Implements custom function to do moderated mediation with multilevel models.
 #'   Capable of doing moderation as well. Need to detail which kinds of moderation. Believed that it currently supports 2-1-1, 2-2-1, 1-1-1
 #'   with moderator at either level and moderator and any paths can have indirect effects.
 #'   Initially implemented for the BPG06 model for 1-1-1 mediation with moderation...
@@ -369,12 +370,6 @@ modmed.mlm<-function(data, L2ID, X, Y, M,
                                                          msMaxEval = 10000, tolerance = 1e-6),
                      returndata = FALSE){
 
-  # Some input checking per Todd's code:
-  # TV: These input checks will happen at every loop of the bootstrap.
-  # TV: Is there a more efficient way? Or is the slowdown negligible?
-  # CFF: probably not that slow due to this; restructuring the data might slow things down, but
-  #  avoiding that might be tricky to do while bootstrapping
-
   if (is.null(moderator) && any(mod.a, mod.b, mod.cprime)) {
     # Give error if paths indicated as moderated, but no moderator name given
     stop("No moderator was specified for the moderated path(s).")
@@ -532,7 +527,6 @@ extract.modmed.mlm <- function(fit, type=c("all","fixef","recov","recov.vec","in
     # Depending on type and fit$args, it is possible to guess the length of output here
     # This is a bit tenuous if support for more variables changes, however
 
-
     # Grab if a, b, c paths were moderated
     moda <- unlist(args[grepl("^mod\\.a",names(args))])
     modb <- unlist(args[grepl("^mod\\.b",names(args))])
@@ -674,8 +668,10 @@ extract.boot.modmed.mlm <- function(boot.obj, type=c("indirect","a","b","cprime"
   })
 
   # form CI
-  probs <- c((1-ci.conf)/2, ci.conf+(1-ci.conf)/2)
-  ci <- quantile(est, probs=probs, na.rm=TRUE)
+  if(ci.type=="perc"){
+    probs <- c((1-ci.conf)/2, ci.conf+(1-ci.conf)/2)
+    ci <- quantile(est, probs=probs, na.rm=TRUE)
+  }
 
   # output
   out<-list(CI = ci,

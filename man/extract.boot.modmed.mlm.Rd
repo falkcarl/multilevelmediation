@@ -4,7 +4,7 @@
 \alias{extract.boot.modmed.mlm}
 \title{Post-processing of bootstrap results from boot.modmed.mlm}
 \usage{
-\method{extract}{boot.modmed.mlm}(
+extract.boot.modmed.mlm(
   boot.obj,
   type = c("indirect", "a", "b", "cprime", "covab", "indirect.diff", "a.diff",
     "b.diff", "cprime.diff"),

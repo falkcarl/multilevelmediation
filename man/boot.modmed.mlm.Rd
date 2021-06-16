@@ -39,7 +39,10 @@ at two values of the moderator. If given and an appropriate option for such a di
 this value and that of \code{modval1} will be passed to \code{extract.modmed.mlm} to compute and save the difference.
 This is useful for obtaining a CI for the difference in the indirect effect at two different levels of the moderator.}
 
-\item{boot.lvl}{Character that defines at what level resampling should occur. Options are "both", "1", or "2".}
+\item{boot.lvl}{Character that defines at what level resampling should occur. Options are "both", "1", or "2". "both" will sample L2 units
+and then L1 units w/in each cluster. This has been noted to result in unequal sample sizes if the original clusters did not have equal sample sizes.
+"2" resamples only L2 units and leaves all L1 units intact. "1" will assume that whatever indices are fed from the boot function will
+be used. This probably only makes sense if \code{strata} is specified.}
 }
 \description{
 Custom boot function for (moderated) mediation with 2-level multilevel models

@@ -4,7 +4,7 @@
 \alias{extract.modmed.mlm}
 \title{Post-processing of a model fit with modmed.mlm}
 \usage{
-\method{extract}{modmed.mlm}(
+extract.modmed.mlm(
   fit,
   type = c("all", "fixef", "recov", "recov.vec", "indirect", "a", "b", "cprime",
     "covab", "indirect.diff", "a.diff", "b.diff", "cprime.diff"),

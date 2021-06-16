@@ -28,7 +28,7 @@ modmed.mlm(
   random.covars.y = NULL,
   method = "REML",
   control = lmeControl(maxIter = 10000, msMaxIter = 10000, niterEM = 10000, msMaxEval =
-    10000, tolerance = 0.000001),
+    10000, tolerance = 1e-06),
   returndata = FALSE
 )
 }
@@ -85,7 +85,7 @@ modmed.mlm(
 Custom model fitting function for two-level (moderated) mediation
 }
 \details{
-TO DO. Implements custom function to do moderated mediation with multilevel models.
+Implements custom function to do moderated mediation with multilevel models.
   Capable of doing moderation as well. Need to detail which kinds of moderation. Believed that it currently supports 2-1-1, 2-2-1, 1-1-1
   with moderator at either level and moderator and any paths can have indirect effects.
   Initially implemented for the BPG06 model for 1-1-1 mediation with moderation...
