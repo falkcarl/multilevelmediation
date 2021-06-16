@@ -35,17 +35,70 @@
 #' @examples
 #' \donttest{
 #' TO DO: Include more tests: Bayesian interval (HPD, CI or both? Milica), moderation at various paths, formulas for indirect effect
-#' at various values of the moderator. Probably other stuff.
+#' at various values of the moderator. Should the default parameters be similar/same as brms or different? Probably other stuff. So far, only tests similar to modmed.mlm are included.
+#' Maybe include other tests specific to Bayesian stats.
 #'
 #' Example data for 1-1-1 w/o moderation
-#' data(simdat)
+#' data(BPG06dat)
 #'
-#' #Fit model
-#' fit<-modmed.mlm.brms(simdat,"id", "x", "y", "m",
+#' Only fixed effects
+#' fit<-modmed.mlm.brms(BPG06dat,"id", "x", "y" , "m")
+#'
+#'
+#' #Only random a
+#' fit<-modmed.mlm.brms(BPG06dat,"id", "x", "y", "m",random.a=TRUE)
+#'
+#' #Only random b
+#' fit<-modmed.mlm.brms(BPG06dat,"id", "x", "y", "m",random.b=TRUE)
+#'
+#' #Random a and b
+#' fit<-modmed.mlm.brms(BPG06dat,"id", "x", "y", "m",
+#'   random.a=TRUE, random.b=TRUE)
+#'
+#'  #All random
+#' fit<-modmed.mlm.brms(BPG06dat,"id", "x", "y", "m",
 #'   random.a=TRUE, random.b=TRUE, random.cprime=TRUE)
 #'
+#'# Example data for 1-1-1 with moderation
 #'
-#' }
+#'# Fit model with moderation
+#' data(simdat)
+#'
+#' # moderation for a path
+#' fitmoda<-modmed.mlm.brms(simdat,"L2id", "X", "Y", "M",
+#'   random.a=TRUE, random.b=TRUE, random.cprime=TRUE,
+#'   moderator = "mod", mod.a=TRUE)
+#'
+#' # moderation for b path
+#' fitmodb<-modmed.mlm.brms(simdat,"L2id", "X", "Y", "M",
+#'   random.a=TRUE, random.b=TRUE, random.cprime=TRUE,
+#'   moderator = "mod", mod.b=TRUE)
+#'
+#' # moderation for both a and b paths
+#' fitmodab<-modmed.mlm.brms(simdat,"L2id", "X", "Y", "M",
+#'   random.a=TRUE, random.b=TRUE, random.cprime=TRUE,
+#'   moderator = "mod", mod.a=TRUE, mod.b=TRUE)
+#'
+#' # moderation for both a and b paths and random effect for interaction a
+#' fitmodab2<-modmed.mlm.brms(simdat,"L2id", "X", "Y", "M",
+#'   random.a=TRUE, random.b=TRUE, random.cprime=TRUE,
+#'   moderator = "mod", mod.a=TRUE, mod.b=TRUE,
+#'   random.mod.a = TRUE, random.mod.m = TRUE)
+#'
+#' # moderation for both a and b paths and random effect for interaction b
+#' fitmodab3<-modmed.mlm.brms(simdat,"L2id", "X", "Y", "M",
+#'   random.a=TRUE, random.b=TRUE, random.cprime=TRUE,
+#'   moderator = "mod", mod.a=TRUE, mod.b=TRUE,
+#'   random.mod.b = TRUE, random.mod.y = TRUE)
+#'
+#' # moderation for both a and b paths and random effect for both interactions
+#' fitmodab4<-modmed.mlm.brms(simdat,"L2id", "X", "Y", "M",
+#'   random.a=TRUE, random.b=TRUE, random.cprime=TRUE,
+#'   moderator = "mod", mod.a=TRUE, mod.b=TRUE,
+#'   random.mod.a = TRUE, random.mod.b = TRUE,
+#'   random.mod.m = TRUE, random.mod.y = TRUE)
+#'
+#'   }
 #' @import brms
 #' @importFrom matrixcalc vech
 #' @importFrom MCMCpack xpnd
@@ -59,6 +112,11 @@ modmed.mlm.brms<-function(data, L2ID, X, Y, M,
                      random.mod.m = FALSE, random.mod.y = FALSE, covars.m = NULL, covars.y = NULL, family = gaussian ,iter = 7000, control = list(adapt_delta=0.95), chains = 4,
                      returndata = FALSE){
 
+  if (is.null(moderator) && any(mod.a, mod.b, mod.cprime)) {
+    # Give error if paths indicated as moderated, but no moderator name given
+    stop("No moderator was specified for the moderated path(s).")
+  }
+
   tmp <- stack.bpg(data, L2ID, X, Y, M,
                    moderator=moderator,
                    covars.m = covars.m,
@@ -66,18 +124,38 @@ modmed.mlm.brms<-function(data, L2ID, X, Y, M,
   )
 
 # Create the formula for the fixed effects
-  fixed.formula <- "Z ~ 0 + Sm + Sy + SmX + SyX + SyM +" #use the default formula from BPG 2006
+  fixed.formula <- "Z ~ 0 + Sm + Sy + SmX + SyX + SyM" #use the default formula from BPG 2006
 
-  # Create the formula for the random effects
-  random.formula <- "( 0 + Sm + Sy"
+  # Add in the moderator to the paths if necessary
+  # Note: interactions w/ "W" must must use selector variables in this way
+  if (mod.a == TRUE) {fixed.formula <- paste(fixed.formula, "+ Sm:W + SmX:W")}
+  if (mod.b == TRUE || mod.cprime == TRUE) {
+    fixed.formula <- paste(fixed.formula, "+ Sy:W") #if b or c path is moderated, Sy component will always be there (prevents adding redundant parameters if both b & c are moderated)
+    if (mod.b == TRUE && mod.cprime == TRUE) {fixed.formula <- paste(fixed.formula, "+ SyM:W + SyX:W")}
+    if (mod.b == TRUE && mod.cprime == FALSE) {fixed.formula <- paste(fixed.formula, "+ SyM:W")}
+    if (mod.b == FALSE && mod.cprime == TRUE) {fixed.formula <- paste(fixed.formula, "+ SyX:W")}
+  }
+
+# Create the formula for the random effects
+  random.formula <- " + (0 + Sm + Sy"
   if (random.a == TRUE) {random.formula <- paste(random.formula, "+ SmX")}
   if (random.b == TRUE) {random.formula <- paste(random.formula, "+ SyM")}
   if (random.cprime == TRUE) {random.formula <- paste(random.formula, "+ SyX")}
 
-  # Add in the grouping variable after all the variables are entered
+  # Add random effects for moderator here, if any
+  if(random.mod.a && mod.a){random.formula <- paste(random.formula, "+ SmX:W")}
+  if(random.mod.b && mod.b){random.formula <- paste(random.formula, "+ SyM:W")}
+  if(random.mod.cprime && mod.cprime){random.formula <- paste(random.formula, "+ SyX:W")}
+  if(random.mod.m && mod.a){random.formula <- paste(random.formula, "+ Sm:W")}
+  if(random.mod.y && mod.b){random.formula <- paste(random.formula, "+ Sy:W")}
+
+# Add in the grouping variable after all the variables are entered
   random.formula <- paste(random.formula, "| L2id )")
 
-  # Concatenate the fixed and random formula
+#Check if formula contains obly fixed-effects.
+  if (random.a == FALSE && random.b == FALSE && random.cprime == FALSE){
+    formula <-fixed.formula
+  }
   formula <- paste(fixed.formula, random.formula)
 
   mod_med_brms_tmp <- try(brm(formula = bf(as.formula(formula), sigma ~ 0 + Sm + Sy),
@@ -122,18 +200,20 @@ modmed.mlm.brms<-function(data, L2ID, X, Y, M,
 
 }
 
-library(ggplot2)
-library(tidyr)
-library(Rcpp)
-library(StanHeaders)
-library(rstan)
-library(brms)
-library(multilevelmediation)
+#Some testing for me, but maybe I should put the testing in a testing file?
 
-data("BPG06dat")
+#library(ggplot2)
+#library(tidyr)
+#library(Rcpp)
+#library(StanHeaders)
+#library(rstan)
+#library(brms)
+#library(multilevelmediation)
 
-fit<-modmed.mlm.brms(BPG06dat,"id", "x", "y", "m",
-                     random.a=TRUE, random.b=TRUE, random.cprime=TRUE)
+#data("BPG06dat")
+#data("simdat")
+
+#fit<-modmed.mlm.brms(simdat,"L2id", "X", "Y", "M", moderator = "mod", random.mod.a = TRUE ,chains = 2)
 
 
 
