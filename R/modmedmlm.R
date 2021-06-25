@@ -569,28 +569,10 @@ extract.modmed.mlm <- function(fit, type=c("all","fixef","recov","recov.vec","in
     # get original arguments
     #args<-as.list(fit$call)
 
-    # extract var-cov matrix among random effects
-    vc <- VarCorr(fit$model)
-
-    #grab names of random effects
-    re.names <- colnames(fit$model[["coefficients"]][["random"]][["L2id"]])
-    re.num <- length(re.names) #number of random effects
-
-    # create cov matrix among random effects
-    sd <- as.numeric(vc[1:re.num, 2])
-    sigma <- cbind(vc[1:re.num, 3:ncol(vc)], 1)
-    diag(sigma) <- 1
-    sig <- as.numeric(vech(sigma))
-    sig <- xpnd(sig)
-    D <- diag(sd)
-    sig2 <- D %*% sig %*% D
-    colnames(sig2) <- rownames(sig2) <- re.names
-
-    # rand effects as vector
-    sig2vec <- as.vector(sig2)
-    elementnames <- expand.grid(re.names,re.names)
-    elementnames <- paste0("re.",elementnames[,1],elementnames[,2])
-    names(sig2vec) <- elementnames
+    # extract random effects
+    re<-randef.lme(fit$model)
+    sig2 <- re$sig2
+    sig2vec <- re$sig2vec
 
     # remove duplicates ?
     #select <- as.vector(lower.tri(sig2, diag=T))
@@ -614,6 +596,37 @@ extract.modmed.mlm <- function(fit, type=c("all","fixef","recov","recov.vec","in
     }
   }
   out
+}
+
+randef.lme <- function(model){
+
+  # extract var-cov matrix among random effects
+  vc <- VarCorr(model)
+
+  #grab names of random effects
+  re.names <- colnames(model[["coefficients"]][["random"]][["L2id"]])
+  re.num <- length(re.names) #number of random effects
+
+  # create cov matrix among random effects
+  sd <- as.numeric(vc[1:re.num, 2])
+  sigma <- cbind(vc[1:re.num, 3:ncol(vc)], 1)
+  diag(sigma) <- 1
+  sig <- as.numeric(vech(sigma))
+  sig <- xpnd(sig)
+  D <- diag(sd)
+  sig2 <- D %*% sig %*% D
+  colnames(sig2) <- rownames(sig2) <- re.names
+
+  # rand effects as vector
+  sig2vec <- as.vector(sig2)
+  elementnames <- expand.grid(re.names,re.names)
+  elementnames <- paste0("re.",elementnames[,1],elementnames[,2])
+  names(sig2vec) <- elementnames
+
+  out<-list(sig2 =sig2,
+            sig2vec = sig2vec)
+
+  return(out)
 }
 
 #' Post-processing of bootstrap results from boot.modmed.mlm
