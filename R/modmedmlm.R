@@ -143,6 +143,11 @@ boot.modmed.mlm <- function(data, indices, L2ID, ...,
         L1_idx <- sample(1:n_j, n_j, replace = TRUE)
         L2_sub <- L2_sub[L1_idx, ]
       })
+      #re-index L2ID names
+      rdat <- lapply(seq_along(rdat), function(x) {
+        rdat[[x]][[L2ID]] <- x
+        return(rdat[[x]])
+      })
       rdat <- do.call("rbind", rdat)
 
     } else if (boot.lvl == "2") {
@@ -152,11 +157,19 @@ boot.modmed.mlm <- function(data, indices, L2ID, ...,
       L2_indices <- sample(L2, N, replace = TRUE)
       rdat <- lapply(L2_indices, function(x) {
         L2_sub <- data[data[, L2ID] == x, , drop = FALSE] # in case there is only 1 obs
+        return(L2_sub)
+      })
+      #re-index L2ID names
+      rdat <- lapply(seq_along(rdat), function(x) {
+        rdat[[x]][[L2ID]] <- x
+        return(rdat[[x]])
       })
       rdat <- do.call("rbind", rdat)
 
     } else if (boot.lvl == "1") {
       # Resample L1 units (use given indices from boot function)
+      #FIXME: TV: will lme regroup the subjects together based on L2ID??
+      #TV: would create an imbalance in number of lvl 1 data points within each lvl 2 cluster(?)
       rdat <- data[indices, ]
     }
 
