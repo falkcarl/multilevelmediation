@@ -15,7 +15,7 @@ extract.boot.modmed.mlm(
 )
 }
 \arguments{
-\item{boot.obj}{Result of \code{\link{boot::boot}} using \code{boot.modmed.mlm}}
+\item{boot.obj}{Result of \code{\link[boot]{boot}} using \code{boot.modmed.mlm}}
 
 \item{type}{Character indicating which piece of information to extract from the model
 "indirect": value of the indirect effect.
@@ -49,6 +49,6 @@ This function generally assumes that type="all" was used when initially fitting 
 }
 \examples{
 \donttest{
-
+#TODO
 }
 }

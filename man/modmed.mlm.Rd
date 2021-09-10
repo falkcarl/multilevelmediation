@@ -159,7 +159,7 @@ AIC(fitmodab3$model)
 AIC(fitmodab4$model) # AIC here is best. Great simulated data we have here
 
 
-#TODO: move this to testing file to ensure package does not break
+# TODO: move this to testing file to ensure package does not break
 extract.modmed.mlm(fitmodab4, "indirect")
 extract.modmed.mlm(fitmodab4, "indirect", modval1=0) # should match above
 extract.modmed.mlm(fitmodab4, "indirect", modval1=1)

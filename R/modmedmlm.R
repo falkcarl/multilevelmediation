@@ -126,7 +126,7 @@ boot.modmed.mlm <- function(data, indices, L2ID, ...,
   # ad-hoc check if this is first run of analysis by comparing to indices
   if (all(indices == (1:nrow(data)))) {
     # do nothing
-    rdat <- data[indices, ]
+    rdat <- data[indices,]
   } else {
     # manually apply case-wise resampling
 
@@ -141,7 +141,7 @@ boot.modmed.mlm <- function(data, indices, L2ID, ...,
         L2_sub <- data[data[, L2ID] == x, , drop = FALSE] # in case there is only 1 obs
         n_j <- nrow(L2_sub)
         L1_idx <- sample(1:n_j, n_j, replace = TRUE)
-        L2_sub <- L2_sub[L1_idx, ]
+        L2_sub <- L2_sub[L1_idx,]
       })
       #re-index L2ID names
       rdat <- lapply(seq_along(rdat), function(x) {
@@ -151,7 +151,7 @@ boot.modmed.mlm <- function(data, indices, L2ID, ...,
       rdat <- do.call("rbind", rdat)
 
     } else if (boot.lvl == "2") {
-      # Resample L2 units
+      # Resample L2 units only
       L2 <- unique(data[, L2ID])
       N <- length(L2)
       L2_indices <- sample(L2, N, replace = TRUE)
@@ -166,11 +166,12 @@ boot.modmed.mlm <- function(data, indices, L2ID, ...,
       })
       rdat <- do.call("rbind", rdat)
 
+
     } else if (boot.lvl == "1") {
-      # Resample L1 units (use given indices from boot function)
+      # Resample L1 units only (based on indices from boot function)
       #FIXME: TV: will lme regroup the subjects together based on L2ID??
       #TV: would create an imbalance in number of lvl 1 data points within each lvl 2 cluster(?)
-      rdat <- data[indices, ]
+      rdat <- data[indices,]
     }
 
     row.names(rdat) <- NULL
@@ -281,7 +282,7 @@ boot.modmed.mlm <- function(data, indices, L2ID, ...,
 #' AIC(fitmodab4$model) # AIC here is best. Great simulated data we have here
 #'
 #'
-#' #TODO: move this to testing file to ensure package does not break
+#' # TODO: move this to testing file to ensure package does not break
 #' extract.modmed.mlm(fitmodab4, "indirect")
 #' extract.modmed.mlm(fitmodab4, "indirect", modval1=0) # should match above
 #' extract.modmed.mlm(fitmodab4, "indirect", modval1=1)
@@ -388,7 +389,7 @@ modmed.mlm<-function(data, L2ID, X, Y, M,
     stop("No moderator was specified for the moderated path(s).")
   }
 
-  tmp <- stack.bpg(data, L2ID, X, Y, M,
+  tmp <- stack_bpg(data, L2ID, X, Y, M,
                    moderator=moderator,
                    covars.m = covars.m,
                    covars.y = covars.y
@@ -396,6 +397,7 @@ modmed.mlm<-function(data, L2ID, X, Y, M,
 
   # Create the formula for the fixed effects
   fixed.formula <- "Z ~ 0 + Sm + Sy + SmX + SyX + SyM" #use the default formula from BPG 2006
+  #FIXME: rename variables to something more intuitive? Eg a, b & cprime paths?
 
   # Add in the moderator to the paths if necessary
   # Note: interactions w/ "W" must must use selector variables in this way
@@ -473,6 +475,7 @@ modmed.mlm<-function(data, L2ID, X, Y, M,
   if(returndata) out$data <- tmp
 
   #out$call <- match.call()
+  #TODO: TV: Have a test that checks that this matches the list of parameters for the function call above?
   out$args<-list(
     L2ID = L2ID,
     X = X,
@@ -644,7 +647,7 @@ randef.lme <- function(model){
 
 #' Post-processing of bootstrap results from boot.modmed.mlm
 #'
-#' @param boot.obj Result of \code{\link{boot::boot}} using \code{boot.modmed.mlm}
+#' @param boot.obj Result of \code{\link[boot]{boot}} using \code{boot.modmed.mlm}
 #' @param type Character indicating which piece of information to extract from the model
 #'   "indirect": value of the indirect effect.
 #'   "a": Current value of a path.
@@ -669,7 +672,7 @@ randef.lme <- function(model){
 #' @export extract.boot.modmed.mlm
 #' @examples
 #' \donttest{
-#'
+#' #TODO
 #' }
 #' @importFrom stats quantile
 extract.boot.modmed.mlm <- function(boot.obj, type=c("indirect","a","b","cprime","covab",

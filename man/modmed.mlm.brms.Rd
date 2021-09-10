@@ -14,6 +14,8 @@ modmed.mlm.brms(
   mod.a = FALSE,
   mod.b = FALSE,
   mod.cprime = FALSE,
+  covars.m = NULL,
+  covars.y = NULL,
   random.a = FALSE,
   random.b = FALSE,
   random.cprime = FALSE,
@@ -22,9 +24,9 @@ modmed.mlm.brms(
   random.mod.cprime = FALSE,
   random.mod.m = FALSE,
   random.mod.y = FALSE,
-  covars.m = NULL,
-  covars.y = NULL,
-  family = gaussian,
+  random.covars.m = FALSE,
+  random.covars.y = FALSE,
+  family = gaussian(),
   iter = 7000,
   control = list(adapt_delta = 0.95),
   chains = 4,
@@ -50,6 +52,10 @@ modmed.mlm.brms(
 
 \item{mod.cprime}{(Logical) Add moderator to 'c' path (i.e., SyX:W, where W is the moderator)}
 
+\item{covars.m}{(Character vector) Optional covariates to include in the model for M. Currently set to null for brms}
+
+\item{covars.y}{(Character vector) Optional covariates to include in the model for Y. Currently set to null for brms}
+
 \item{random.a}{(Logical) Add random slope for 'a' path (i.e,. SmX)?}
 
 \item{random.b}{(Logical) Add random slope for 'b' path (i.e., SyM)?}
@@ -66,9 +72,9 @@ modmed.mlm.brms(
 
 \item{random.mod.y}{(Logical) Add random slope for effect of moderator on Y?}
 
-\item{covars.m}{(Character vector) Optional covariates to include in the model for M. Currently set to null for brms}
+\item{random.covars.m}{(Logical vector) Add random slopes for covariates on M? Currently set to Null for brms}
 
-\item{covars.y}{(Character vector) Optional covariates to include in the model for Y. Currently set to null for brms}
+\item{random.covars.y}{(Logical vector) Add random slopes for covariates on Y? Currently set to Null for brms}
 
 \item{family}{Argument passed to \code{\link[brms]{brms}} A character string naming the distribution of the response variable to be used in the model}
 
@@ -80,10 +86,6 @@ modmed.mlm.brms(
 
 \item{returndata}{(Logical) Whether to save restructured data in its own slot. Note: nlme may do this automatically. Defaults to \code{FALSE}.
 Should the chains, iter, family, and control parameters be included in the function as default parameters?}
-
-\item{random.covars.m}{(Logical vector) Add random slopes for covariates on M? Currently set to Null for brms}
-
-\item{random.covars.y}{(Logical vector) Add random slopes for covariates on Y? Currently set to Null for brms}
 }
 \description{
 Custom model fitting function for a 1-1-1 (moderated) mediation for the brms code
@@ -97,14 +99,14 @@ TO DO. Implements custom function to do moderated mediation with multilevel mode
 }
 \examples{
 \donttest{
-TO DO: Include more tests: Bayesian interval (HPD, CI or both? Milica), moderation at various paths, formulas for indirect effect
-at various values of the moderator. Should the default parameters be similar/same as brms or different? Probably other stuff. So far, only tests similar to modmed.mlm are included.
-Maybe include other tests specific to Bayesian stats.
+#TO DO: Include more tests: Bayesian interval (HPD, CI or both? Milica), moderation at various paths, formulas for indirect effect
+#at various values of the moderator. Should the default parameters be similar/same as brms or different? Probably other stuff. So far, only tests similar to modmed.mlm are included.
+#Maybe include other tests specific to Bayesian stats.
 
-Example data for 1-1-1 w/o moderation
+#Example data for 1-1-1 w/o moderation
 data(BPG06dat)
 
-Only fixed effects
+#Only fixed effects
 fit<-modmed.mlm.brms(BPG06dat,"id", "x", "y" , "m")
 
 
@@ -162,4 +164,5 @@ fitmodab4<-modmed.mlm.brms(simdat,"L2id", "X", "Y", "M",
   random.mod.m = TRUE, random.mod.y = TRUE)
 
   }
+
 }

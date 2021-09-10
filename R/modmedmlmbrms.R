@@ -34,14 +34,14 @@
 #'   Initially implemented for the BPG06 model for 1-1-1 mediation with moderation...
 #' @examples
 #' \donttest{
-#' TO DO: Include more tests: Bayesian interval (HPD, CI or both? Milica), moderation at various paths, formulas for indirect effect
-#' at various values of the moderator. Should the default parameters be similar/same as brms or different? Probably other stuff. So far, only tests similar to modmed.mlm are included.
-#' Maybe include other tests specific to Bayesian stats.
+#' #TO DO: Include more tests: Bayesian interval (HPD, CI or both? Milica), moderation at various paths, formulas for indirect effect
+#' #at various values of the moderator. Should the default parameters be similar/same as brms or different? Probably other stuff. So far, only tests similar to modmed.mlm are included.
+#' #Maybe include other tests specific to Bayesian stats.
 #'
-#' Example data for 1-1-1 w/o moderation
+#' #Example data for 1-1-1 w/o moderation
 #' data(BPG06dat)
 #'
-#' Only fixed effects
+#' #Only fixed effects
 #' fit<-modmed.mlm.brms(BPG06dat,"id", "x", "y" , "m")
 #'
 #'
@@ -99,25 +99,35 @@
 #'   random.mod.m = TRUE, random.mod.y = TRUE)
 #'
 #'   }
-#' @import brms
+#'
 #' @importFrom matrixcalc vech
 #' @importFrom MCMCpack xpnd
-#' @importFrom stats as.formula
+#' @importFrom stats as.formula gaussian
 #' @export modmed.mlm.brms
 
 modmed.mlm.brms<-function(data, L2ID, X, Y, M,
                      moderator = NULL, mod.a = FALSE, mod.b = FALSE, mod.cprime = FALSE,
+                     covars.m = NULL, covars.y = NULL,
                      random.a = FALSE, random.b = FALSE, random.cprime = FALSE,
                      random.mod.a = FALSE, random.mod.b = FALSE, random.mod.cprime = FALSE,
-                     random.mod.m = FALSE, random.mod.y = FALSE, covars.m = NULL, covars.y = NULL, family = gaussian ,iter = 7000, control = list(adapt_delta=0.95), chains = 4,
+                     random.mod.m = FALSE, random.mod.y = FALSE,
+                     random.covars.m = FALSE, random.covars.y = FALSE,
+                     family = gaussian(), iter = 7000, control = list(adapt_delta=0.95), chains = 4,
                      returndata = FALSE){
+
+  if (!requireNamespace("brms", quietly = TRUE)) {
+    warning("The brms package must be installed to use this functionality")
+    return(NULL)
+  }
+
+  requireNamespace("brms")
 
   if (is.null(moderator) && any(mod.a, mod.b, mod.cprime)) {
     # Give error if paths indicated as moderated, but no moderator name given
     stop("No moderator was specified for the moderated path(s).")
   }
 
-  tmp <- stack.bpg(data, L2ID, X, Y, M,
+  tmp <- stack_bpg(data, L2ID, X, Y, M,
                    moderator=moderator,
                    covars.m = covars.m,
                    covars.y = covars.y
@@ -142,6 +152,9 @@ modmed.mlm.brms<-function(data, L2ID, X, Y, M,
   if (random.b == TRUE) {random.formula <- paste(random.formula, "+ SyM")}
   if (random.cprime == TRUE) {random.formula <- paste(random.formula, "+ SyX")}
 
+  #TODO: need to add random effects for covariates here, if any
+
+
   # Add random effects for moderator here, if any
   if(random.mod.a && mod.a){random.formula <- paste(random.formula, "+ SmX:W")}
   if(random.mod.b && mod.b){random.formula <- paste(random.formula, "+ SyM:W")}
@@ -158,7 +171,7 @@ modmed.mlm.brms<-function(data, L2ID, X, Y, M,
   }
   formula <- paste(fixed.formula, random.formula)
 
-  mod_med_brms_tmp <- try(brm(formula = bf(as.formula(formula), sigma ~ 0 + Sm + Sy),
+  mod_med_brms_tmp <- try(brms::brm(formula = brms::bf(as.formula(formula), sigma ~ 0 + Sm + Sy),
                          data = tmp,
                          family = family,
                          iter = iter,

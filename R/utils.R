@@ -19,7 +19,7 @@
 #' # restructure BPG data
 #' data(BPG06dat)
 #'
-#' dat <- stack.bpg(BPG06dat,
+#' dat <- stack_bpg(BPG06dat,
 #'   "id", "x", "m", "y"
 #' )
 #'
@@ -27,7 +27,7 @@
 #'
 #' # restructure simulated data w/ moderator
 #' data(simdat)
-#' dat2 <- stack.bpg(simdat,
+#' dat2 <- stack_bpg(simdat,
 #'   "L2id", "X", "M", "Y",
 #'   moderator="mod"
 #' )
@@ -36,12 +36,12 @@
 #'
 #' }
 #' @importFrom tidyr pivot_longer
-#' @export stack.bpg
-#' @usage stack.bpg(data, L2ID, X, Y, M,
+#' @export stack_bpg
+#' @usage stack_bpg(data, L2ID, X, Y, M,
 #'   moderator = NULL,
 #'   covars.m = NULL,
 #'   covars.y = NULL)
-stack.bpg <-function(data, L2ID, X, Y, M,
+stack_bpg <-function(data, L2ID, X, Y, M,
                      moderator = NULL,
                      covars.m = NULL,
                      covars.y = NULL){

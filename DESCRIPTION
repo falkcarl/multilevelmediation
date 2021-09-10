@@ -1,8 +1,8 @@
 Package: multilevelmediation
 Type: Package
 Title: Utility functions for multilevel mediation analysis in R
-Version: 0.1.1
-Author: Carl F. Falk, Todd Vogel and Milica Miocevic?
+Version: 0.1.2
+Authors: Carl F. Falk, Todd Vogel, Sarah Hammami, & Milica Miočević
 Maintainer: Carl F. Falk <carl.falk@mcgill.ca>
 Description: Currently includes draft code for multilevel mediation
   using bootstrapping methods.
@@ -10,15 +10,16 @@ License: GPL-3
 Encoding: UTF-8
 LazyData: true
 RoxygenNote: 7.1.1
-Imports: nlme,
- matrixcalc,
- tidyr,
- MCMCpack,
- stats,
- brms
+Imports: 
+  matrixcalc,
+  MCMCpack,
+  nlme,
+  stats,
+  tidyr
 Suggests:
     testthat (>= 3.0.0),
-    boot
+    boot,
+    brms
 Depends: 
     R (>= 2.10)
 Config/testthat/edition: 3
