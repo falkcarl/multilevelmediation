@@ -182,6 +182,65 @@ boot.modmed.mlm <- function(data, indices, L2ID, ...,
   return(extract.modmed.mlm(result,type=type,modval1=modval1,modval2=modval2))
 }
 
+#' Custom function for residual bootstrap for (moderated) multilevel mediation
+#'
+#' @param data Data frame in long format.
+#' @param L2ID Name of column that contains grouping variable in 'data' (e.g., "SubjectID")
+#' @param R Number of resamples
+#' @param ... Arguments passed to \code{modmed.mlm} to define the mediation analysis model.
+#' @param type Character that defines what information to extract from the model. Default and options are in \code{extract.modmed.mlm}.
+#'   As examples, "indirect" will compute the indirect effect, "all" will save all random and fixed effects for possible additional
+#'   computations, "indirect.diff" will compute the difference in the indirect effect at two values of a possible moderating variable.
+#' @param modval1 (Optional) Numeric. If the model has a moderator, this value will be passed to \code{extract.modmed.mlm}
+#'   to compute the indirect effect or other effects at that value. See \code{extract.modmed.mlm} for details.
+#' @param modval2 (Optional). If the model has a moderator, it is possible to compute the difference in the indirect
+#'   at two values of the moderator. If given and an appropriate option for such a difference is chosen for \code{type},
+#'   this value and that of \code{modval1} will be passed to \code{extract.modmed.mlm} to compute and save the difference.
+#'   This is useful for obtaining a CI for the difference in the indirect effect at two different levels of the moderator.
+#' @details TO DO.
+#' @examples
+#' \donttest{
+#' # Example data for 1-1-1 w/o moderation
+#' data(BPG06dat)
+#'
+#' # Fit model
+#' fit<-modmed.mlm(BPG06dat,"id", "x", "y", "m",
+#'   random.a=TRUE, random.b=TRUE, random.cprime=TRUE)
+#'
+#' bootresid <- bootresid.modmed.mlm(BPG06dat,L2ID="id", X="x", Y="y", M="m",
+#'   random.a=TRUE, random.b=TRUE, random.cprime=TRUE)
+#'
+#' extract.modmed.mlm(fit)
+#'
+#' }
+#' @export bootresid.modmed.mlm
+bootresid.modmed.mlm <- function(data, L2ID, R=1000, X, Y, M,
+                                 moderator=NULL, covars.m=NULL, covars.y=NULL, ...,
+                            type="all", modval1=NULL, modval2=NULL) {
+
+  # data that's being used
+  tmp <- stack_bpg(data, L2ID, X, Y, M,
+                   moderator=moderator,
+                   covars.m = covars.m,
+                   covars.y = covars.y
+  )
+
+  # fit initial model
+  init.mod <- modmed.mlm(data, L2ID, X, Y, M,
+                         moderator=moderator, covars.m=covars.m, covars.y=covars.y, ...)
+
+  # extract coefficients
+  fe<-fixef(init.mod$model)
+
+  # extract residuals at L2 and L1
+  l2resid <- coef(init.mod$model)
+  l1resid <- resid(init.mod$model)
+
+
+
+  return(init.mod)
+}
+
 
 #' Custom model fitting function for two-level (moderated) mediation
 #'
