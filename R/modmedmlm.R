@@ -142,6 +142,7 @@ boot.modmed.mlm <- function(data, indices, L2ID, ...,
         n_j <- nrow(L2_sub)
         L1_idx <- sample(1:n_j, n_j, replace = TRUE)
         L2_sub <- L2_sub[L1_idx, ]
+        return(L2_sub)
       })
       #re-index L2ID names
       rdat <- lapply(seq_along(rdat), function(x) {
