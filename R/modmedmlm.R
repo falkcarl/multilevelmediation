@@ -208,9 +208,11 @@ boot.modmed.mlm <- function(data, indices, L2ID, ...,
 #'   random.a=TRUE, random.b=TRUE, random.cprime=TRUE)
 #'
 #' bootresid <- bootresid.modmed.mlm(BPG06dat,L2ID="id", X="x", Y="y", M="m",
+#'   R=100,
 #'   random.a=TRUE, random.b=TRUE, random.cprime=TRUE)
 #'
-#' extract.modmed.mlm(fit)
+#' extract.boot.modmed.mlm(bootresid, type="indirect")
+#'
 #'
 #' }
 #' @export bootresid.modmed.mlm
@@ -332,7 +334,8 @@ bootresid.modmed.mlm <- function(data, L2ID, R=1000, X, Y, M,
 
   out<-list(t0 = t0res,
             t=resmat,
-            model = init.mod)
+            model = init.mod,
+            call = match.call())
 
   return(out)
 }
