@@ -57,9 +57,11 @@ fit<-modmed.mlm(BPG06dat,"id", "x", "y", "m",
   random.a=TRUE, random.b=TRUE, random.cprime=TRUE)
 
 bootresid <- bootresid.modmed.mlm(BPG06dat,L2ID="id", X="x", Y="y", M="m",
+  R=100,
   random.a=TRUE, random.b=TRUE, random.cprime=TRUE)
 
-extract.modmed.mlm(fit)
+extract.boot.modmed.mlm(bootresid, type="indirect")
+
 
 }
 }
