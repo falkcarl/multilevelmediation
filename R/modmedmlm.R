@@ -187,6 +187,12 @@ boot.modmed.mlm <- function(data, indices, L2ID, ...,
 #' @param data Data frame in long format.
 #' @param L2ID Name of column that contains grouping variable in 'data' (e.g., "SubjectID")
 #' @param R Number of resamples
+#' @param X (Character) Name of column that contains the X independent variable in \code{data}.
+#' @param Y (Character) Name of column that contains the Y dependent variable in \code{data}.
+#' @param M (Character) Name of column that contains the M mediating variable in \code{data}.
+#' @param moderator Optional Character that contains name of column that contains the moderator variable in \code{data}
+#' @param covars.m (Character vector) Optional covariates to include in the model for M.
+#' @param covars.y (Character vector) Optional covariates to include in the model for Y.
 #' @param ... Arguments passed to \code{modmed.mlm} to define the mediation analysis model.
 #' @param type Character that defines what information to extract from the model. Default and options are in \code{extract.modmed.mlm}.
 #'   As examples, "indirect" will compute the indirect effect, "all" will save all random and fixed effects for possible additional
@@ -215,6 +221,7 @@ boot.modmed.mlm <- function(data, indices, L2ID, ...,
 #'
 #'
 #' }
+#' @importFrom stats resid var
 #' @export bootresid.modmed.mlm
 bootresid.modmed.mlm <- function(data, L2ID, R=1000, X, Y, M,
                                  moderator=NULL, covars.m=NULL, covars.y=NULL, ...,
@@ -254,7 +261,7 @@ bootresid.modmed.mlm <- function(data, L2ID, R=1000, X, Y, M,
   yresid<-l1resid[l1groups=="0"] # l1 y residuals
   mresid<-l1resid[l1groups=="1"] # l1 m residuals
   alll1resid<-cbind(yresid,mresid) # all l1 residuals
-  nl1<-nrow(allresid) # N at l1
+  nl1<-nrow(alll1resid) # N at l1
 
 
   ## Reflate stuff (Carpenter, Goldstein, & Rashbash, 2003)
@@ -274,13 +281,13 @@ bootresid.modmed.mlm <- function(data, L2ID, R=1000, X, Y, M,
   # L1
 
   # reflate L1 resid
-  vl1<-var(allresid)*(nl1-1)/nl1
+  vl1<-var(alll1resid)*(nl1-1)/nl1
   LRl1<-chol(l1vars, pivot=TRUE)
   LRl1<-LRl1[order(attr(LRl1,"pivot")),order(attr(LRl1,"pivot"))]
   LSl1<-chol(vl1, pivot=TRUE)
   LSl1<-LSl1[order(attr(LSl1,"pivot")),order(attr(LSl1,"pivot"))]
   Al1<-t(t(LRl1)%*%solve(t(LSl1)))
-  l1resid.infl<-as.matrix(allresid)%*%Al1
+  l1resid.infl<-as.matrix(alll1resid)%*%Al1
 
   # check
   #var(l1resid.infl)*(nl1-1)/nl1
@@ -297,8 +304,8 @@ bootresid.modmed.mlm <- function(data, L2ID, R=1000, X, Y, M,
 
     # use ids to sample residuals
     l2resid.boot<-l2resid.infl[L2idxsamp,]
-    l1Yresid.boot<-allresid[L1Yidxsamp,1]
-    l1Mresid.boot<-allresid[L1Midxsamp,2]
+    l1Yresid.boot<-alll1resid[L1Yidxsamp,1]
+    l1Mresid.boot<-alll1resid[L1Midxsamp,2]
     l1resid.boot<-rep(NA,nl1*2)
     l1resid.boot[l1groups=="0"]<-l1Yresid.boot
     l1resid.boot[l1groups=="1"]<-l1Mresid.boot

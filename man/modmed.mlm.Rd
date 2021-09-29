@@ -28,7 +28,7 @@ modmed.mlm(
   random.covars.y = NULL,
   method = "REML",
   control = lmeControl(maxIter = 10000, msMaxIter = 10000, niterEM = 10000, msMaxEval =
-    10000, tolerance = 0.000001),
+    10000, tolerance = 1e-06),
   returndata = FALSE,
   data.stacked = NULL
 )

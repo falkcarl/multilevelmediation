@@ -27,6 +27,18 @@ bootresid.modmed.mlm(
 
 \item{R}{Number of resamples}
 
+\item{X}{(Character) Name of column that contains the X independent variable in \code{data}.}
+
+\item{Y}{(Character) Name of column that contains the Y dependent variable in \code{data}.}
+
+\item{M}{(Character) Name of column that contains the M mediating variable in \code{data}.}
+
+\item{moderator}{Optional Character that contains name of column that contains the moderator variable in \code{data}}
+
+\item{covars.m}{(Character vector) Optional covariates to include in the model for M.}
+
+\item{covars.y}{(Character vector) Optional covariates to include in the model for Y.}
+
 \item{...}{Arguments passed to \code{modmed.mlm} to define the mediation analysis model.}
 
 \item{type}{Character that defines what information to extract from the model. Default and options are in \code{extract.modmed.mlm}.
