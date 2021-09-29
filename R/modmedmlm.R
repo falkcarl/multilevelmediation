@@ -237,48 +237,41 @@ bootresid.modmed.mlm <- function(data, L2ID, R=1000, X, Y, M,
   fe<-fixef(init.mod$model)
 
   # L2
-  nl2<-length(unique(init.mod$model$groups$L2id)) # N
-  l2groups<-init.mod$model$groups$L2id
+  nl2<-length(unique(init.mod$model$groups$L2id)) # N at l2
+  l2groups<-init.mod$model$groups$L2id # group IDs
   #l2resid <- coef(init.mod$model) # actually, that's fixed effects + random effects
-  l2resid <- random.effects(init.mod$model) # random effects
+  l2resid <- random.effects(init.mod$model) # random effects (l2 residuals)
   modvl2 <- randef.lme(init.mod$model)$sig2 # extract var-cov of random effects
 
   # L1
-  l1resid <- resid(init.mod$model)
-  #nl1<-nrow(init.mod$model$groups)
-  l1sig<-init.mod$model$sigma
-  l1varstruct<-init.mod$model$modelStruct$varStruct
-  l1sds<-l1sig*l1varstruct
+  l1resid <- resid(init.mod$model) # l1 residuals
+  l1sig<-init.mod$model$sigma # l1 error sd for Y
+  l1varstruct<-init.mod$model$modelStruct$varStruct # contains info about scaling of error for Y
+  l1sds<-(1/attr(l1varstruct,"weights")[1:2])*l1sig # obtain actual l1 error sds
+  l1vars<-diag(l1sds^2) # l1 error variances
+  l1groups<-attr(l1varstruct,"groups") # indicators for which obs is Y vs M
+  # it's critical that modmed.mlm does heteroscedasticity in same way, otherwise next lines break
+  yresid<-l1resid[l1groups=="0"] # l1 y residuals
+  mresid<-l1resid[l1groups=="1"] # l1 m residuals
+  alll1resid<-cbind(yresid,mresid) # all l1 residuals
+  nl1<-nrow(allresid) # N at l1
 
 
-  ## Reflate stuff
+  ## Reflate stuff (Carpenter, Goldstein, & Rashbash, 2003)
 
   # L2
   vl2<-var(l2resid)*(nl2-1)/nl2
-
-  # sometimes rank deficient, thus pivot used
   LR<-chol(modvl2, pivot=TRUE)
-  LR<-LR[order(attr(LR,"pivot")),order(attr(LR,"pivot"))]
+  LR<-LR[order(attr(LR,"pivot")),order(attr(LR,"pivot"))] # sometimes rank deficient, thus pivot used
   LS<-chol(vl2, pivot=TRUE)
   LS<-LS[order(attr(LS,"pivot")),order(attr(LS,"pivot"))]
   A<-t(t(LR)%*%solve(t(LS)))
-
   l2resid.infl<-as.matrix(l2resid)%*%A
+
   # check
   #var(l2resid.infl)*(nl2-1)/nl2 # should be close to modvl2
 
   # L1
-
-  # need to figure out how to add residuals under heteroscedasticity
-  #init.mod$model$terms
-  # get residuals and var-cov in a format that works
-  l1sds<-(1/attr(l1varstruct,"weights")[1:2])*l1sig
-  l1vars<-diag(l1sds^2)
-  l1groups<-attr(l1varstruct,"groups")
-  yresid<-l1resid[l1groups=="0"] # it's critical that modmed.mlm does heteroscedasticity in same way
-  mresid<-l1resid[l1groups=="1"]
-  allresid<-cbind(yresid,mresid)
-  nl1<-nrow(allresid)
 
   # reflate L1 resid
   vl1<-var(allresid)*(nl1-1)/nl1
@@ -289,15 +282,20 @@ bootresid.modmed.mlm <- function(data, L2ID, R=1000, X, Y, M,
   Al1<-t(t(LRl1)%*%solve(t(LSl1)))
   l1resid.infl<-as.matrix(allresid)%*%Al1
 
+  # check
   #var(l1resid.infl)*(nl1-1)/nl1
 
-  resmat<-NULL
+  resmat<-NULL # storage of results
+
+  # now, sample L2 and L1 resid
   for(it in 1:R){
-    # now, sample L2 and L1 resid
+
+    # sample ids
     L2idxsamp<-sample(1:nl2, nl2, replace=T)
     L1Yidxsamp<-sample(1:nl1, nl1, replace=T)
     L1Midxsamp<-sample(1:nl1, nl1, replace=T)
 
+    # use ids to sample residuals
     l2resid.boot<-l2resid.infl[L2idxsamp,]
     l1Yresid.boot<-allresid[L1Yidxsamp,1]
     l1Mresid.boot<-allresid[L1Midxsamp,2]
@@ -305,7 +303,7 @@ bootresid.modmed.mlm <- function(data, L2ID, R=1000, X, Y, M,
     l1resid.boot[l1groups=="0"]<-l1Yresid.boot
     l1resid.boot[l1groups=="1"]<-l1Mresid.boot
 
-    # add fixed effects
+    # add fixed effects to l2 random effects
     bootcoef<-l2resid.boot + ((rep(1,nl2))%*%t(fe))[,colnames(l2resid.boot)]
 
     # Then, just directly compute Y and M
@@ -316,11 +314,14 @@ bootresid.modmed.mlm <- function(data, L2ID, R=1000, X, Y, M,
     })
     Zs<-do.call("c",Zs)
 
+    # add Y and M to data frame
     tmp$Z<-Zs+l1resid.boot
 
+    # fit model
     result<-try(modmed.mlm(NULL,L2ID, X, Y, M,
                            moderator=moderator, covars.m=covars.m, covars.y=covars.y,data.stacked=tmp,...))
 
+    # extract and save results
     if(class(result)!="try-error"){
       if(is.null(resmat)){
         resmat<-extract.modmed.mlm(result,type=type,modval1=modval1,modval2=modval2)
@@ -330,6 +331,7 @@ bootresid.modmed.mlm <- function(data, L2ID, R=1000, X, Y, M,
     }
   }
 
+  # extract results from initial model
   t0res<-extract.modmed.mlm(init.mod,type=type,modval1=modval1,modval2=modval2)
 
   out<-list(t0 = t0res,
