@@ -8,6 +8,12 @@ bootresid.modmed.mlm(
   data,
   L2ID,
   R = 1000,
+  X,
+  Y,
+  M,
+  moderator = NULL,
+  covars.m = NULL,
+  covars.y = NULL,
   ...,
   type = "all",
   modval1 = NULL,
@@ -43,7 +49,17 @@ TO DO.
 }
 \examples{
 \donttest{
+# Example data for 1-1-1 w/o moderation
+data(BPG06dat)
 
+# Fit model
+fit<-modmed.mlm(BPG06dat,"id", "x", "y", "m",
+  random.a=TRUE, random.b=TRUE, random.cprime=TRUE)
+
+bootresid <- bootresid.modmed.mlm(BPG06dat,L2ID="id", X="x", Y="y", M="m",
+  random.a=TRUE, random.b=TRUE, random.cprime=TRUE)
+
+extract.modmed.mlm(fit)
 
 }
 }
