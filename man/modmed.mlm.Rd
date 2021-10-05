@@ -29,7 +29,8 @@ modmed.mlm(
   method = "REML",
   control = lmeControl(maxIter = 10000, msMaxIter = 10000, niterEM = 10000, msMaxEval =
     10000, tolerance = 1e-06),
-  returndata = FALSE
+  returndata = FALSE,
+  data.stacked = NULL
 )
 }
 \arguments{
@@ -80,6 +81,8 @@ modmed.mlm(
 \item{control}{Argument passed to \code{\link[nlme]{lme}} that controls other estimation options.}
 
 \item{returndata}{(Logical) Whether to save restructured data in its own slot. Note: nlme may do this automatically. Defaults to \code{FALSE}.}
+
+\item{data.stacked}{(experimental) Currently used internally by bootresid.modmed.mlm to feed already stacked data to the function}
 }
 \description{
 Custom model fitting function for two-level (moderated) mediation

@@ -182,6 +182,173 @@ boot.modmed.mlm <- function(data, indices, L2ID, ...,
   return(extract.modmed.mlm(result,type=type,modval1=modval1,modval2=modval2))
 }
 
+#' Custom function for residual bootstrap for (moderated) multilevel mediation
+#'
+#' @param data Data frame in long format.
+#' @param L2ID Name of column that contains grouping variable in 'data' (e.g., "SubjectID")
+#' @param R Number of resamples
+#' @param X (Character) Name of column that contains the X independent variable in \code{data}.
+#' @param Y (Character) Name of column that contains the Y dependent variable in \code{data}.
+#' @param M (Character) Name of column that contains the M mediating variable in \code{data}.
+#' @param moderator Optional Character that contains name of column that contains the moderator variable in \code{data}
+#' @param covars.m (Character vector) Optional covariates to include in the model for M.
+#' @param covars.y (Character vector) Optional covariates to include in the model for Y.
+#' @param ... Arguments passed to \code{modmed.mlm} to define the mediation analysis model.
+#' @param type Character that defines what information to extract from the model. Default and options are in \code{extract.modmed.mlm}.
+#'   As examples, "indirect" will compute the indirect effect, "all" will save all random and fixed effects for possible additional
+#'   computations, "indirect.diff" will compute the difference in the indirect effect at two values of a possible moderating variable.
+#' @param modval1 (Optional) Numeric. If the model has a moderator, this value will be passed to \code{extract.modmed.mlm}
+#'   to compute the indirect effect or other effects at that value. See \code{extract.modmed.mlm} for details.
+#' @param modval2 (Optional). If the model has a moderator, it is possible to compute the difference in the indirect
+#'   at two values of the moderator. If given and an appropriate option for such a difference is chosen for \code{type},
+#'   this value and that of \code{modval1} will be passed to \code{extract.modmed.mlm} to compute and save the difference.
+#'   This is useful for obtaining a CI for the difference in the indirect effect at two different levels of the moderator.
+#' @details TO DO.
+#' @examples
+#' \donttest{
+#' # Example data for 1-1-1 w/o moderation
+#' data(BPG06dat)
+#'
+#' # Fit model
+#' fit<-modmed.mlm(BPG06dat,"id", "x", "y", "m",
+#'   random.a=TRUE, random.b=TRUE, random.cprime=TRUE)
+#'
+#' bootresid <- bootresid.modmed.mlm(BPG06dat,L2ID="id", X="x", Y="y", M="m",
+#'   R=100,
+#'   random.a=TRUE, random.b=TRUE, random.cprime=TRUE)
+#'
+#' extract.boot.modmed.mlm(bootresid, type="indirect")
+#'
+#'
+#' }
+#' @importFrom stats resid var
+#' @export bootresid.modmed.mlm
+bootresid.modmed.mlm <- function(data, L2ID, R=1000, X, Y, M,
+                                 moderator=NULL, covars.m=NULL, covars.y=NULL, ...,
+                            type="all", modval1=NULL, modval2=NULL) {
+
+  # data that's being used
+  tmp <- stack_bpg(data, L2ID, X, Y, M,
+                   moderator=moderator,
+                   covars.m = covars.m,
+                   covars.y = covars.y
+  )
+
+  # fit initial model
+  init.mod <- modmed.mlm(data, L2ID, X, Y, M,
+                         moderator=moderator, covars.m=covars.m, covars.y=covars.y, ...)
+
+  ## Extract relevant stuff
+
+  # fixed effects
+  fe<-fixef(init.mod$model)
+
+  # L2
+  nl2<-length(unique(init.mod$model$groups$L2id)) # N at l2
+  l2groups<-init.mod$model$groups$L2id # group IDs
+  #l2resid <- coef(init.mod$model) # actually, that's fixed effects + random effects
+  l2resid <- random.effects(init.mod$model) # random effects (l2 residuals)
+  modvl2 <- randef.lme(init.mod$model)$sig2 # extract var-cov of random effects
+
+  # L1
+  l1resid <- resid(init.mod$model) # l1 residuals
+  l1sig<-init.mod$model$sigma # l1 error sd for Y
+  l1varstruct<-init.mod$model$modelStruct$varStruct # contains info about scaling of error for Y
+  l1sds<-(1/attr(l1varstruct,"weights")[1:2])*l1sig # obtain actual l1 error sds
+  l1vars<-diag(l1sds^2) # l1 error variances
+  l1groups<-attr(l1varstruct,"groups") # indicators for which obs is Y vs M
+  # it's critical that modmed.mlm does heteroscedasticity in same way, otherwise next lines break
+  yresid<-l1resid[l1groups=="0"] # l1 y residuals
+  mresid<-l1resid[l1groups=="1"] # l1 m residuals
+  alll1resid<-cbind(yresid,mresid) # all l1 residuals
+  nl1<-nrow(alll1resid) # N at l1
+
+
+  ## Reflate stuff (Carpenter, Goldstein, & Rashbash, 2003)
+
+  # L2
+  vl2<-var(l2resid)*(nl2-1)/nl2
+  LR<-chol(modvl2, pivot=TRUE)
+  LR<-LR[order(attr(LR,"pivot")),order(attr(LR,"pivot"))] # sometimes rank deficient, thus pivot used
+  LS<-chol(vl2, pivot=TRUE)
+  LS<-LS[order(attr(LS,"pivot")),order(attr(LS,"pivot"))]
+  A<-t(t(LR)%*%solve(t(LS)))
+  l2resid.infl<-as.matrix(l2resid)%*%A
+
+  # check
+  #var(l2resid.infl)*(nl2-1)/nl2 # should be close to modvl2
+
+  # L1
+
+  # reflate L1 resid
+  vl1<-var(alll1resid)*(nl1-1)/nl1
+  LRl1<-chol(l1vars, pivot=TRUE)
+  LRl1<-LRl1[order(attr(LRl1,"pivot")),order(attr(LRl1,"pivot"))]
+  LSl1<-chol(vl1, pivot=TRUE)
+  LSl1<-LSl1[order(attr(LSl1,"pivot")),order(attr(LSl1,"pivot"))]
+  Al1<-t(t(LRl1)%*%solve(t(LSl1)))
+  l1resid.infl<-as.matrix(alll1resid)%*%Al1
+
+  # check
+  #var(l1resid.infl)*(nl1-1)/nl1
+
+  resmat<-NULL # storage of results
+
+  # now, sample L2 and L1 resid
+  for(it in 1:R){
+
+    # sample ids
+    L2idxsamp<-sample(1:nl2, nl2, replace=T)
+    L1Yidxsamp<-sample(1:nl1, nl1, replace=T)
+    L1Midxsamp<-sample(1:nl1, nl1, replace=T)
+
+    # use ids to sample residuals
+    l2resid.boot<-l2resid.infl[L2idxsamp,]
+    l1Yresid.boot<-alll1resid[L1Yidxsamp,1]
+    l1Mresid.boot<-alll1resid[L1Midxsamp,2]
+    l1resid.boot<-rep(NA,nl1*2)
+    l1resid.boot[l1groups=="0"]<-l1Yresid.boot
+    l1resid.boot[l1groups=="1"]<-l1Mresid.boot
+
+    # add fixed effects to l2 random effects
+    bootcoef<-l2resid.boot + ((rep(1,nl2))%*%t(fe))[,colnames(l2resid.boot)]
+
+    # Then, just directly compute Y and M
+    Zs<-lapply(unique(l2groups), function(grp){
+      tmpsub<-as.matrix(tmp[tmp$L2id %in% grp, colnames(bootcoef)])
+      tmpcoef<-bootcoef[which(unique(l2groups)%in%grp), ]
+      tmpsub%*%t(t(tmpcoef))
+    })
+    Zs<-do.call("c",Zs)
+
+    # add Y and M to data frame
+    tmp$Z<-Zs+l1resid.boot
+
+    # fit model
+    result<-try(modmed.mlm(NULL,L2ID, X, Y, M,
+                           moderator=moderator, covars.m=covars.m, covars.y=covars.y,data.stacked=tmp,...))
+
+    # extract and save results
+    if(class(result)!="try-error"){
+      if(is.null(resmat)){
+        resmat<-extract.modmed.mlm(result,type=type,modval1=modval1,modval2=modval2)
+      } else {
+        resmat<-rbind(resmat, extract.modmed.mlm(result,type=type,modval1=modval1,modval2=modval2))
+      }
+    }
+  }
+
+  # extract results from initial model
+  t0res<-extract.modmed.mlm(init.mod,type=type,modval1=modval1,modval2=modval2)
+
+  out<-list(t0 = t0res,
+            t=resmat,
+            model = init.mod,
+            call = match.call())
+
+  return(out)
+}
+
 
 #' Custom model fitting function for two-level (moderated) mediation
 #'
@@ -209,6 +376,7 @@ boot.modmed.mlm <- function(data, indices, L2ID, ...,
 #' @param method Argument passed to \code{\link[nlme]{lme}} to control estimation method.
 #' @param control Argument passed to \code{\link[nlme]{lme}} that controls other estimation options.
 #' @param returndata (Logical) Whether to save restructured data in its own slot. Note: nlme may do this automatically. Defaults to \code{FALSE}.
+#' @param data.stacked (experimental) Currently used internally by bootresid.modmed.mlm to feed already stacked data to the function
 #' @details Implements custom function to do moderated mediation with multilevel models.
 #'   Capable of doing moderation as well. Need to detail which kinds of moderation. Believed that it currently supports 2-1-1, 2-2-1, 1-1-1
 #'   with moderator at either level and moderator and any paths can have indirect effects.
@@ -382,18 +550,24 @@ modmed.mlm<-function(data, L2ID, X, Y, M,
                      random.covars.m = NULL, random.covars.y = NULL,
                      method="REML", control = lmeControl(maxIter = 10000, msMaxIter = 10000, niterEM = 10000,
                                                          msMaxEval = 10000, tolerance = 1e-6),
-                     returndata = FALSE){
+                     returndata = FALSE,
+                     data.stacked = NULL){
 
   if (is.null(moderator) && any(mod.a, mod.b, mod.cprime)) {
     # Give error if paths indicated as moderated, but no moderator name given
     stop("No moderator was specified for the moderated path(s).")
   }
 
-  tmp <- stack_bpg(data, L2ID, X, Y, M,
-                   moderator=moderator,
-                   covars.m = covars.m,
-                   covars.y = covars.y
-                   )
+  if(is.null(data.stacked)){
+    tmp <- stack_bpg(data, L2ID, X, Y, M,
+                     moderator=moderator,
+                     covars.m = covars.m,
+                     covars.y = covars.y
+    )
+  } else {
+    tmp <- data.stacked
+  }
+
 
   # Create the formula for the fixed effects
   fixed.formula <- "Z ~ 0 + Sm + Sy + SmX + SyX + SyM" #use the default formula from BPG 2006
