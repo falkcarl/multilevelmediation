@@ -244,8 +244,8 @@ bootresid.modmed.mlm <- function(data, L2ID, R=1000, X, Y, M,
   fe<-fixef(init.mod$model)
 
   # L2
-  nl2<-length(unique(init.mod$model$groups$L2id)) # N at l2
-  l2groups<-init.mod$model$groups$L2id # group IDs
+  l2groups<-unique(init.mod$model$groups$L2id) # group IDs
+  nl2<-length(l2groups) # N at l2
   #l2resid <- coef(init.mod$model) # actually, that's fixed effects + random effects
   l2resid <- random.effects(init.mod$model) # random effects (l2 residuals)
   modvl2 <- randef.lme(init.mod$model)$sig2 # extract var-cov of random effects
@@ -304,19 +304,20 @@ bootresid.modmed.mlm <- function(data, L2ID, R=1000, X, Y, M,
 
     # use ids to sample residuals
     l2resid.boot<-l2resid.infl[L2idxsamp,]
-    l1Yresid.boot<-alll1resid[L1Yidxsamp,1]
-    l1Mresid.boot<-alll1resid[L1Midxsamp,2]
+    l1Yresid.boot<-l1resid.infl[L1Yidxsamp,1]
+    l1Mresid.boot<-l1resid.infl[L1Midxsamp,2]
     l1resid.boot<-rep(NA,nl1*2)
     l1resid.boot[l1groups=="0"]<-l1Yresid.boot
     l1resid.boot[l1groups=="1"]<-l1Mresid.boot
 
     # add fixed effects to l2 random effects
-    bootcoef<-l2resid.boot + ((rep(1,nl2))%*%t(fe))[,colnames(l2resid.boot)]
+    bootcoef<-(rep(1,nl2))%*%t(fe)
+    bootcoef[,colnames(l2resid.boot)]<- bootcoef[,colnames(l2resid.boot)] + l2resid.boot
 
     # Then, just directly compute Y and M
-    Zs<-lapply(unique(l2groups), function(grp){
+    Zs<-lapply(l2groups, function(grp){
       tmpsub<-as.matrix(tmp[tmp$L2id %in% grp, colnames(bootcoef)])
-      tmpcoef<-bootcoef[which(unique(l2groups)%in%grp), ]
+      tmpcoef<-bootcoef[which(l2groups%in%grp), ]
       tmpsub%*%t(t(tmpcoef))
     })
     Zs<-do.call("c",Zs)
