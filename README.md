@@ -19,7 +19,7 @@ and outcomes are supported. Factors (e.g., for X) must be numerically represente
 ``` r
 # From GitHub:
 # install.packages("devtools")
-devtools::install_github("falkcarl/mutilevelmediation")
+devtools::install_github("falkcarl/multilevelmediation")
 ```
 
 ## Some relevant references
