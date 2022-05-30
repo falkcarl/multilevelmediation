@@ -25,18 +25,18 @@ then resampling is done as described in details.}
 
 \item{L2ID}{Name of column that contains grouping variable in 'data' (e.g., "SubjectID")}
 
-\item{...}{Arguments passed to \code{modmed.mlm} to define the mediation analysis model.}
+\item{...}{Arguments passed to \code{\link{modmed.mlm}} to define the mediation analysis model.}
 
-\item{type}{Character that defines what information to extract from the model. Default and options are in \code{extract.modmed.mlm}.
+\item{type}{Character that defines what information to extract from the model. Default and options are in \code{\link{extract.modmed.mlm}}.
 As examples, "indirect" will compute the indirect effect, "all" will save all random and fixed effects for possible additional
 computations, "indirect.diff" will compute the difference in the indirect effect at two values of a possible moderating variable.}
 
-\item{modval1}{(Optional) Numeric. If the model has a moderator, this value will be passed to \code{extract.modmed.mlm}
-to compute the indirect effect or other effects at that value. See \code{extract.modmed.mlm} for details.}
+\item{modval1}{(Optional) Numeric. If the model has a moderator, this value will be passed to \code{\link{extract.modmed.mlm}}
+to compute the indirect effect or other effects at that value. See \code{\link{extract.modmed.mlm}} for details.}
 
 \item{modval2}{(Optional). If the model has a moderator, it is possible to compute the difference in the indirect
 at two values of the moderator. If given and an appropriate option for such a difference is chosen for \code{type},
-this value and that of \code{modval1} will be passed to \code{extract.modmed.mlm} to compute and save the difference.
+this value and that of \code{modval1} will be passed to \code{\link{extract.modmed.mlm}} to compute and save the difference.
 This is useful for obtaining a CI for the difference in the indirect effect at two different levels of the moderator.}
 
 \item{boot.lvl}{Character that defines at what level resampling should occur. Options are "both", "1", or "2". "both" will sample L2 units
@@ -48,9 +48,10 @@ be used. This probably only makes sense if \code{strata} is specified.}
 Custom boot function for (moderated) mediation with 2-level multilevel models
 }
 \details{
-TO DO. Implements custom function to do resampling at level 2, then level 1. For use with boot package.
-  Capable of doing moderation as well. Need to detail which kinds of moderation, which mediation models (e.g., 1-1-1 only?).
-  This resamples L2 units, then L1 units within each L2 unit
+Implements custom function to do bootstrapping with multilevel mediation analysis models as used in Falk, Vogel,
+  Hammami & Miočević (in prep). For use with boot package. This function aides in implementing case resampling methods
+  with support for resampling at level 2, level 1, or both (e.g., see Hox and van de Schoot, 2013; van der Leeden, Meijer, & Busing, 2008).
+  Moderated mediation support is in development.
 }
 \examples{
 \donttest{
@@ -129,4 +130,13 @@ data(BPG06dat)
 #   modval1=0, modval2=1)
 
 }
+}
+\references{
+Bauer, D. J., Preacher, K. J., & Gil, K. M. (2006). Conceptualizing and testing random indirect effects and moderated mediation in multilevel models: New procedures and recommendations. Psychological Methods, 11(2), 142–163. https://doi.org/10.1037/1082-989X.11.2.142
+
+Falk, C. F., Vogel, T., Hammami, S., & Miočević, M. (in prep). Multilevel mediation analysis in R: A comparison of bootstrap and Bayesian approaches
+
+Hox, J., & van de Schoot, R. (2013). Robust methods for multilevel analysis. In M. A. Scott, J. S. Simonoff & B. D. Marx (Eds.), The SAGE Handbook of Multilevel Modeling (pp. 387-402). SAGE Publications Ltd. doi: 10.4135/9781446247600.n22
+
+van der Leeden, R., Meijer, E., & Busing, F. M. T. A. (2008). Resampling multilevel models. In J. de Leeuw & E. Meijer (Eds.), Handbook of Multilevel Analysis (pp. 401-433). Springer.
 }

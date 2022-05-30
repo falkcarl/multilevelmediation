@@ -2,7 +2,7 @@
 % Please edit documentation in R/modmedmlm.R
 \name{modmed.mlm}
 \alias{modmed.mlm}
-\title{Custom model fitting function for two-level (moderated) mediation}
+\title{Model definition and estimation function for two-level (moderated) mediation}
 \usage{
 modmed.mlm(
   data,
@@ -85,13 +85,11 @@ modmed.mlm(
 \item{data.stacked}{(experimental) Currently used internally by bootresid.modmed.mlm to feed already stacked data to the function}
 }
 \description{
-Custom model fitting function for two-level (moderated) mediation
+Model definition and estimation function for two-level (moderated) mediation
 }
 \details{
-Implements custom function to do moderated mediation with multilevel models.
-  Capable of doing moderation as well. Need to detail which kinds of moderation. Believed that it currently supports 2-1-1, 2-2-1, 1-1-1
-  with moderator at either level and moderator and any paths can have indirect effects.
-  Initially implemented for the BPG06 model for 1-1-1 mediation with moderation...
+Implements custom function to do mediation with multilevel models following Bauer, Preacher, & Gil (2006).
+  Support for moderated mediation is in development.
 }
 \examples{
 \donttest{
@@ -248,4 +246,7 @@ extract.modmed.mlm(fitmodab, "b", modval1=0)-
   extract.modmed.mlm(fitmodab, "b", modval1=1)  # should match prev line
 
 }
+}
+\references{
+Bauer, D. J., Preacher, K. J., & Gil, K. M. (2006). Conceptualizing and testing random indirect effects and moderated mediation in multilevel models: New procedures and recommendations. Psychological Methods, 11(2), 142–163. https://doi.org/10.1037/1082-989X.11.2.142
 }

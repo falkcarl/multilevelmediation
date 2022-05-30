@@ -13,6 +13,8 @@
 #'   so that both mediator and outcome models can be fit at the same time. This is necessary to estimate the covariance
 #'   between "a" and "b" paths at the same time when both have random effects. Two selector variables, `Sy` and `Sm` toggle
 #'   whether each row corresponds to the outcome or the mediator, respectively.
+#' @references
+#' Bauer, D. J., Preacher, K. J., & Gil, K. M. (2006). Conceptualizing and testing random indirect		effects and moderated mediation in multilevel models: new procedures and	recommendations. Psychological Methods, 11(2), 142-163. doi:10.1037/1082-989X.11.2.142
 #' @examples
 #' \donttest{
 #'

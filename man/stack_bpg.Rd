@@ -59,3 +59,6 @@ head(dat2)
 
 }
 }
+\references{
+Bauer, D. J., Preacher, K. J., & Gil, K. M. (2006). Conceptualizing and testing random indirect		effects and moderated mediation in multilevel models: new procedures and	recommendations. Psychological Methods, 11(2), 142-163. doi:10.1037/1082-989X.11.2.142
+}

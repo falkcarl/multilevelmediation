@@ -39,25 +39,29 @@ bootresid.modmed.mlm(
 
 \item{covars.y}{(Character vector) Optional covariates to include in the model for Y.}
 
-\item{...}{Arguments passed to \code{modmed.mlm} to define the mediation analysis model.}
+\item{...}{Arguments passed to \code{\link{modmed.mlm}} to define the mediation analysis model.}
 
-\item{type}{Character that defines what information to extract from the model. Default and options are in \code{extract.modmed.mlm}.
+\item{type}{Character that defines what information to extract from the model. Default and options are in \code{\link{extract.modmed.mlm}}.
 As examples, "indirect" will compute the indirect effect, "all" will save all random and fixed effects for possible additional
 computations, "indirect.diff" will compute the difference in the indirect effect at two values of a possible moderating variable.}
 
-\item{modval1}{(Optional) Numeric. If the model has a moderator, this value will be passed to \code{extract.modmed.mlm}
+\item{modval1}{(Optional) Numeric. If the model has a moderator, this value will be passed to \code{\link{extract.modmed.mlm}}
 to compute the indirect effect or other effects at that value. See \code{extract.modmed.mlm} for details.}
 
 \item{modval2}{(Optional). If the model has a moderator, it is possible to compute the difference in the indirect
 at two values of the moderator. If given and an appropriate option for such a difference is chosen for \code{type},
-this value and that of \code{modval1} will be passed to \code{extract.modmed.mlm} to compute and save the difference.
+this value and that of \code{modval1} will be passed to \code{\link{extract.modmed.mlm}} to compute and save the difference.
 This is useful for obtaining a CI for the difference in the indirect effect at two different levels of the moderator.}
 }
 \description{
 Custom function for residual bootstrap for (moderated) multilevel mediation
 }
 \details{
-TO DO.
+This function restructures data following Bauer, Pearcher, & Gil (2006) and then conducts residual-based
+bootstrapping in order to later obtain confidence intervals for the indirect effect and other coefficients.
+The residual-based bootstrap is described in Falk, Vogel, Hammami, & Miočević's manuscript (in prep), but
+generally follows the procedure by Carpenter, Goldstein, & Rashbash (2003; See also Lai, 2021). Currently this function
+does not support parallel processing.
 }
 \examples{
 \donttest{
@@ -76,4 +80,13 @@ extract.boot.modmed.mlm(bootresid, type="indirect")
 
 
 }
+}
+\references{
+Bauer, D. J., Preacher, K. J., & Gil, K. M. (2006). Conceptualizing and testing random indirect		effects and moderated mediation in multilevel models: new procedures and	recommendations. Psychological Methods, 11(2), 142-163. doi:10.1037/1082-989X.11.2.142
+
+Carpenter, J. R., Goldstein, H., & Rasbash, J. (2003). A novel bootstrap procedure for assessing the relationship between class size and achievement. Applied Statistics, 52(4), 431-443.
+
+Falk, C. F., Vogel, T., Hammami, S., & Miočević, M. (in prep). Multilevel mediation analysis in R: A comparison of bootstrap and Bayesian approaches
+
+Lai, M. (2021). Bootstrap confidence intervals for multilevel standardized effect size. Multivariate Behavioral Research, 56(4), 558-578. doi: 10.1080/00273171.2020.1746902
 }

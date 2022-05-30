@@ -15,7 +15,7 @@ extract.boot.modmed.mlm(
 )
 }
 \arguments{
-\item{boot.obj}{Result of \code{\link[boot]{boot}} using \code{boot.modmed.mlm}}
+\item{boot.obj}{Result of \code{\link[boot]{boot}} using \code{\link{boot.modmed.mlm}}}
 
 \item{type}{Character indicating which piece of information to extract from the model
 "indirect": value of the indirect effect.
@@ -43,12 +43,43 @@ the model output (i.e., these would represent values of the effects when the mod
 Post-processing of bootstrap results from boot.modmed.mlm
 }
 \details{
-This function generally assumes that type="all" was used when initially fitting the model, making all necessary
+This is a convenience function that computes point estimates and confidence intervals from multilevel mediation
+  analysis models where \code{\link{boot.modmed.mlm}} was used along with the \code{\link["boot"]{boot}} package, or \code{\link{bootresid.modmed.mlm}}
+  was used. This function generally assumes that type="all" was used when initially fitting the model, making all necessary
   information available for computation of indirect effects, differences between effects, and so on. If type="all"
   was not used, there is no guarantee that confidence intervals for the effects of interest can be extracted.
 }
 \examples{
 \donttest{
-#TODO
+## Mediation for 1-1-1 model
+data(BPG06dat)
+
+#library(parallel)
+#library(boot)
+#ncpu<-6
+#cl<-makeCluster(ncpu)
+
+
+# bootstrap all fixed and random effects (recommended)
+#boot.result<-boot(BPG06dat, statistic=boot.modmed.mlm, R=100,
+#   L2ID = "id", X = "x", Y = "y", M = "m",
+# random.a=TRUE, random.b=TRUE, random.cprime=TRUE,
+#   type="all",
+#  parallel="snow",ncpus=ncpu,cl=cl)
+
+#stopCluster(cl)
+
+
+# Point estimate and 95\% CI for indirect effect
+#extract.boot.modmed.mlm(boot.result, type="indirect", ci.conf=.95)
+
+# residual-based bootstrap
+# bootresid <- bootresid.modmed.mlm(BPG06dat,L2ID="id", X="x", Y="y", M="m",
+#   R=100,
+# random.a=TRUE, random.b=TRUE, random.cprime=TRUE)
+#
+# interval for the indirect effect
+#extract.boot.modmed.mlm(bootresid, type="indirect")
+
 }
 }

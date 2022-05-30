@@ -1,7 +1,7 @@
 ######################################################################
 ## Functions for use with bootstrapping
 ##
-## Copyright 2019-2021 Carl F. Falk, Todd Vogel
+## Copyright 2019-2022 Carl F. Falk, Todd Vogel
 ##
 ## This program is free software: you can redistribute it and/or
 ## modify it under the terms of the GNU General Public License as
@@ -22,23 +22,32 @@
 #'   then the relevant model will be fit to the data without any resampling. If some other vector is supplied,
 #'   then resampling is done as described in details.
 #' @param L2ID Name of column that contains grouping variable in 'data' (e.g., "SubjectID")
-#' @param ... Arguments passed to \code{modmed.mlm} to define the mediation analysis model.
-#' @param type Character that defines what information to extract from the model. Default and options are in \code{extract.modmed.mlm}.
+#' @param ... Arguments passed to \code{\link{modmed.mlm}} to define the mediation analysis model.
+#' @param type Character that defines what information to extract from the model. Default and options are in \code{\link{extract.modmed.mlm}}.
 #'   As examples, "indirect" will compute the indirect effect, "all" will save all random and fixed effects for possible additional
 #'   computations, "indirect.diff" will compute the difference in the indirect effect at two values of a possible moderating variable.
-#' @param modval1 (Optional) Numeric. If the model has a moderator, this value will be passed to \code{extract.modmed.mlm}
-#'   to compute the indirect effect or other effects at that value. See \code{extract.modmed.mlm} for details.
+#' @param modval1 (Optional) Numeric. If the model has a moderator, this value will be passed to \code{\link{extract.modmed.mlm}}
+#'   to compute the indirect effect or other effects at that value. See \code{\link{extract.modmed.mlm}} for details.
 #' @param modval2 (Optional). If the model has a moderator, it is possible to compute the difference in the indirect
 #'   at two values of the moderator. If given and an appropriate option for such a difference is chosen for \code{type},
-#'   this value and that of \code{modval1} will be passed to \code{extract.modmed.mlm} to compute and save the difference.
+#'   this value and that of \code{modval1} will be passed to \code{\link{extract.modmed.mlm}} to compute and save the difference.
 #'   This is useful for obtaining a CI for the difference in the indirect effect at two different levels of the moderator.
 #' @param boot.lvl Character that defines at what level resampling should occur. Options are "both", "1", or "2". "both" will sample L2 units
 #'   and then L1 units w/in each cluster. This has been noted to result in unequal sample sizes if the original clusters did not have equal sample sizes.
 #'   "2" resamples only L2 units and leaves all L1 units intact. "1" will assume that whatever indices are fed from the boot function will
 #'   be used. This probably only makes sense if \code{strata} is specified.
-#' @details TO DO. Implements custom function to do resampling at level 2, then level 1. For use with boot package.
-#'   Capable of doing moderation as well. Need to detail which kinds of moderation, which mediation models (e.g., 1-1-1 only?).
-#'   This resamples L2 units, then L1 units within each L2 unit
+#' @details Implements custom function to do bootstrapping with multilevel mediation analysis models as used in Falk, Vogel,
+#'   Hammami & Miočević (in prep). For use with boot package. This function aides in implementing case resampling methods
+#'   with support for resampling at level 2, level 1, or both (e.g., see Hox and van de Schoot, 2013; van der Leeden, Meijer, & Busing, 2008).
+#'   Moderated mediation support is in development.
+#' @references
+#' Bauer, D. J., Preacher, K. J., & Gil, K. M. (2006). Conceptualizing and testing random indirect effects and moderated mediation in multilevel models: New procedures and recommendations. Psychological Methods, 11(2), 142–163. https://doi.org/10.1037/1082-989X.11.2.142
+#'
+#' Falk, C. F., Vogel, T., Hammami, S., & Miočević, M. (in prep). Multilevel mediation analysis in R: A comparison of bootstrap and Bayesian approaches
+#'
+#' Hox, J., & van de Schoot, R. (2013). Robust methods for multilevel analysis. In M. A. Scott, J. S. Simonoff & B. D. Marx (Eds.), The SAGE Handbook of Multilevel Modeling (pp. 387-402). SAGE Publications Ltd. doi: 10.4135/9781446247600.n22
+#'
+#' van der Leeden, R., Meijer, E., & Busing, F. M. T. A. (2008). Resampling multilevel models. In J. de Leeuw & E. Meijer (Eds.), Handbook of Multilevel Analysis (pp. 401-433). Springer.
 #' @examples
 #' \donttest{
 #' ## Mediation for 1-1-1 model
@@ -193,17 +202,32 @@ boot.modmed.mlm <- function(data, indices, L2ID, ...,
 #' @param moderator Optional Character that contains name of column that contains the moderator variable in \code{data}
 #' @param covars.m (Character vector) Optional covariates to include in the model for M.
 #' @param covars.y (Character vector) Optional covariates to include in the model for Y.
-#' @param ... Arguments passed to \code{modmed.mlm} to define the mediation analysis model.
-#' @param type Character that defines what information to extract from the model. Default and options are in \code{extract.modmed.mlm}.
+#' @param ... Arguments passed to \code{\link{modmed.mlm}} to define the mediation analysis model.
+#' @param type Character that defines what information to extract from the model. Default and options are in \code{\link{extract.modmed.mlm}}.
 #'   As examples, "indirect" will compute the indirect effect, "all" will save all random and fixed effects for possible additional
 #'   computations, "indirect.diff" will compute the difference in the indirect effect at two values of a possible moderating variable.
-#' @param modval1 (Optional) Numeric. If the model has a moderator, this value will be passed to \code{extract.modmed.mlm}
+#' @param modval1 (Optional) Numeric. If the model has a moderator, this value will be passed to \code{\link{extract.modmed.mlm}}
 #'   to compute the indirect effect or other effects at that value. See \code{extract.modmed.mlm} for details.
 #' @param modval2 (Optional). If the model has a moderator, it is possible to compute the difference in the indirect
 #'   at two values of the moderator. If given and an appropriate option for such a difference is chosen for \code{type},
-#'   this value and that of \code{modval1} will be passed to \code{extract.modmed.mlm} to compute and save the difference.
+#'   this value and that of \code{modval1} will be passed to \code{\link{extract.modmed.mlm}} to compute and save the difference.
 #'   This is useful for obtaining a CI for the difference in the indirect effect at two different levels of the moderator.
-#' @details TO DO.
+#' @details This function restructures data following Bauer, Pearcher, & Gil (2006) and then conducts residual-based
+#' bootstrapping in order to later obtain confidence intervals for the indirect effect and other coefficients.
+#' The residual-based bootstrap is described in Falk, Vogel, Hammami, & Miočević's manuscript (in prep), but
+#' generally follows the procedure by Carpenter, Goldstein, & Rashbash (2003; See also Lai, 2021). Currently this function
+#' does not support parallel processing.
+#'
+#' @references
+#'
+#' Bauer, D. J., Preacher, K. J., & Gil, K. M. (2006). Conceptualizing and testing random indirect		effects and moderated mediation in multilevel models: new procedures and	recommendations. Psychological Methods, 11(2), 142-163. doi:10.1037/1082-989X.11.2.142
+#'
+#' Carpenter, J. R., Goldstein, H., & Rasbash, J. (2003). A novel bootstrap procedure for assessing the relationship between class size and achievement. Applied Statistics, 52(4), 431-443.
+#'
+#' Falk, C. F., Vogel, T., Hammami, S., & Miočević, M. (in prep). Multilevel mediation analysis in R: A comparison of bootstrap and Bayesian approaches
+#'
+#' Lai, M. (2021). Bootstrap confidence intervals for multilevel standardized effect size. Multivariate Behavioral Research, 56(4), 558-578. doi: 10.1080/00273171.2020.1746902
+#'
 #' @examples
 #' \donttest{
 #' # Example data for 1-1-1 w/o moderation
@@ -350,8 +374,7 @@ bootresid.modmed.mlm <- function(data, L2ID, R=1000, X, Y, M,
   return(out)
 }
 
-
-#' Custom model fitting function for two-level (moderated) mediation
+#' Model definition and estimation function for two-level (moderated) mediation
 #'
 #' @param data Data frame in long format.
 #' @param L2ID (Character) Name of column that contains grouping variable in \code{data} (e.g., \code{"SubjectID"}).
@@ -378,10 +401,10 @@ bootresid.modmed.mlm <- function(data, L2ID, R=1000, X, Y, M,
 #' @param control Argument passed to \code{\link[nlme]{lme}} that controls other estimation options.
 #' @param returndata (Logical) Whether to save restructured data in its own slot. Note: nlme may do this automatically. Defaults to \code{FALSE}.
 #' @param data.stacked (experimental) Currently used internally by bootresid.modmed.mlm to feed already stacked data to the function
-#' @details Implements custom function to do moderated mediation with multilevel models.
-#'   Capable of doing moderation as well. Need to detail which kinds of moderation. Believed that it currently supports 2-1-1, 2-2-1, 1-1-1
-#'   with moderator at either level and moderator and any paths can have indirect effects.
-#'   Initially implemented for the BPG06 model for 1-1-1 mediation with moderation...
+#' @details Implements custom function to do mediation with multilevel models following Bauer, Preacher, & Gil (2006).
+#'   Support for moderated mediation is in development.
+#' @references
+#' Bauer, D. J., Preacher, K. J., & Gil, K. M. (2006). Conceptualizing and testing random indirect effects and moderated mediation in multilevel models: New procedures and recommendations. Psychological Methods, 11(2), 142–163. https://doi.org/10.1037/1082-989X.11.2.142
 #' @examples
 #' \donttest{
 #' # Example data for 1-1-1 w/o moderation
@@ -683,7 +706,7 @@ modmed.mlm<-function(data, L2ID, X, Y, M,
 
 #' Post-processing of a model fit with modmed.mlm
 #'
-#' @param fit Result of \code{modmed.mlm}.
+#' @param fit Result of \code{\link{modmed.mlm}}.
 #' @param type Character indicating which piece of information to extract from the model
 #'   "all": fixed effects and var-cov matrix of random effects, as a single vector.
 #'   "fixef": just fixed effects.
@@ -703,7 +726,7 @@ modmed.mlm<-function(data, L2ID, X, Y, M,
 #'   the model output (i.e., these would represent values of the effects when the moderator = 0).
 #' @param modval2 Second value of the moderator at which to compute the indirect effect.
 #' @details
-#'   For any of the .diff values, these are always the value of the effect at modval1 minus modval2.
+#'   This function extracts relevant parameter estimates from models estimated using \code{\link{modmed.mlm}}. For any of the .diff values, these are always the value of the effect at modval1 minus modval2.
 #' @export extract.modmed.mlm
 extract.modmed.mlm <- function(fit, type=c("all","fixef","recov","recov.vec","indirect","a","b","cprime","covab",
                                            "indirect.diff","a.diff","b.diff","cprime.diff"),
@@ -822,7 +845,7 @@ randef.lme <- function(model){
 
 #' Post-processing of bootstrap results from boot.modmed.mlm
 #'
-#' @param boot.obj Result of \code{\link[boot]{boot}} using \code{boot.modmed.mlm}
+#' @param boot.obj Result of \code{\link[boot]{boot}} using \code{\link{boot.modmed.mlm}}
 #' @param type Character indicating which piece of information to extract from the model
 #'   "indirect": value of the indirect effect.
 #'   "a": Current value of a path.
@@ -841,13 +864,44 @@ randef.lme <- function(model){
 #'   the model output (i.e., these would represent values of the effects when the moderator = 0).
 #' @param modval2 Second value of the moderator at which to compute the indirect effect.
 #' @details
-#'   This function generally assumes that type="all" was used when initially fitting the model, making all necessary
+#'   This is a convenience function that computes point estimates and confidence intervals from multilevel mediation
+#'   analysis models where \code{\link{boot.modmed.mlm}} was used along with the \code{\link["boot"]{boot}} package, or \code{\link{bootresid.modmed.mlm}}
+#'   was used. This function generally assumes that type="all" was used when initially fitting the model, making all necessary
 #'   information available for computation of indirect effects, differences between effects, and so on. If type="all"
 #'   was not used, there is no guarantee that confidence intervals for the effects of interest can be extracted.
 #' @export extract.boot.modmed.mlm
 #' @examples
 #' \donttest{
-#' #TODO
+#' ## Mediation for 1-1-1 model
+#' data(BPG06dat)
+#'
+#' #library(parallel)
+#' #library(boot)
+#' #ncpu<-6
+#' #cl<-makeCluster(ncpu)
+#'
+#'
+#' # bootstrap all fixed and random effects (recommended)
+#' #boot.result<-boot(BPG06dat, statistic=boot.modmed.mlm, R=100,
+#' #   L2ID = "id", X = "x", Y = "y", M = "m",
+#' # random.a=TRUE, random.b=TRUE, random.cprime=TRUE,
+#' #   type="all",
+#' #  parallel="snow",ncpus=ncpu,cl=cl)
+#'
+#' #stopCluster(cl)
+#'
+#'
+#' # Point estimate and 95% CI for indirect effect
+#' #extract.boot.modmed.mlm(boot.result, type="indirect", ci.conf=.95)
+#'
+#' # residual-based bootstrap
+#' # bootresid <- bootresid.modmed.mlm(BPG06dat,L2ID="id", X="x", Y="y", M="m",
+#' #   R=100,
+#' # random.a=TRUE, random.b=TRUE, random.cprime=TRUE)
+#' #
+#' # interval for the indirect effect
+#' #extract.boot.modmed.mlm(bootresid, type="indirect")
+#'
 #' }
 #' @importFrom stats quantile
 extract.boot.modmed.mlm <- function(boot.obj, type=c("indirect","a","b","cprime","covab",
