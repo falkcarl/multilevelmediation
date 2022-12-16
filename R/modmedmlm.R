@@ -815,21 +815,10 @@ extract.modmed.mlm <- function(fit, type=c("all","fixef","recov","recov.vec","in
 randef.lme <- function(model){
 
   # extract var-cov matrix among random effects
-  vc <- VarCorr(model)
-
-  #grab names of random effects
-  re.names <- colnames(model[["coefficients"]][["random"]][["L2id"]])
-  re.num <- length(re.names) #number of random effects
-
-  # create cov matrix among random effects
-  sd <- as.numeric(vc[1:re.num, 2])
-  sigma <- cbind(vc[1:re.num, 3:ncol(vc)], 1)
-  diag(sigma) <- 1
-  sig <- as.numeric(vech(sigma))
-  sig <- xpnd(sig)
-  D <- diag(sd)
-  sig2 <- D %*% sig %*% D
-  colnames(sig2) <- rownames(sig2) <- re.names
+  sig2 <- getVarCov(model)
+  class(sig2) <- "matrix"
+  attr(sig2,"group.levels") <- NULL
+  re.names<-colnames(sig2)
 
   # rand effects as vector
   sig2vec <- as.vector(sig2)
@@ -837,7 +826,7 @@ randef.lme <- function(model){
   elementnames <- paste0("re.",elementnames[,1],elementnames[,2])
   names(sig2vec) <- elementnames
 
-  out<-list(sig2 =sig2,
+  out<-list(sig2 = sig2,
             sig2vec = sig2vec)
 
   return(out)
