@@ -88,8 +88,13 @@ modmed.mlm(
 Model definition and estimation function for two-level (moderated) mediation
 }
 \details{
-Implements custom function to do mediation with multilevel models following Bauer, Preacher, & Gil (2006).
-  Support for moderated mediation is in development.
+Implements custom function to do 1-1-1 multilevel mediation model following Bauer, Preacher, & Gil (2006).
+  The basic procedure involves restructuring the data (\code{\link{stack_bpg}}) and then estimating the model using \code{\link[nlme]{lme}}.
+  The model assumes heteroscedasticity  since the mediator and outcome variable may have different error variances.
+  The function also supports covariates as predictors of the mediator and/or outcome, as well as moderated mediation.
+  Currently a single moderator variable is supported and it may moderate any/all paths of the model. However, the
+  the moderator is assumed continuous. While it may be possible to include moderators that are categorical, it is
+  not currently automated (i.e., the user will need to manually code the categorical variable as numeric).
 }
 \examples{
 \donttest{
@@ -159,8 +164,6 @@ AIC(fitmodab2$model)
 AIC(fitmodab3$model)
 AIC(fitmodab4$model) # AIC here is best. Great simulated data we have here
 
-
-# TODO: move this to testing file to ensure package does not break
 extract.modmed.mlm(fitmodab4, "indirect")
 extract.modmed.mlm(fitmodab4, "indirect", modval1=0) # should match above
 extract.modmed.mlm(fitmodab4, "indirect", modval1=1)

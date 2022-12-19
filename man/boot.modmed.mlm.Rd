@@ -48,10 +48,11 @@ be used. This probably only makes sense if \code{strata} is specified.}
 Custom boot function for (moderated) mediation with 2-level multilevel models
 }
 \details{
-Implements custom function to do bootstrapping with multilevel mediation analysis models as used in Falk, Vogel,
+Implements custom function to do bootstrapping with the 1-1-1 multilevel mediation analysis models as used in Falk, Vogel,
   Hammami & Miočević (in prep). For use with boot package. This function aides in implementing case resampling methods
   with support for resampling at level 2, level 1, or both (e.g., see Hox and van de Schoot, 2013; van der Leeden, Meijer, & Busing, 2008).
-  Moderated mediation support is in development.
+  These functions also support moderated mediation. See also \code{\link{modmed.mlm}}. Note that \code{\link{nlm}} was used as the optimizer
+  for some of the examples below as it was found to be faster for the models/simulations studied by Falk et al.
 }
 \examples{
 \donttest{
@@ -61,6 +62,7 @@ data(BPG06dat)
 # Do bootstrapping... w/ parallel processing
 # snow appears to work on Windows; something else may be better on Unix/Mac/Linux
 
+
 #library(parallel)
 #library(boot)
 #ncpu<-6
@@ -68,16 +70,18 @@ data(BPG06dat)
 
 # bootstrap just the indirect effect
 #boot.result<-boot(BPG06dat, statistic=boot.modmed.mlm, R=100,
-# L2ID = "id", X = "x", Y = "y", M = "m",
-# random.a=TRUE, random.b=TRUE, random.cprime=TRUE,
-# type="indirect",
-# parallel="snow",ncpus=ncpu,cl=cl)
+#  L2ID = "id", X = "x", Y = "y", M = "m",
+#  random.a=TRUE, random.b=TRUE, random.cprime=TRUE,
+#  type="indirect",
+#  control=list(opt="nlm"),
+#  parallel="snow",ncpus=ncpu,cl=cl)
 
 # bootstrap all fixed and random effects (recommended)
 #boot.result<-boot(BPG06dat, statistic=boot.modmed.mlm, R=100,
-#   L2ID = "id", X = "x", Y = "y", M = "m",
-# random.a=TRUE, random.b=TRUE, random.cprime=TRUE,
-#   type="all",
+#  L2ID = "id", X = "x", Y = "y", M = "m",
+#  random.a=TRUE, random.b=TRUE, random.cprime=TRUE,
+#  type="all",
+#  control=list(opt="nlm"),
 #  parallel="snow",ncpus=ncpu,cl=cl)
 
 #stopCluster(cl)
@@ -91,8 +95,9 @@ data(BPG06dat)
 # without cluster
 # boot.result<-boot(BPG06dat, statistic=boot.modmed.mlm, R=5,
 #   L2ID = "id", X = "x", Y = "y", M = "m",
-#  random.a=TRUE, random.b=TRUE, random.cprime=TRUE,
-#  type="indirect")
+#   random.a=TRUE, random.b=TRUE, random.cprime=TRUE,
+#   control=list(opt="nlm"),
+#   type="indirect")
 
 ## Moderated mediation
 
@@ -108,6 +113,7 @@ data(BPG06dat)
 #   moderator = "mod", mod.a=TRUE, mod.b=TRUE,
 #   random.mod.a = TRUE, random.mod.b = TRUE,
 #   type="all",
+#   control=list(opt="nlm"),
 #   parallel="snow",ncpus=ncpu,cl=cl)
 
 #  test<-modmed.mlm(simdat,
@@ -134,7 +140,7 @@ data(BPG06dat)
 \references{
 Bauer, D. J., Preacher, K. J., & Gil, K. M. (2006). Conceptualizing and testing random indirect effects and moderated mediation in multilevel models: New procedures and recommendations. Psychological Methods, 11(2), 142–163. https://doi.org/10.1037/1082-989X.11.2.142
 
-Falk, C. F., Vogel, T., Hammami, S., & Miočević, M. (in prep). Multilevel mediation analysis in R: A comparison of bootstrap and Bayesian approaches
+Falk, C. F., Vogel, T., Hammami, S., & Miočević, M. (2022). Multilevel mediation analysis in R: A comparison of bootstrap and Bayesian approaches. Preprint: https://doi.org/10.31234/osf.io/ync34
 
 Hox, J., & van de Schoot, R. (2013). Robust methods for multilevel analysis. In M. A. Scott, J. S. Simonoff & B. D. Marx (Eds.), The SAGE Handbook of Multilevel Modeling (pp. 387-402). SAGE Publications Ltd. doi: 10.4135/9781446247600.n22
 

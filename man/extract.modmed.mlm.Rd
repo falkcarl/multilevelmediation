@@ -40,5 +40,6 @@ the model output (i.e., these would represent values of the effects when the mod
 Post-processing of a model fit with modmed.mlm
 }
 \details{
-This function extracts relevant parameter estimates from models estimated using \code{\link{modmed.mlm}}. For any of the .diff values, these are always the value of the effect at modval1 minus modval2.
+This function extracts relevant parameter estimates from models estimated using \code{\link{modmed.mlm}}.
+  For any of the .diff values, these are always the value of the effect at modval1 minus modval2.
 }

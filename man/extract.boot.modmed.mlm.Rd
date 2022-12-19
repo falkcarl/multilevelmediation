@@ -63,9 +63,10 @@ data(BPG06dat)
 # bootstrap all fixed and random effects (recommended)
 #boot.result<-boot(BPG06dat, statistic=boot.modmed.mlm, R=100,
 #   L2ID = "id", X = "x", Y = "y", M = "m",
-# random.a=TRUE, random.b=TRUE, random.cprime=TRUE,
+#   random.a=TRUE, random.b=TRUE, random.cprime=TRUE,
 #   type="all",
-#  parallel="snow",ncpus=ncpu,cl=cl)
+#   control=list(opt="nlm"),
+#   parallel="snow",ncpus=ncpu,cl=cl)
 
 #stopCluster(cl)
 
@@ -75,8 +76,8 @@ data(BPG06dat)
 
 # residual-based bootstrap
 # bootresid <- bootresid.modmed.mlm(BPG06dat,L2ID="id", X="x", Y="y", M="m",
-#   R=100,
-# random.a=TRUE, random.b=TRUE, random.cprime=TRUE)
+#   R=100, random.a=TRUE, random.b=TRUE, random.cprime=TRUE,
+#   control=list(opt="nlm"))
 #
 # interval for the indirect effect
 #extract.boot.modmed.mlm(bootresid, type="indirect")

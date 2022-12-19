@@ -8,9 +8,11 @@ bootstrapping. The ultimate goal is to support 2-2-1, 2-1-1, and 1-1-1 models,
 the option of a moderating variable at level 1 or level 2 for either the *a*, *b*,
 or both paths, and a wide array of random effects for any coefficients
 represented in level 1 equations (including those for the 1-1-1 model and random
-effects for the moderator). Support for Bayesian estimation and
-the inclusion of covariates comprises ongoing work. Currently only continuous mediators
-and outcomes are supported. Factors (e.g., for X) must be numerically represented.
+effects for the moderator). Currently the 1-1-1 model is supported and has 
+been evaluated in simulations (see Falk et al in references). Support for
+Bayesian estimation and the inclusion of covariates comprises ongoing work.
+Currently only continuous mediators and outcomes are supported. Factors
+(e.g., for X) must be numerically represented.
 
 ## Installation
 
@@ -26,7 +28,7 @@ Bauer, D. J., Preacher, K. J., & Gil, K. M. (2006). Conceptualizing and testing 
 
 Carpenter, J. R., Goldstein, H., & Rasbash, J. (2003). A novel bootstrap procedure for assessing the relationship between class size and achievement. Applied Statistics, 52(4), 431-443.
 
-Falk, C. F., Vogel, T., Hammami, S., & Miočević, M. (in prep). Multilevel mediation analysis in R: A comparison of bootstrap and Bayesian approaches
+Falk, C. F., Vogel, T., Hammami, S., & Miočević, M. (2022). Multilevel mediation analysis in R: A comparison of bootstrap and Bayesian approaches. Preprint: https://doi.org/10.31234/osf.io/ync34
 
 Hox, J., & van de Schoot, R. (2013). Robust methods for multilevel analysis. In M. A. Scott, J. S. Simonoff & B. D. Marx (Eds.), The SAGE Handbook of Multilevel Modeling (pp. 387-402). SAGE Publications Ltd. doi: 10.4135/9781446247600.n22
 
