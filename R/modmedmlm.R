@@ -61,7 +61,9 @@
 #' #library(parallel)
 #' #library(boot)
 #' #ncpu<-6
+#' #RNGkind("L'Ecuyer-CMRG") # set type of random number generation that works in parallel
 #' #cl<-makeCluster(ncpu)
+#' #clusterSetRNGStream(cl, 9912) # set random number seeds for cluster
 #'
 #' # bootstrap just the indirect effect
 #' #boot.result<-boot(BPG06dat, statistic=boot.modmed.mlm, R=100,
@@ -71,6 +73,11 @@
 #' #  control=list(opt="nlm"),
 #' #  parallel="snow",ncpus=ncpu,cl=cl)
 #'
+#'
+#'
+#' #boot.result$t0 # point estimates for everything based on original data
+#' #boot.ci(boot.result, index=1, type="perc") # percentile interval of first element
+#'
 #' # bootstrap all fixed and random effects (recommended)
 #' #boot.result<-boot(BPG06dat, statistic=boot.modmed.mlm, R=100,
 #' #  L2ID = "id", X = "x", Y = "y", M = "m",
@@ -79,13 +86,10 @@
 #' #  control=list(opt="nlm"),
 #' #  parallel="snow",ncpus=ncpu,cl=cl)
 #'
-#' #stopCluster(cl)
-#'
-#' #boot.result$t0 # point estimates for everything based on original data
-#' #boot.ci(boot.result, index=1, type="perc") # percentile interval of first element
-#'
 #' # Point estimate and 95% CI for indirect effect
 #' #extract.boot.modmed.mlm(boot.result, type="indirect", ci.conf=.95)
+#'
+#' #stopCluster(cl)
 #'
 #' # without cluster
 #' # boot.result<-boot(BPG06dat, statistic=boot.modmed.mlm, R=5,
