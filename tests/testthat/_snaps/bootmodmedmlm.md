@@ -18,7 +18,7 @@
       
       Intervals : 
       Level     Percentile     
-      95%   ( 0.3234,  0.5907 )  
+      95%   ( 0.3564,  0.5881 )  
       Calculations and Intervals on Original Scale
       Some percentile intervals may be unstable
 
@@ -51,7 +51,7 @@
       
       Intervals : 
       Level     Percentile     
-      95%   (-0.1133,  0.2874 )  
+      95%   (-0.1065,  0.2785 )  
       Calculations and Intervals on Original Scale
       Some percentile intervals may be unstable
 
@@ -62,7 +62,7 @@
     Output
       $CI
            2.5%     97.5% 
-      0.3656735 0.5790592 
+      0.3643302 0.5975923 
       
       $est
       [1] 0.4721302
@@ -75,7 +75,7 @@
     Output
       $CI
            2.5%     97.5% 
-      0.5259069 0.6915684 
+      0.5238559 0.7030133 
       
       $est
       [1] 0.6118508
@@ -88,7 +88,7 @@
     Output
       $CI
            2.5%     97.5% 
-      0.4657587 0.7423931 
+      0.4539183 0.7308635 
       
       $est
       [1] 0.6104177
@@ -100,8 +100,8 @@
       extract.boot.modmed.mlm(boot.result, type = "cprime", ci.conf = 0.95)
     Output
       $CI
-            2.5%      97.5% 
-      0.09310891 0.32521519 
+           2.5%     97.5% 
+      0.1100087 0.3677252 
       
       $est
       [1] 0.2209923
@@ -114,7 +114,7 @@
     Output
       $CI
             2.5%      97.5% 
-      0.04835209 0.17420484 
+      0.05556644 0.17012157 
       
       $est
       [1] 0.09864558
@@ -140,7 +140,7 @@
       
       Intervals : 
       Level     Percentile     
-      95%   ( 0.3690,  0.5971 )  
+      95%   ( 0.3591,  0.5717 )  
       Calculations and Intervals on Original Scale
       Some percentile intervals may be unstable
 
@@ -173,7 +173,7 @@
       
       Intervals : 
       Level     Percentile     
-      95%   (-0.1063,  0.3030 )  
+      95%   (-0.1227,  0.2334 )  
       Calculations and Intervals on Original Scale
       Some percentile intervals may be unstable
 
@@ -184,7 +184,7 @@
     Output
       $CI
            2.5%     97.5% 
-      0.3792086 0.5801355 
+      0.3655156 0.5572424 
       
       $est
       [1] 0.4721302
@@ -197,7 +197,7 @@
     Output
       $CI
            2.5%     97.5% 
-      0.5334494 0.6976009 
+      0.5368761 0.7001004 
       
       $est
       [1] 0.6118508
@@ -210,7 +210,7 @@
     Output
       $CI
            2.5%     97.5% 
-      0.5137218 0.7075524 
+      0.5258939 0.6829505 
       
       $est
       [1] 0.6104177
@@ -223,7 +223,7 @@
     Output
       $CI
            2.5%     97.5% 
-      0.1341611 0.3120920 
+      0.1248937 0.3040597 
       
       $est
       [1] 0.2209923
@@ -236,7 +236,7 @@
     Output
       $CI
             2.5%      97.5% 
-      0.05343939 0.15434969 
+      0.04834915 0.13732896 
       
       $est
       [1] 0.09864558

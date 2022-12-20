@@ -3,7 +3,7 @@ data("simdat")
 
 library(parallel)
 library(boot)
-ncpu<-6
+ncpu<-2
 RNGkind("L'Ecuyer-CMRG") # set type of random number generation that works in parallel
 cl <- makeCluster(ncpu)
 clusterSetRNGStream(cl, 9912)# set random number seeds for cluster
