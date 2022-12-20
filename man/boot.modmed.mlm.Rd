@@ -109,6 +109,9 @@ data(BPG06dat)
 #ncpu<-12
 #cl<-makeCluster(ncpu)
 
+# note: use of nlm apparently fails in this moderated mediation model
+# default optimizer for lme instead is used
+
 # Bootstrap w/ moderation of a and b paths
 
 #boot.result2<-boot(simdat, statistic=boot.modmed.mlm, R=10000,
@@ -117,7 +120,6 @@ data(BPG06dat)
 #   moderator = "mod", mod.a=TRUE, mod.b=TRUE,
 #   random.mod.a = TRUE, random.mod.b = TRUE,
 #   type="all",
-#   control=list(opt="nlm"),
 #   parallel="snow",ncpus=ncpu,cl=cl)
 
 #  test<-modmed.mlm(simdat,
