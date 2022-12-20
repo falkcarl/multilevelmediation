@@ -30,7 +30,8 @@
 #' @param ncores placeholder
 #' @param seed placeholder
 #'
-#' @details TODO
+#' @details This function shall replace initially written bootstrap functions.
+#'   The function appears to be finished, but documentation and examples remain.
 #'
 #' @examples
 #' \donttest{
