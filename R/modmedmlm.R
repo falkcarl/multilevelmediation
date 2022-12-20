@@ -352,19 +352,21 @@ bootresid.modmed.mlm <- function(data, L2ID, R=1000, X, Y, M,
     bootcoef[,colnames(l2resid.boot)]<- bootcoef[,colnames(l2resid.boot)] + l2resid.boot
 
     # Then, just directly compute Y and M
+    tmp2 <- as.data.frame(model.matrix(init.mod$model$terms, tmp))
+    tmp2$L2id <- tmp$L2id
     Zs<-lapply(l2groups, function(grp){
-      tmpsub<-as.matrix(tmp[tmp$L2id %in% grp, colnames(bootcoef)])
+      tmpsub<-as.matrix(tmp2[tmp2$L2id %in% grp, colnames(bootcoef)])
       tmpcoef<-bootcoef[which(l2groups%in%grp), ]
       tmpsub%*%t(t(tmpcoef))
     })
     Zs<-do.call("c",Zs)
 
     # add Y and M to data frame
-    tmp$Z<-Zs+l1resid.boot
+    tmp2$Z<-Zs+l1resid.boot
 
     # fit model
     result<-try(modmed.mlm(NULL,L2ID, X, Y, M,
-                           moderator=moderator, covars.m=covars.m, covars.y=covars.y,data.stacked=tmp,...))
+                           moderator=moderator, covars.m=covars.m, covars.y=covars.y,data.stacked=tmp2,...))
 
     # extract and save results
     if(class(result)!="try-error"){
