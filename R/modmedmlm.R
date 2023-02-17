@@ -369,7 +369,7 @@ bootresid.modmed.mlm <- function(data, L2ID, R=1000, X, Y, M,
                            moderator=moderator, covars.m=covars.m, covars.y=covars.y,data.stacked=tmp2,...))
 
     # extract and save results
-    if(class(result)!="try-error"){
+    if(!inherits(result, "try-error")){
       if(is.null(resmat)){
         resmat<-extract.modmed.mlm(result,type=type,modval1=modval1,modval2=modval2)
       } else {
@@ -680,7 +680,7 @@ modmed.mlm<-function(data, L2ID, X, Y, M,
   out <- list()
 
   # some error handling, just in case
-  if (class(mod_med_tmp) == "try-error") {
+  if (inherits(mod_med_tmp, "try-error")){
     out$model <- NULL
     out$conv <- FALSE # boolean or some other code?
   } else {
