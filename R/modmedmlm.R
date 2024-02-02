@@ -1,7 +1,7 @@
 ######################################################################
 ## Functions for use with bootstrapping
 ##
-## Copyright 2019-2022 Carl F. Falk, Todd Vogel
+## Copyright 2019-2024 Carl F. Falk, Todd Vogel
 ##
 ## This program is free software: you can redistribute it and/or
 ## modify it under the terms of the GNU General Public License as
@@ -44,7 +44,7 @@
 #' @references
 #' Bauer, D. J., Preacher, K. J., & Gil, K. M. (2006). Conceptualizing and testing random indirect effects and moderated mediation in multilevel models: New procedures and recommendations. Psychological Methods, 11(2), 142–163. https://doi.org/10.1037/1082-989X.11.2.142
 #'
-#' Falk, C. F., Vogel, T., Hammami, S., & Miočević, M. (2022). Multilevel mediation analysis in R: A comparison of bootstrap and Bayesian approaches. Preprint: https://doi.org/10.31234/osf.io/ync34
+#' Falk, C. F., Vogel, T., Hammami, S., & Miočević, M. (in press). Multilevel mediation analysis in R: A comparison of bootstrap and Bayesian approaches. Behavior Research Methods. doi: https://doi.org/10.3758/s13428-023-02079-4  Preprint: https://doi.org/10.31234/osf.io/ync34
 #'
 #' Hox, J., & van de Schoot, R. (2013). Robust methods for multilevel analysis. In M. A. Scott, J. S. Simonoff & B. D. Marx (Eds.), The SAGE Handbook of Multilevel Modeling (pp. 387-402). SAGE Publications Ltd. doi: 10.4135/9781446247600.n22
 #'
@@ -135,6 +135,18 @@
 #' # indirect effect difference point estimate and 95% CI
 #' #extract.boot.modmed.mlm(boot.result2, type="indirect.diff",
 #' #   modval1=0, modval2=1)
+#'
+#' # Example to not fail when using missing values
+#' # Missing data handling is not that great as not all info is used
+#' # dat.miss <- BPG06dat
+#' # dat.miss$m[c(1,2,3,4)]<-NA
+#' # dat.miss$y[c(5,6,7,8)]<-NA
+#' # boot.result<-boot(dat.miss, statistic=boot.modmed.mlm, R=100,
+#' #  L2ID = "id", X = "x", Y = "y", M = "m",
+#' #  random.a=TRUE, random.b=TRUE, random.cprime=TRUE,
+#' #  type="all",
+#' #  control=list(opt="nlm"),
+#' #  na.action = na.omit)
 #'
 #' }
 #' @export boot.modmed.mlm
@@ -416,6 +428,7 @@ bootresid.modmed.mlm <- function(data, L2ID, R=1000, X, Y, M,
 #' @param control Argument passed to \code{\link[nlme]{lme}} that controls other estimation options.
 #' @param returndata (Logical) Whether to save restructured data in its own slot. Note: nlme may do this automatically. Defaults to \code{FALSE}.
 #' @param data.stacked (experimental) Currently used internally by bootresid.modmed.mlm to feed already stacked data to the function
+#' @param ... Pass any additional options down to \code{link[nlme]{lme}}. Added to handle missing values. e.g., \code{na.action = na.omit}.
 #' @details Implements custom function to do 1-1-1 multilevel mediation model following Bauer, Preacher, & Gil (2006).
 #'   The basic procedure involves restructuring the data (\code{\link{stack_bpg}}) and then estimating the model using \code{\link[nlme]{lme}}.
 #'   The model assumes heteroscedasticity  since the mediator and outcome variable may have different error variances.
@@ -577,13 +590,22 @@ bootresid.modmed.mlm <- function(data, L2ID, R=1000, X, Y, M,
 #' extract.modmed.mlm(fitmodab, "b", modval1=0)-
 #'   extract.modmed.mlm(fitmodab, "b", modval1=1)  # should match prev line
 #'
+#'
+#'# Example to not fail when using missing values
+#'# Missing data handling is not that great as not all info is used
+#'dat.miss <- BPG06dat
+#'dat.miss$m[c(1,2,3,4)]<-NA
+#'dat.miss$y[c(5,6,7,8)]<-NA
+#'fit<-modmed.mlm(dat.miss,"id", "x", "y", "m",
+#'                 random.a=TRUE, random.b=TRUE, random.cprime=TRUE,
+#'                 na.action = na.omit)
 #' }
 #' @import nlme
 #' @importFrom matrixcalc vech
 #' @importFrom MCMCpack xpnd
 #' @importFrom stats as.formula
 #' @export modmed.mlm
-modmed.mlm<-function(data, L2ID, X, Y, M,
+modmed.mlm <- function(data, L2ID, X, Y, M,
                      moderator = NULL, mod.a = FALSE, mod.b = FALSE, mod.cprime = FALSE,
                      covars.m = NULL, covars.y = NULL,
                      random.a = FALSE, random.b = FALSE, random.cprime = FALSE,
@@ -593,7 +615,8 @@ modmed.mlm<-function(data, L2ID, X, Y, M,
                      method="REML", control = lmeControl(maxIter = 10000, msMaxIter = 10000, niterEM = 10000,
                                                          msMaxEval = 10000, tolerance = 1e-6),
                      returndata = FALSE,
-                     data.stacked = NULL){
+                     data.stacked = NULL,
+                     ...){
 
   if (is.null(moderator) && any(mod.a, mod.b, mod.cprime)) {
     # Give error if paths indicated as moderated, but no moderator name given
@@ -674,7 +697,8 @@ modmed.mlm<-function(data, L2ID, X, Y, M,
                          weights = varIdent(form = ~ 1 | Sm), # heteroskedasticity
                          data = tmp,
                          method = method,
-                         control = control))
+                         control = control,
+                         ...))
 
   # create output list
   out <- list()

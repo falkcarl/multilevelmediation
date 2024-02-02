@@ -30,7 +30,8 @@ modmed.mlm(
   control = lmeControl(maxIter = 10000, msMaxIter = 10000, niterEM = 10000, msMaxEval =
     10000, tolerance = 1e-06),
   returndata = FALSE,
-  data.stacked = NULL
+  data.stacked = NULL,
+  ...
 )
 }
 \arguments{
@@ -83,6 +84,8 @@ modmed.mlm(
 \item{returndata}{(Logical) Whether to save restructured data in its own slot. Note: nlme may do this automatically. Defaults to \code{FALSE}.}
 
 \item{data.stacked}{(experimental) Currently used internally by bootresid.modmed.mlm to feed already stacked data to the function}
+
+\item{...}{Pass any additional options down to \code{link[nlme]{lme}}. Added to handle missing values. e.g., \code{na.action = na.omit}.}
 }
 \description{
 Model definition and estimation function for two-level (moderated) mediation
@@ -248,6 +251,15 @@ extract.modmed.mlm(fitmodab, "b.diff", modval1 = 0, modval2=1)
 extract.modmed.mlm(fitmodab, "b", modval1=0)-
   extract.modmed.mlm(fitmodab, "b", modval1=1)  # should match prev line
 
+
+# Example to not fail when using missing values
+# Missing data handling is not that great as not all info is used
+dat.miss <- BPG06dat
+dat.miss$m[c(1,2,3,4)]<-NA
+dat.miss$y[c(5,6,7,8)]<-NA
+fit<-modmed.mlm(dat.miss,"id", "x", "y", "m",
+                random.a=TRUE, random.b=TRUE, random.cprime=TRUE,
+                na.action = na.omit)
 }
 }
 \references{

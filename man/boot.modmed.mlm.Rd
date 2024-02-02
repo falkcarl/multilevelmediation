@@ -141,6 +141,18 @@ data(BPG06dat)
 #extract.boot.modmed.mlm(boot.result2, type="indirect.diff",
 #   modval1=0, modval2=1)
 
+# Example to not fail when using missing values
+# Missing data handling is not that great as not all info is used
+# dat.miss <- BPG06dat
+# dat.miss$m[c(1,2,3,4)]<-NA
+# dat.miss$y[c(5,6,7,8)]<-NA
+# boot.result<-boot(dat.miss, statistic=boot.modmed.mlm, R=100,
+#  L2ID = "id", X = "x", Y = "y", M = "m",
+#  random.a=TRUE, random.b=TRUE, random.cprime=TRUE,
+#  type="all",
+#  control=list(opt="nlm"),
+#  na.action = na.omit)
+
 }
 }
 \references{
