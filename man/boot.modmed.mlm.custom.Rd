@@ -2,7 +2,7 @@
 % Please edit documentation in R/customboot.R
 \name{boot.modmed.mlm.custom}
 \alias{boot.modmed.mlm.custom}
-\title{start re-write of bootstrapping functions}
+\title{Bootstrapping MLM mediation model (without boot package)}
 \usage{
 boot.modmed.mlm.custom(
   data,
@@ -19,37 +19,53 @@ boot.modmed.mlm.custom(
 )
 }
 \arguments{
-\item{data}{placeholder}
+\item{data}{Data frame in wide format. The function will do restructuring using \code{\link{stack_bpg}}.}
 
-\item{L2ID}{placeholder}
+\item{L2ID}{Name of column that contains grouping variable in 'data' (e.g., "SubjectID")}
 
-\item{...}{placeholder}
+\item{...}{Arguments passed to \code{\link{modmed.mlm}} or \code{\link[nlme]{lme}} to define the mediation analysis model or do estimation, respectively.}
 
-\item{return.type}{placeholder}
+\item{return.type}{Character that defines what information to extract from the model. Default and options are in \code{\link{extract.modmed.mlm}}.
+As examples, "indirect" will compute the indirect effect, "all" will save all random and fixed effects for possible additional
+computations, "indirect.diff" will compute the difference in the indirect effect at two values of a possible moderating variable.}
 
-\item{modval1}{placeholder}
+\item{modval1}{(Optional) Numeric. If the model has a moderator, this value will be passed to \code{\link{extract.modmed.mlm}}
+to compute the indirect effect or other effects at that value. See \code{\link{extract.modmed.mlm}} for details.}
 
-\item{modval2}{placeholder}
+\item{modval2}{(Optional). If the model has a moderator, it is possible to compute the difference in the indirect
+at two values of the moderator. If given and an appropriate option for such a difference is chosen for \code{type},
+this value and that of \code{modval1} will be passed to \code{\link{extract.modmed.mlm}} to compute and save the difference.
+This is useful for obtaining a CI for the difference in the indirect effect at two different levels of the moderator.}
 
-\item{nrep}{placeholder}
+\item{nrep}{Number of bootstrap replications to perform. Pick a small number just for testing purposes, something larger (e.g., 1000 or more) for analyses.}
 
-\item{boot.type}{placeholder}
+\item{boot.type}{Character indicating the type of bootstrapping to perform. Options are: "caseboth", "case2", "case1", or "resid".}
 
-\item{parallel.type}{placeholder}
+\item{parallel.type}{Character indicating type of parallel processing (if any) to use. Options are "lapply" (no parallel processing),"parallel"
+(use \code{\link[parallel]{parallel}} package), or "furrr" (use \code{\link{furrr}{furrr}} package.}
 
-\item{ncores}{placeholder}
+\item{ncores}{Integer indicating the number of processing cores to attempt to use.}
 
-\item{seed}{placeholder}
+\item{seed}{Integer to set random number seed, for replication purposes. Note that replication may be somewhat R version or platform dependent.}
 }
 \description{
-start re-write of bootstrapping functions
+Bootstrapping MLM mediation model (without boot package)
 }
 \details{
-This function shall replace initially written bootstrap functions.
-  The function appears to be finished, but documentation and examples remain.
+This function was written to do all four kinds of bootstrapping outlined in Falk, Vogel, Hammami & Miočević (in press):
+ case resampling at both levels, at level 2 only, at level 1 only, and the residual-based bootstrap (e.g., see Hox and van de Schoot, 2013;
+ van der Leeden, Meijer, & Busing, 2008). These functions also support moderated mediation. See also \code{\link{modmed.mlm}}.
+ Note that \code{\link{nlm}} was used as the optimizer for some of the examples below as it was found to be faster for the models/simulations
+ studied by Falk et al. Note that Level 1 only bootstrapping is typically not recommended. See Falk et al. for details.
+
+ This function is different from the original functions used for the publication and that as of this writing still appear here: \code{\link{boot.modmed.mlm}}
+ and here: \code{\link{bootresid.modmed.mlm}} . The present function seeks to unify case bootstrapping and residual-based bootstrapping in the same function. Furthermore,
+ this newer function is also aimed at attempting to bypass the need for using the \code{boot} package to do computations and parallel processing.
+ Some performance gains in terms of speed have been observed via use of this function instead of \code{boot} in conjunction with \code{\link{boot.modmed.mlm}}.
+ Although somewhat slower, \code{\link[furrr]{furrr}} can also be used if one would like a progress bar.
 }
 \examples{
-\donttest{
+\dontrun{
 
 data(BPG06dat)
 
@@ -106,4 +122,13 @@ extract.boot.modmed.mlm(boot.result, type="indirect.diff",
   modval1=0, modval2=1)
 
 }
+}
+\references{
+Bauer, D. J., Preacher, K. J., & Gil, K. M. (2006). Conceptualizing and testing random indirect effects and moderated mediation in multilevel models: New procedures and recommendations. Psychological Methods, 11(2), 142–163. https://doi.org/10.1037/1082-989X.11.2.142
+
+Falk, C. F., Vogel, T., Hammami, S., & Miočević, M. (in press). Multilevel mediation analysis in R: A comparison of bootstrap and Bayesian approaches. Behavior Research Methods. doi: https://doi.org/10.3758/s13428-023-02079-4  Preprint: https://doi.org/10.31234/osf.io/ync34
+
+Hox, J., & van de Schoot, R. (2013). Robust methods for multilevel analysis. In M. A. Scott, J. S. Simonoff & B. D. Marx (Eds.), The SAGE Handbook of Multilevel Modeling (pp. 387-402). SAGE Publications Ltd. doi: 10.4135/9781446247600.n22
+
+van der Leeden, R., Meijer, E., & Busing, F. M. T. A. (2008). Resampling multilevel models. In J. de Leeuw & E. Meijer (Eds.), Handbook of Multilevel Analysis (pp. 401-433). Springer.
 }
