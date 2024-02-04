@@ -64,7 +64,7 @@ generally follows the procedure by Carpenter, Goldstein, & Rashbash (2003; See a
 does not support parallel processing.
 }
 \examples{
-\donttest{
+\dontrun{
 # Example data for 1-1-1 w/o moderation
 data(BPG06dat)
 
@@ -87,7 +87,7 @@ Bauer, D. J., Preacher, K. J., & Gil, K. M. (2006). Conceptualizing and testing 
 
 Carpenter, J. R., Goldstein, H., & Rasbash, J. (2003). A novel bootstrap procedure for assessing the relationship between class size and achievement. Applied Statistics, 52(4), 431-443.
 
-Falk, C. F., Vogel, T., Hammami, S., & Miočević, M. (2022). Multilevel mediation analysis in R: A comparison of bootstrap and Bayesian approaches. Preprint: https://doi.org/10.31234/osf.io/ync34
+Falk, C. F., Vogel, T., Hammami, S., & Miočević, M. (in press). Multilevel mediation analysis in R: A comparison of bootstrap and Bayesian approaches. Behavior Research Methods. doi: https://doi.org/10.3758/s13428-023-02079-4  Preprint: https://doi.org/10.31234/osf.io/ync34
 
 Lai, M. (2021). Bootstrap confidence intervals for multilevel standardized effect size. Multivariate Behavioral Research, 56(4), 558-578. doi: 10.1080/00273171.2020.1746902
 }

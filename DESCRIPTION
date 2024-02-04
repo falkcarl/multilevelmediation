@@ -5,8 +5,9 @@ Version: 0.1.7
 Date: 2022-12-20
 Author: Carl F. Falk, Todd Vogel, Sarah Hammami, & Milica Miočević
 Maintainer: Carl F. Falk <carl.falk@mcgill.ca>
+BugReports: https://github.com/falkcarl/multilevelmediation
 Description: Currently includes code for 1-1-1 multilevel mediation
-  using bootstrapping methods.
+ and moderated mediation using bootstrapping methods.
 License: GPL-3
 Encoding: UTF-8
 LazyData: true

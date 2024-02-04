@@ -15,7 +15,7 @@ extract.boot.modmed.mlm(
 )
 }
 \arguments{
-\item{boot.obj}{Result of \code{\link[boot]{boot}} using \code{\link{boot.modmed.mlm}}}
+\item{boot.obj}{Result of \code{boot} using \code{\link{boot.modmed.mlm}}}
 
 \item{type}{Character indicating which piece of information to extract from the model
 "indirect": value of the indirect effect.
@@ -44,7 +44,7 @@ Post-processing of bootstrap results from boot.modmed.mlm
 }
 \details{
 This is a convenience function that computes point estimates and confidence intervals from multilevel mediation
-  analysis models where \code{\link{boot.modmed.mlm}} was used along with the \code{\link["boot"]{boot}} package, or \code{\link{bootresid.modmed.mlm}}
+  analysis models where \code{\link{boot.modmed.mlm}} was used along with the \code{boot} package, or \code{\link{bootresid.modmed.mlm}}
   was used. This function generally assumes that type="all" was used when initially fitting the model, making all necessary
   information available for computation of indirect effects, differences between effects, and so on. If type="all"
   was not used, there is no guarantee that confidence intervals for the effects of interest can be extracted.

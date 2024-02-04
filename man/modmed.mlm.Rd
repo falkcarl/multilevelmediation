@@ -119,8 +119,8 @@ extract.modmed.mlm(fit, type="covab")
 
 # The saved, fitted model following Bauer, Preacher, & Gil (2006)
 summary(fit$model)
-
-
+}
+\dontrun{
 # Fit model with moderation
 data(simdat)
 

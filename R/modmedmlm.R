@@ -14,10 +14,10 @@
 ## GNU General Public License for more details.
 ## <http://www.gnu.org/licenses/>
 
-#' Custom boot function for (moderated) mediation with 2-level multilevel models
+#' Boot function for (moderated) mediation with 2-level multilevel models
 #'
 #' @param data Data frame in long format.
-#' @param indices \code{\link[boot]{boot}} requires the function signature to accept a vector of
+#' @param indices \code{boot} requires the function signature to accept a vector of
 #'   index numbers and so this argument is required. If the index numbers are all in order starting at 1,
 #'   then the relevant model will be fit to the data without any resampling. If some other vector is supplied,
 #'   then resampling is done as described in details.
@@ -36,8 +36,8 @@
 #'   and then L1 units w/in each cluster. This has been noted to result in unequal sample sizes if the original clusters did not have equal sample sizes.
 #'   "2" resamples only L2 units and leaves all L1 units intact. "1" will assume that whatever indices are fed from the boot function will
 #'   be used. This probably only makes sense if \code{strata} is specified.
-#' @details Implements custom function to do bootstrapping with the 1-1-1 multilevel mediation analysis models as used in Falk, Vogel,
-#'   Hammami & Miočević (in prep). For use with boot package. This function aides in implementing case resampling methods
+#' @details Implements function to do bootstrapping with the 1-1-1 multilevel mediation analysis models as used in Falk, Vogel,
+#'   Hammami & Miočević (in press). For use with boot package. This function aides in implementing case resampling methods
 #'   with support for resampling at level 2, level 1, or both (e.g., see Hox and van de Schoot, 2013; van der Leeden, Meijer, & Busing, 2008).
 #'   These functions also support moderated mediation. See also \code{\link{modmed.mlm}}. Note that \code{\link{nlm}} was used as the optimizer
 #'   for some of the examples below as it was found to be faster for the models/simulations studied by Falk et al.
@@ -50,7 +50,7 @@
 #'
 #' van der Leeden, R., Meijer, E., & Busing, F. M. T. A. (2008). Resampling multilevel models. In J. de Leeuw & E. Meijer (Eds.), Handbook of Multilevel Analysis (pp. 401-433). Springer.
 #' @examples
-#' \donttest{
+#' \dontrun{
 #' ## Mediation for 1-1-1 model
 #' data(BPG06dat)
 #'
@@ -248,12 +248,12 @@ boot.modmed.mlm <- function(data, indices, L2ID, ...,
 #'
 #' Carpenter, J. R., Goldstein, H., & Rasbash, J. (2003). A novel bootstrap procedure for assessing the relationship between class size and achievement. Applied Statistics, 52(4), 431-443.
 #'
-#' Falk, C. F., Vogel, T., Hammami, S., & Miočević, M. (2022). Multilevel mediation analysis in R: A comparison of bootstrap and Bayesian approaches. Preprint: https://doi.org/10.31234/osf.io/ync34
+#' Falk, C. F., Vogel, T., Hammami, S., & Miočević, M. (in press). Multilevel mediation analysis in R: A comparison of bootstrap and Bayesian approaches. Behavior Research Methods. doi: https://doi.org/10.3758/s13428-023-02079-4  Preprint: https://doi.org/10.31234/osf.io/ync34
 #'
 #' Lai, M. (2021). Bootstrap confidence intervals for multilevel standardized effect size. Multivariate Behavioral Research, 56(4), 558-578. doi: 10.1080/00273171.2020.1746902
 #'
 #' @examples
-#' \donttest{
+#' \dontrun{
 #' # Example data for 1-1-1 w/o moderation
 #' data(BPG06dat)
 #'
@@ -458,8 +458,8 @@ bootresid.modmed.mlm <- function(data, L2ID, R=1000, X, Y, M,
 #'
 #' # The saved, fitted model following Bauer, Preacher, & Gil (2006)
 #' summary(fit$model)
-#'
-#'
+#' }
+#' \dontrun{
 #' # Fit model with moderation
 #' data(simdat)
 #'
@@ -877,7 +877,7 @@ randef.lme <- function(model){
 
 #' Post-processing of bootstrap results from boot.modmed.mlm
 #'
-#' @param boot.obj Result of \code{\link[boot]{boot}} using \code{\link{boot.modmed.mlm}}
+#' @param boot.obj Result of \code{boot} using \code{\link{boot.modmed.mlm}}
 #' @param type Character indicating which piece of information to extract from the model
 #'   "indirect": value of the indirect effect.
 #'   "a": Current value of a path.
@@ -897,7 +897,7 @@ randef.lme <- function(model){
 #' @param modval2 Second value of the moderator at which to compute the indirect effect.
 #' @details
 #'   This is a convenience function that computes point estimates and confidence intervals from multilevel mediation
-#'   analysis models where \code{\link{boot.modmed.mlm}} was used along with the \code{\link["boot"]{boot}} package, or \code{\link{bootresid.modmed.mlm}}
+#'   analysis models where \code{\link{boot.modmed.mlm}} was used along with the \code{boot} package, or \code{\link{bootresid.modmed.mlm}}
 #'   was used. This function generally assumes that type="all" was used when initially fitting the model, making all necessary
 #'   information available for computation of indirect effects, differences between effects, and so on. If type="all"
 #'   was not used, there is no guarantee that confidence intervals for the effects of interest can be extracted.
