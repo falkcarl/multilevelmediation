@@ -36,3 +36,18 @@ Krull, J. L., & MacKinnon, D. P. (2001). Multilevel modeling of individual and g
 van der Leeden, R., Meijer, E., & Busing, F. M. T. A. (2008). Resampling multilevel models. In J. de Leeuw & E. Meijer (Eds.), Handbook of Multilevel Analysis (pp. 401-433). Springer.
 
 
+## FAQ
+
+- How to handle missing data?
+    - Missing data handling of the sort that `lme` (the function from the `nlme` package that fits the models) supports is available. Pass an argument (to `modmed.mlm` or any of the bootstrapping functions) for `na.action` that will be passed down to the `lme` function. For example, `na.action = na.omit`.
+- Where is support for Bayesian estimation?
+    - There is a branch started for use with the `brms` package. When it is finished an update shall be posted.
+- I receive an error message with a `tibble` as input
+    - Try converting the data to a data frame. Support to automatically do this may eventually be forthcoming, but it should be easy for the end user to do this.
+
+## Updates
+
+- Version 0.2.0
+    - `boot.modmed.mlm.custom` introduced as a new function to unify all case bootstrapping and residual bootstrapping methods into one function and obtain further gains in speed. This reduces reliance on the `boot` package and appears to be a bit faster. Testing is still in progress, though this function may soon replace `boot.modmed.mlm`.
+    - Update so that missing data can be used with `modmed.mlm` and `boot.modmed.mlm`. Pass an argument for `na.action` that will be passed down to the `lme` function. For example, `na.action = na.omit`.
+

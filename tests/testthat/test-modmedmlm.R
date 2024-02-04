@@ -18,7 +18,7 @@ test_that("BPG rand a rand b", {
 })
 
 test_that("BPG rand a, rand b, rand c", {
-
+  skip_on_cran()
   fit<-modmed.mlm(BPG06dat,"id", "x", "y", "m",
                   random.a=TRUE, random.b=TRUE, random.cprime=TRUE)
 
@@ -34,7 +34,7 @@ test_that("BPG rand a, rand b, rand c", {
 })
 
 test_that("BPG rand a", {
-
+  skip_on_cran()
   fit<-modmed.mlm(BPG06dat,"id", "x", "y", "m",
                   random.a=TRUE)
 
@@ -49,7 +49,7 @@ test_that("BPG rand a", {
 })
 
 test_that("BPG rand b", {
-
+  skip_on_cran()
   fit<-modmed.mlm(BPG06dat,"id", "x", "y", "m",
                   random.b=TRUE)
 
@@ -65,7 +65,7 @@ test_that("BPG rand b", {
 
 # moderated mediation
 test_that("moderated a", {
-
+  skip_on_cran()
   fitmoda<-modmed.mlm(simdat,"L2id", "X", "Y", "M",
                       random.a=TRUE, random.b=TRUE, random.cprime=TRUE,
                       moderator = "mod", mod.a=TRUE)
@@ -92,6 +92,7 @@ test_that("moderated a", {
 })
 
 test_that("moderated b", {
+  skip_on_cran()
   fitmodb<-modmed.mlm(simdat,"L2id", "X", "Y", "M",
                       random.a=TRUE, random.b=TRUE, random.cprime=TRUE,
                       moderator = "mod", mod.b=TRUE)
@@ -148,7 +149,7 @@ test_that("moderated a and b", {
 })
 
 test_that("moderated a and b rand interaction a", {
-
+  skip_on_cran()
   fitmodab2<-modmed.mlm(simdat,"L2id", "X", "Y", "M",
                         random.a=TRUE, random.b=TRUE, random.cprime=TRUE,
                         moderator = "mod", mod.a=TRUE, mod.b=TRUE,
@@ -177,7 +178,7 @@ test_that("moderated a and b rand interaction a", {
 })
 
 test_that("moderated a and b rand interaction b", {
-
+  skip_on_cran()
   fitmodab3<-modmed.mlm(simdat,"L2id", "X", "Y", "M",
                         random.a=TRUE, random.b=TRUE, random.cprime=TRUE,
                         moderator = "mod", mod.a=TRUE, mod.b=TRUE,
@@ -208,7 +209,7 @@ test_that("moderated a and b rand interaction b", {
 
 
 test_that("moderated a and b rand interaction both", {
-
+  skip_on_cran()
   fitmodab4<-modmed.mlm(simdat,"L2id", "X", "Y", "M",
                         random.a=TRUE, random.b=TRUE, random.cprime=TRUE,
                         moderator = "mod", mod.a=TRUE, mod.b=TRUE,
@@ -237,18 +238,6 @@ test_that("moderated a and b rand interaction both", {
     extract.modmed.mlm(fitmodab4, "b", modval1=1))  # should match prev line
 
 })
-
-
-# takes too long?
-#test_that("boot rand a b", {
-#  boot.result<-boot(BPG06dat, statistic=boot.modmed.mlm, R=50,
-#    L2ID = "id", X = "x", Y = "y", M = "m",
-#      random.a=TRUE, random.b=TRUE, random.cprime=TRUE,
-#      type="indirect")
-#  boot.result$t0 # point estimates for everything based on original data
-#  boot.ci(boot.result, index=1, type="perc") # percentile interval of first element
-#  extract.boot.modmed.mlm(boot.result, type="indirect", ci.conf=.95)
-#})
 
 # to see code coverage of tests
 #library(covr)

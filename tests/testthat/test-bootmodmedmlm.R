@@ -9,7 +9,7 @@ cl <- makeCluster(ncpu)
 clusterSetRNGStream(cl, 9912)# set random number seeds for cluster
 
 test_that("double boot, indirect only", {
-
+  skip_on_cran()
   # bootstrap just the indirect effect
   boot.result<-boot(BPG06dat, statistic=boot.modmed.mlm, R=100,
     L2ID = "id", X = "x", Y = "y", M = "m",
@@ -24,7 +24,7 @@ test_that("double boot, indirect only", {
 })
 
 test_that("double boot, all", {
-
+  skip_on_cran()
   # bootstrap just the indirect effect
   boot.result<-boot(BPG06dat, statistic=boot.modmed.mlm, R=100,
                     L2ID = "id", X = "x", Y = "y", M = "m",
@@ -45,7 +45,7 @@ test_that("double boot, all", {
 })
 
 test_that("level 2 boot, indirect only", {
-
+  skip_on_cran()
   # bootstrap just the indirect effect
   boot.result<-boot(BPG06dat, statistic=boot.modmed.mlm, R=100,
                     L2ID = "id", X = "x", Y = "y", M = "m",
@@ -60,7 +60,7 @@ test_that("level 2 boot, indirect only", {
 })
 
 test_that("level 2 boot, all", {
-
+  skip_on_cran()
   # bootstrap just the indirect effect
   boot.result<-boot(BPG06dat, statistic=boot.modmed.mlm, R=100,
                     L2ID = "id", X = "x", Y = "y", M = "m",
@@ -81,7 +81,7 @@ test_that("level 2 boot, all", {
 })
 
 test_that("bootresid", {
-
+  skip_on_cran()
   set.seed(1234)
   # bootstrap just the indirect effect
   bootresid <- bootresid.modmed.mlm(BPG06dat,L2ID="id", X="x", Y="y", M="m",
@@ -92,3 +92,5 @@ test_that("bootresid", {
   expect_snapshot(extract.boot.modmed.mlm(bootresid, type="indirect"))
 
 })
+
+stopCluster(cl)
