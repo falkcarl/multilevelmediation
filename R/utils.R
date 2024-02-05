@@ -9,10 +9,40 @@
 #' @param covars.m (Character vector) Optional covariates to include in the model for M.
 #' @param covars.y (Character vector) Optional covariates to include in the model for Y.
 #' @details This is a convenience function used primarily internally by the package to restructure data in the style of
-#'   Bauer, Preacher, and Gil (2006). The point is to allow both Y and M to be outcomes in a single column (`Z`),
+#'   Bauer, Preacher, and Gil (2006). The point is to allow both Y and M to be outcomes in a single column ("Z"),
 #'   so that both mediator and outcome models can be fit at the same time. This is necessary to estimate the covariance
-#'   between "a" and "b" paths at the same time when both have random effects. Two selector variables, `Sy` and `Sm` toggle
+#'   between "a" and "b" paths at the same time when both have random effects. Two selector variables, "Sy" and "Sm" toggle
 #'   whether each row corresponds to the outcome or the mediator, respectively.
+#'
+#'   So that coefficients extracted later from \code{\link{modmed.mlm}} hopefully make more sense, the below lists all variables.
+#'
+#'   "X" - Independent variable.
+#'
+#'   "L2id" - Level 2 ID variable.
+#'
+#'   "Md" - Value of the mediator (not necessarily used due to restructuring, however).
+#'
+#'   "Outcome" - Whether the row corresponds to M or Y as the outcome.
+#'
+#'   "Z" - Value of the outcome variable.
+#'
+#'   "Sy" - Indicator variable for Y as outcome. 0 if Y is not outcome for this row. 1 if Y is outcome for this row. In model output, this is the intercept for Y.
+#'
+#'   "Sm" - Indicator variable for M as outcome. 0 if M is not outcome for this row. 1 if M is outcome for this row. In model output, this is the intercept for M.
+#'
+#'   "SmX" - Value of X when M is the outcome (literally X times Sm); will be 0 when Y is outcome. In model output, this is the "a" path.
+#'
+#'   "SyX" - Value of X when Y is the outcome (literally X times Sy); will be 0 when M is outcome. In model output, this is the "cprime" path (direct effect).
+#'
+#'   "SyM" - value of M when Y is the outcome (literally M times Sy); will be 0 when M is the outcome. In model output, this is the "a" path.
+#'
+#'   "W" - value of any moderating variable. This may show up in output later on as "SmX:W" (interaction with "a" path) or "SyM:W" (interaction with "b" path) or "SyX:W"
+#'     (interaction with "cprime" path) depending on which path it moderates.
+#'
+#'   When \code{\link{modmed.mlm}} is used, anything with an "re" prefix will correspond to a random effect.
+#'
+#'
+#'
 #' @references
 #' Bauer, D. J., Preacher, K. J., & Gil, K. M. (2006). Conceptualizing and testing random indirect		effects and moderated mediation in multilevel models: new procedures and	recommendations. Psychological Methods, 11(2), 142-163. doi:10.1037/1082-989X.11.2.142
 #' @examples

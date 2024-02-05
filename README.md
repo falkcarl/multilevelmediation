@@ -47,6 +47,9 @@ van der Leeden, R., Meijer, E., & Busing, F. M. T. A. (2008). Resampling multile
 
 ## Updates
 
+- Version 0.2.1
+    - Update to docs so that variables in restacked data are hopefully clearer.
+    - Support for arbitrary function applied to data after restacking and prior to model fitting in `modmed.mlm`. Could support additional centering and/or missing data handling.
 - Version 0.2.0
     - `boot.modmed.mlm.custom` introduced as a new function to unify all case bootstrapping and residual bootstrapping methods into one function and obtain further gains in speed. This reduces reliance on the `boot` package and appears to be a bit faster. Testing is still in progress, though this function may soon replace `boot.modmed.mlm`.
     - Update so that missing data can be used with `modmed.mlm` and `boot.modmed.mlm`. Pass an argument for `na.action` that will be passed down to the `lme` function. For example, `na.action = na.omit`.

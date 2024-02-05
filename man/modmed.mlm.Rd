@@ -30,6 +30,7 @@ modmed.mlm(
   control = lmeControl(maxIter = 10000, msMaxIter = 10000, niterEM = 10000, msMaxEval =
     10000, tolerance = 1e-06),
   returndata = FALSE,
+  datmfun = NULL,
   data.stacked = NULL,
   ...
 )
@@ -83,7 +84,12 @@ modmed.mlm(
 
 \item{returndata}{(Logical) Whether to save restructured data in its own slot. Note: nlme may do this automatically. Defaults to \code{FALSE}.}
 
-\item{data.stacked}{(experimental) Currently used internally by bootresid.modmed.mlm to feed already stacked data to the function}
+\item{datmfun}{(experimental) A function that will do additional data manipulation on the restacked dataset. The function ought to take
+the restacked dataset (e.g., done using \code{\link{stack_bpg}}) and return a dataset that can be analyzed using \code{\link{modmed.mlm}} Could be used for
+some kind of additional centering strategy after data are restacked (and after bootstrapped) or some other missing data handling strategy.
+Either suggestion requires further study.#'}
+
+\item{data.stacked}{(experimental) Currently used internally by bootresid.modmed.mlm to feed already stacked data to the function.}
 
 \item{...}{Pass any additional options down to \code{link[nlme]{lme}}. Added to handle missing values. e.g., \code{na.action = na.omit}.}
 }
@@ -98,6 +104,9 @@ Implements custom function to do 1-1-1 multilevel mediation model following Baue
   Currently a single moderator variable is supported and it may moderate any/all paths of the model. However, the
   the moderator is assumed continuous. While it may be possible to include moderators that are categorical, it is
   not currently automated (i.e., the user will need to manually code the categorical variable as numeric).
+
+  For more information for variable labels and how these will correspond to the output coefficients, see the documentation for \code{\link{stack_bpg}},
+  as those docs contain a description of all of the variables.
 }
 \examples{
 \donttest{
@@ -253,7 +262,8 @@ extract.modmed.mlm(fitmodab, "b", modval1=0)-
 
 
 # Example to not fail when using missing values
-# Missing data handling is not that great as not all info is used
+# Missing data handling is not that great as not all info is used, but is typical
+# of default missing data handling strategies in MLM
 dat.miss <- BPG06dat
 dat.miss$m[c(1,2,3,4)]<-NA
 dat.miss$y[c(5,6,7,8)]<-NA

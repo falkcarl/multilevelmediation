@@ -1,7 +1,7 @@
 Package: multilevelmediation
 Type: Package
 Title: Utility functions for multilevel mediation analysis in R
-Version: 0.2.0
+Version: 0.2.1
 Date: 2024-02-04
 Author: Carl F. Falk, Todd Vogel, Sarah Hammami, & Milica Miočević
 Maintainer: Carl F. Falk <carl.falk@mcgill.ca>

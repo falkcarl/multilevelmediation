@@ -59,9 +59,9 @@ Custom function for residual bootstrap for (moderated) multilevel mediation
 \details{
 This function restructures data following Bauer, Pearcher, & Gil (2006) and then conducts residual-based
 bootstrapping in order to later obtain confidence intervals for the indirect effect and other coefficients.
-The residual-based bootstrap is described in Falk, Vogel, Hammami, & Miočević's manuscript (2022), but
+The residual-based bootstrap is described in Falk, Vogel, Hammami, & Miočević's manuscript (in press), but
 generally follows the procedure by Carpenter, Goldstein, & Rashbash (2003; See also Lai, 2021). Currently this function
-does not support parallel processing.
+does not support parallel processing. See the newer \code{\link{boot.modmed.mlm.custom}} version for a re-write that does.
 }
 \examples{
 \dontrun{

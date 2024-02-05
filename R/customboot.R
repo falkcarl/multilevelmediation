@@ -18,7 +18,7 @@
 
 #' Bootstrapping MLM mediation model (without boot package)
 #'
-#' @param data Data frame in wide format. The function will do restructuring using \code{\link{stack_bpg}}.
+#' @param data Data frame in long format. The function will do restructuring using \code{\link{stack_bpg}}.
 #' @param L2ID Name of column that contains grouping variable in 'data' (e.g., "SubjectID")
 #' @param ... Arguments passed to \code{\link{modmed.mlm}} or \code{\link[nlme]{lme}} to define the mediation analysis model or do estimation, respectively.
 #' @param return.type Character that defines what information to extract from the model. Default and options are in \code{\link{extract.modmed.mlm}}.
@@ -136,7 +136,7 @@ boot.modmed.mlm.custom <- function(data, L2ID, ...,
   parallel.type <- match.arg(parallel.type)
 
   # point estimate
-  point<-modmed.mlm(data,L2ID,...,returndata=T)
+  point<-modmed.mlm(data, L2ID, ..., returndata=T)
 
   boot.fun<-function(i){
     boot.modmed.mlm2(data, L2ID, ..., type=return.type,
@@ -324,7 +324,7 @@ boot.modmed.mlm2 <- function(data, L2ID, ...,
     rdat$Z<-Zs+l1resid.boot
 
     # estimate model
-    result<-modmed.mlm(NULL,L2ID, data.stacked=rdat,...)
+    result<-modmed.mlm(NULL, L2ID, data.stacked=rdat, ...)
 
   }
   row.names(rdat) <- NULL

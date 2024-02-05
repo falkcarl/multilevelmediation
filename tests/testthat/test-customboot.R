@@ -36,7 +36,7 @@ test_that("custom level 2 boot", {
 })
 
 
-test_that("custom level 2 boot", {
+test_that("custom resid boot", {
   skip_on_cran()
   boot.result<-boot.modmed.mlm.custom(BPG06dat, nrep=100,
                                       L2ID = "id", X = "x", Y = "y", M = "m",

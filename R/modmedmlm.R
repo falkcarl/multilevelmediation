@@ -202,8 +202,6 @@ boot.modmed.mlm <- function(data, indices, L2ID, ...,
 
     } else if (boot.lvl == "1") {
       # Resample L1 units only (based on indices from boot function)
-      #FIXME: TV: will lme regroup the subjects together based on L2ID??
-      #TV: would create an imbalance in number of lvl 1 data points within each lvl 2 cluster(?)
       rdat <- data[indices,]
     }
 
@@ -238,9 +236,9 @@ boot.modmed.mlm <- function(data, indices, L2ID, ...,
 #'   This is useful for obtaining a CI for the difference in the indirect effect at two different levels of the moderator.
 #' @details This function restructures data following Bauer, Pearcher, & Gil (2006) and then conducts residual-based
 #' bootstrapping in order to later obtain confidence intervals for the indirect effect and other coefficients.
-#' The residual-based bootstrap is described in Falk, Vogel, Hammami, & Miočević's manuscript (2022), but
+#' The residual-based bootstrap is described in Falk, Vogel, Hammami, & Miočević's manuscript (in press), but
 #' generally follows the procedure by Carpenter, Goldstein, & Rashbash (2003; See also Lai, 2021). Currently this function
-#' does not support parallel processing.
+#' does not support parallel processing. See the newer \code{\link{boot.modmed.mlm.custom}} version for a re-write that does.
 #'
 #' @references
 #'
@@ -427,7 +425,11 @@ bootresid.modmed.mlm <- function(data, L2ID, R=1000, X, Y, M,
 #' @param method Argument passed to \code{\link[nlme]{lme}} to control estimation method.
 #' @param control Argument passed to \code{\link[nlme]{lme}} that controls other estimation options.
 #' @param returndata (Logical) Whether to save restructured data in its own slot. Note: nlme may do this automatically. Defaults to \code{FALSE}.
-#' @param data.stacked (experimental) Currently used internally by bootresid.modmed.mlm to feed already stacked data to the function
+#' @param datmfun (experimental) A function that will do additional data manipulation on the restacked dataset. The function ought to take
+#'   the restacked dataset (e.g., done using \code{\link{stack_bpg}}) and return a dataset that can be analyzed using \code{\link{modmed.mlm}} Could be used for
+#'   some kind of additional centering strategy after data are restacked (and after bootstrapped) or some other missing data handling strategy.
+#'   Either suggestion requires further study.#'
+#' @param data.stacked (experimental) Currently used internally by bootresid.modmed.mlm to feed already stacked data to the function.
 #' @param ... Pass any additional options down to \code{link[nlme]{lme}}. Added to handle missing values. e.g., \code{na.action = na.omit}.
 #' @details Implements custom function to do 1-1-1 multilevel mediation model following Bauer, Preacher, & Gil (2006).
 #'   The basic procedure involves restructuring the data (\code{\link{stack_bpg}}) and then estimating the model using \code{\link[nlme]{lme}}.
@@ -436,6 +438,9 @@ bootresid.modmed.mlm <- function(data, L2ID, R=1000, X, Y, M,
 #'   Currently a single moderator variable is supported and it may moderate any/all paths of the model. However, the
 #'   the moderator is assumed continuous. While it may be possible to include moderators that are categorical, it is
 #'   not currently automated (i.e., the user will need to manually code the categorical variable as numeric).
+#'
+#'   For more information for variable labels and how these will correspond to the output coefficients, see the documentation for \code{\link{stack_bpg}},
+#'   as those docs contain a description of all of the variables.
 #' @references
 #' Bauer, D. J., Preacher, K. J., & Gil, K. M. (2006). Conceptualizing and testing random indirect effects and moderated mediation in multilevel models: New procedures and recommendations. Psychological Methods, 11(2), 142–163. https://doi.org/10.1037/1082-989X.11.2.142
 #' @examples
@@ -592,7 +597,8 @@ bootresid.modmed.mlm <- function(data, L2ID, R=1000, X, Y, M,
 #'
 #'
 #'# Example to not fail when using missing values
-#'# Missing data handling is not that great as not all info is used
+#'# Missing data handling is not that great as not all info is used, but is typical
+#'# of default missing data handling strategies in MLM
 #'dat.miss <- BPG06dat
 #'dat.miss$m[c(1,2,3,4)]<-NA
 #'dat.miss$y[c(5,6,7,8)]<-NA
@@ -615,6 +621,7 @@ modmed.mlm <- function(data, L2ID, X, Y, M,
                      method="REML", control = lmeControl(maxIter = 10000, msMaxIter = 10000, niterEM = 10000,
                                                          msMaxEval = 10000, tolerance = 1e-6),
                      returndata = FALSE,
+                     datmfun = NULL,
                      data.stacked = NULL,
                      ...){
 
@@ -633,6 +640,10 @@ modmed.mlm <- function(data, L2ID, X, Y, M,
     tmp <- data.stacked
   }
 
+  # further data manipulation, if present
+  if(!is.null(datmfun)){
+    tmp <- datmfun(tmp)
+  }
 
   # Create the formula for the fixed effects
   fixed.formula <- "Z ~ 0 + Sm + Sy + SmX + SyX + SyM" #use the default formula from BPG 2006
@@ -650,6 +661,7 @@ modmed.mlm <- function(data, L2ID, X, Y, M,
 
   # Add any covariates to the paths if necessary
   #TV: does the order of the variables matter for lme? Here the covariates are after the mod interactions in the formula
+  #CFF: don't think it matters
   if (!is.null(covars.m)) {
     covars.m_formula <-  paste0("+ Sm:", covars.m, collapse=" ") #write the formula for each covar specified
     fixed.formula <- paste(fixed.formula, covars.m_formula)      #and add to main fixed fx formula
@@ -673,6 +685,7 @@ modmed.mlm <- function(data, L2ID, X, Y, M,
   if(random.mod.y && mod.b){random.formula <- paste(random.formula, "+ Sy:W")}
   #TV: would there ever be a situation where Sm or Sy would be moderated, but not their paths? (eg SmX, SyM, etc)
   #TV: eg, would random.mod.m ever be true if random.mod.a was not true?
+  #CFF: I would suppose it's possible. Depends on user's theory. Leave in for more flexibilty.
 
   # Add random effects for covariates here, if any
   #TODO: TV: currently doesn't check whether random covariates have the same

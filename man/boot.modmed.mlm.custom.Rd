@@ -19,7 +19,7 @@ boot.modmed.mlm.custom(
 )
 }
 \arguments{
-\item{data}{Data frame in wide format. The function will do restructuring using \code{\link{stack_bpg}}.}
+\item{data}{Data frame in long format. The function will do restructuring using \code{\link{stack_bpg}}.}
 
 \item{L2ID}{Name of column that contains grouping variable in 'data' (e.g., "SubjectID")}
 
