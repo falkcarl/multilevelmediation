@@ -218,6 +218,10 @@ modmed.mlm.brms<-function(data, L2ID, X, Y, M,
                      family = gaussian, iter = 7000, control = list(adapt_delta=0.95), chains = 4,
                      ...){
 
+  if(!is.null(covars.m) | !is.null(covars.y) | !is.null(random.covars.m) | !is.null(random.covars.y)){
+    stop("Covariates not yet supported for brms")
+  }
+
   if (is.null(moderator) && any(mod.a, mod.b, mod.cprime)) {
     # Give error if paths indicated as moderated, but no moderator name given
     stop("No moderator was specified for the moderated path(s).")
