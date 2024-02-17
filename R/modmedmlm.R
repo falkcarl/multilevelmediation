@@ -710,35 +710,71 @@ extract.boot.modmed.mlm <- function(boot.obj, type=c("indirect","a","b","cprime"
 
 
 # Compute stuff from a vector of fixed effects and random effects
+# Toggling b/w boot and brms a bit ad-hoc for now.
+# At least best to have all computations in the same place
+
+#' @importFrom brms as_draws_matrix
 compute.indirect <- function(v, args,
                              type=c("indirect","a","b","cprime","covab","indirect.diff","a.diff","b.diff","cprime.diff"),
-                             modval1 = NULL, modval2 = NULL){
+                             modval1 = NULL, modval2 = NULL,
+                             boot = TRUE){
 
   # TODO: need some input checking here. e.g., .diff isn't relevant unless both modval1 and modval2 are specified
   # And these would not work unless relevant moderation effects are actually estimated mod.a, mod.b, mod.cprime
 
-  a1 <- a2 <- v["SmX"]
-  b1 <- b2 <- v["SyM"]
-  cprime1 <- cprime2 <- v["SyX"]
+  if(boot){
+    a1 <- a2 <- v["SmX"]
+    b1 <- b2 <- v["SyM"]
+    cprime1 <- cprime2 <- v["SyX"]
+  } else {
+    a1 <- a2 <- as_draws_matrix(v, "b_SmX")
+    b1 <- b2 <- as_draws_matrix(v, "b_SyM")
+    cprime1 <- cprime2 <- as_draws_matrix(v, "b_SyX")
+  }
+
 
   # If moderation effects, modify a and b
   if(!is.null(args$mod.a) && args$mod.a && !is.null(modval1)){
-    a1 <- a1 + v["SmX:W"]*modval1
+    if(boot){
+      a1 <- a1 + v["SmX:W"]*modval1
+    } else {
+      a1 <- a1 + as_draws_matrix(v, "b_SmX:W")*modval1
+    }
   }
   if(!is.null(args$mod.a) && args$mod.a && !is.null(modval2)){
-    a2 <- a2 + v["SmX:W"]*modval2
+    if(boot){
+      a2 <- a2 + v["SmX:W"]*modval2
+    } else {
+      a2 <- a2 + as_draws_matrix(v, "b_SmX:W")*modval2
+    }
   }
   if(!is.null(args$mod.b) && args$mod.b && !is.null(modval1)){
-    b1 <- b1 + v["SyM:W"]*modval1
+    if(boot){
+      b1 <- b1 + v["SyM:W"]*modval1
+    } else {
+      b1 <- b1 + as_draws_matrix(v, "b_SyM:W")*modval1
+    }
   }
   if(!is.null(args$mod.b) && args$mod.b && !is.null(modval2)){
-    b2 <- b2 + v["SyM:W"]*modval2
+    if(boot){
+      b2 <- b2 + v["SyM:W"]*modval2
+    } else {
+      b2 <- b2 + as_draws_matrix(v, "b_SyM:W")*modval2
+    }
   }
   if(!is.null(args$mod.cprime) && args$mod.cprime && !is.null(modval1)){
-    cprime1 <- cprime1 + v["SyX:W"]*modval1
+    if(boot){
+      cprime1 <- cprime1 + v["SyX:W"]*modval1
+    } else {
+      cprime1 <- cprime1 + as_draws_matrix(v, "b_SyX:W")*modval1
+    }
   }
   if(!is.null(args$mod.cprime) && args$mod.cprime && !is.null(modval2)){
-    cprime2 <- cprime2 + v["SyX:W"]*modval2
+    if(boot){
+      cprime2 <- cprime2 + v["SyX:W"]*modval2
+    } else {
+      cprime2 <- cprime2 + as_draws_matrix(v, "b_SyX:W")*modval2
+    }
   }
 
   # compute indirect effect using only fixed effects
@@ -749,7 +785,14 @@ compute.indirect <- function(v, args,
 
   # cov among a and b paths
   if(!is.null(args$random.a) && !is.null(args$random.b) && args$random.a && args$random.b){
-    covab <- v["re.SmXSyM"]
+    if(boot){
+      covab <- v["re.SmXSyM"]
+    } else {
+      corab <- as_draws_matrix(v, "cor_L2id__SmX__SyM")
+      sda <- as_draws_matrix(v, "sd_L2id__SmX")
+      sdb <- as_draws_matrix(v, "sd_L2id__SyM")
+      covab <- corab*sda*sdb
+    }
     ab1 <- ab1 + covab
     if(!is.null(modval2)){ ab2 <- ab2 + covab }
   }
@@ -760,29 +803,80 @@ compute.indirect <- function(v, args,
   if(!is.null(modval1)){
     if(!is.null(args$random.b) && !is.null(args$mod.a) && !is.null(args$random.mod.a) &&
        args$random.b && args$mod.a && args$random.mod.a){
-      ab1 <- ab1 + modval1 * v["re.SyMSmX:W"] # times covariance between re.b and re.mod.a
+      if(boot){
+        ab1 <- ab1 + modval1 * v["re.SyMSmX:W"] # times covariance between re.b and re.mod.a
+      } else {
+
+        # correl bw/ re.b and re.mod.a
+        correl <- as_draws_matrix(v, "cor_L2id__SyM__SmX:W")
+        sd1 <- as_draws_matrix(v, "sd_L2id__SyM") # sd
+        sd2 <- as_draws_matrix(v, "sd_L2id__SmX:W") # sd
+        covre <- correl*sd1*sd2
+        ab1 <- ab1 + modval1 * covre
+      }
     }
     if(!is.null(args$random.a) && !is.null(args$mod.b) && !is.null(args$random.mod.b) &&
        args$random.a && args$mod.b && args$random.mod.b){
-      ab1 <- ab1 + modval1 * v["re.SmXSyM:W"] # times covariance between re.a and re.mod.b
+      if(boot){
+        ab1 <- ab1 + modval1 * v["re.SmXSyM:W"] # times covariance between re.a and re.mod.b
+      } else {
+        # correl between re.a and re.modm.b
+        correl <- as_draws_matrix(v, "cor_L2id__SmX__SyM:W")
+        sd1 <- as_draws_matrix(v, "sd_L2id__SmX") # sd
+        sd2 <- as_draws_matrix(v, "sd_L2id__SyM:W") # sd
+        covre <- correl*sd1*sd2
+        ab1 <- ab1 + modval1 * covre
+      }
     }
     if(!is.null(args$random.mod.a) && !is.null(args$random.mod.b) &&
        args$random.mod.a && args$random.mod.b){
-      ab1 <- ab1 + (modval1^2) * v["re.SmX:WSyM:W"] # times covariance between re.mod.a and re.mod.b
+      if(boot){
+        ab1 <- ab1 + (modval1^2) * v["re.SmX:WSyM:W"] # times covariance between re.mod.a and re.mod.b
+      } else {
+        correl <- as_draws_matrix(v, "cor_L2id__SmX:W__SyM:W")
+        sd1 <- as_draws_matrix(v, "sd_L2id__SmX:W") # sd
+        sd2 <- as_draws_matrix(v, "sd_L2id__SyM:W") # sd
+        covre <- correl*sd1*sd2
+        ab1 <- ab1 + (modval1^2) * covre
+      }
     }
   }
   if(!is.null(modval2)){
     if(!is.null(args$random.b) && !is.null(args$mod.a) && !is.null(args$random.mod.a) &&
        args$random.b && args$mod.a && args$random.mod.a){
-      ab2 <- ab2 + modval2 * v["re.SyMSmX:W"] # times covariance between re.b and re.mod.a
+      if(boot){
+        ab2 <- ab2 + modval2 * v["re.SyMSmX:W"] # times covariance between re.b and re.mod.a
+      } else {
+        correl <- as_draws_matrix(v, "cor_L2id__SyM__SmX:W")
+        sd1 <- as_draws_matrix(v, "sd_L2id__SyM") # sd
+        sd2 <- as_draws_matrix(v, "sd_L2id__SmX:W") # sd
+        covre <- correl*sd1*sd2
+        ab2 <- ab2 + modval2 * covre
+      }
     }
     if(!is.null(args$random.a) && !is.null(args$mod.b) && !is.null(args$random.mod.b) &&
        args$random.a && args$mod.b && args$random.mod.b){
-      ab2 <- ab2 + modval2 *  v["re.SmXSyM:W"] # times covariance between re.a and re.mod.b
+      if(boot){
+        ab2 <- ab2 + modval2 *  v["re.SmXSyM:W"] # times covariance between re.a and re.mod.b
+      } else {
+        correl <- as_draws_matrix(v, "cor_L2id__SmX__SyM:W")
+        sd1 <- as_draws_matrix(v, "sd_L2id__SmX") # sd
+        sd2 <- as_draws_matrix(v, "sd_L2id__SyM:W") # sd
+        covre <- correl*sd1*sd2
+        ab2 <- ab2 + modval2 *  covre
+      }
     }
     if(!is.null(args$random.mod.a) && !is.null(args$random.mod.b) &&
        args$random.mod.a && args$random.mod.b){
-      ab2 <- ab2 + (modval2^2) * v["re.SmX:WSyM:W"] # times covariance between re.mod.a and re.mod.b
+      if(boot){
+        ab2 <- ab2 + (modval2^2) * v["re.SmX:WSyM:W"] # times covariance between re.mod.a and re.mod.b
+      } else {
+        correl <- as_draws_matrix(v, "cor_L2id__SmX:W__SyM:W")
+        sd1 <- as_draws_matrix(v, "sd_L2id__SmX:W") # sd
+        sd2 <- as_draws_matrix(v, "sd_L2id__SyM:W") # sd
+        covre <- correl*sd1*sd2
+        ab2 <- ab2 + (modval2^2) * covre
+      }
     }
   }
 

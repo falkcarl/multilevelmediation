@@ -6,8 +6,8 @@
 \usage{
 extract.modmed.mlm(
   fit,
-  type = c("all", "fixef", "recov", "recov.vec", "indirect", "a", "b", "cprime",
-    "covab", "indirect.diff", "a.diff", "b.diff", "cprime.diff"),
+  type = c("all", "fixef", "recov", "recov.vec", "indirect", "a", "b", "cprime", "covab",
+    "indirect.diff", "a.diff", "b.diff", "cprime.diff"),
   modval1 = NULL,
   modval2 = NULL
 )

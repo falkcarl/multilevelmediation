@@ -14,6 +14,8 @@ modmed.mlm.brms(
   mod.a = FALSE,
   mod.b = FALSE,
   mod.cprime = FALSE,
+  covars.m = NULL,
+  covars.y = NULL,
   random.a = FALSE,
   random.b = FALSE,
   random.cprime = FALSE,
@@ -22,13 +24,14 @@ modmed.mlm.brms(
   random.mod.cprime = FALSE,
   random.mod.m = FALSE,
   random.mod.y = FALSE,
-  covars.m = NULL,
-  covars.y = NULL,
+  random.covars.m = NULL,
+  random.covars.y = NULL,
+  returndata = FALSE,
   family = gaussian,
   iter = 7000,
   control = list(adapt_delta = 0.95),
   chains = 4,
-  returndata = FALSE
+  ...
 )
 }
 \arguments{
@@ -50,6 +53,10 @@ modmed.mlm.brms(
 
 \item{mod.cprime}{(Logical) Add moderator to 'c' path (i.e., SyX:W, where W is the moderator)}
 
+\item{covars.m}{(Character vector) Optional covariates to include in the model for M. (not yet implemented for brms)}
+
+\item{covars.y}{(Character vector) Optional covariates to include in the model for Y. (not yet implemented for brms)}
+
 \item{random.a}{(Logical) Add random slope for 'a' path (i.e,. SmX)?}
 
 \item{random.b}{(Logical) Add random slope for 'b' path (i.e., SyM)?}
@@ -66,24 +73,30 @@ modmed.mlm.brms(
 
 \item{random.mod.y}{(Logical) Add random slope for effect of moderator on Y?}
 
-\item{covars.m}{(Character vector) Optional covariates to include in the model for M. Currently set to null for brms}
+\item{random.covars.m}{(Logical vector) Add random slopes for covariates on M? (not yet implemented for brms)}
 
-\item{covars.y}{(Character vector) Optional covariates to include in the model for Y. Currently set to null for brms}
+\item{random.covars.y}{(Logical vector) Add random slopes for covariates on Y? (not yet implemented for brms)}
 
-\item{family}{Argument passed to \code{\link[brms]{brms}} A character string naming the distribution of the response variable to be used in the model}
+\item{returndata}{(Logical) Whether to save restructured data in its own slot. Defaults to \code{FALSE}.}
 
-\item{iter}{Argument passed to \code{\link[brms]{brms}} Number of total iterations per chain (including warmup; defaults to 2000)}
+\item{family}{Argument passed to \code{\link[brms]{brm}} A character string naming the distribution of the response variable to be used in the model.}
+
+\item{iter}{Argument passed to \code{\link[brms]{brm}} Number of total iterations.}
 
 \item{control}{Argument passed to \code{\link[brms]{brms}} To decrease (or eliminate at best) the number of divergent transitions that cause a bias in the obtained posterior samples.}
 
-\item{chains}{Argument passed to \code{\link[brms]{brms}} Set the number of chains}
+\item{chains}{Argument passed to \code{\link[brms]{brm}} Set the number of chains}
 
-\item{returndata}{(Logical) Whether to save restructured data in its own slot. Note: nlme may do this automatically. Defaults to \code{FALSE}.
-Should the chains, iter, family, and control parameters be included in the function as default parameters?}
-
-\item{random.covars.m}{(Logical vector) Add random slopes for covariates on M? Currently set to Null for brms}
-
-\item{random.covars.y}{(Logical vector) Add random slopes for covariates on Y? Currently set to Null for brms}
+\item{...}{Additional arguments to pass to \code{\link[brms]{brm}}}
+}
+\value{
+A list with the following elements:
+\itemize{
+ \item{\code{model} The fitted model from \code{\link[brms]{brm}}. Use as you would a fitted model from that package.}
+ \item{\code{args} Arguments used to call the function. Useful for later automating extraction of the indirect
+   effect or other quantities.}
+ \item{\code{conv} Whether \code{\link[brms]{brm}} finished estimation, not diagnostic of convergence.}
+}
 }
 \description{
 Custom model fitting function for a 1-1-1 (moderated) mediation for the brms code
@@ -96,31 +109,59 @@ TO DO. Implements custom function to do moderated mediation with multilevel mode
   Initially implemented for the BPG06 model for 1-1-1 mediation with moderation...
 }
 \examples{
-\donttest{
-TO DO: Include more tests: Bayesian interval (HPD, CI or both? Milica), moderation at various paths, formulas for indirect effect
-at various values of the moderator. Should the default parameters be similar/same as brms or different? Probably other stuff. So far, only tests similar to modmed.mlm are included.
-Maybe include other tests specific to Bayesian stats.
+\dontrun{
 
 Example data for 1-1-1 w/o moderation
 data(BPG06dat)
 
-Only fixed effects
-fit<-modmed.mlm.brms(BPG06dat,"id", "x", "y" , "m")
+Only fixed effects with random intercept
+fit<-modmed.mlm.brms(BPG06dat,"id", "x", "y" , "m", cores=4,
+                     iter = 7000, control = list(adapt_delta=0.95))
 
+# Examine model results and some diagnostics
+summary(fit$model)
+
+# Potential scale reduction (PSR) or Rhat guidelines vary but the largest
+#  should be close to 1 ( < 1.1, < 1.05, < 1.01).
+# It is also possible to extract all of them.
+max(brms::rhat(fit$model)) # largest rhat
+
+# Fit (loo and WAIC)
+brms::loo(fit$model)
+brms::waic(fit$model)
+
+# Point and interval estimates, diagnostics, for quantities of interest
+debug(extract.modmed.mlm.brms)
+
+# Example of extracting/computing intervals for particular quantities
+res.indirect <- extract.modmed.mlm.brms(fit, "indirect")
+res.a <- extract.modmed.mlm.brms(fit, "a")
+res.b <- extract.modmed.mlm.brms(fit, "b")
+res.cprime <- extract.modmed.mlm.brms(fit, "cprime")#'
+
+# Summary of results is in CI slot, example:
+res.indirect$CI
+
+# 99\% CI (move to docs for extract.modmed.mlm.brms)
+res.indirect <- extract.modmed.mlm.brms(fit, "indirect", ci.conf = .99)
 
 #Only random a
-fit<-modmed.mlm.brms(BPG06dat,"id", "x", "y", "m",random.a=TRUE)
+fit.randa<-modmed.mlm.brms(BPG06dat,"id", "x", "y", "m",random.a=TRUE, cores=4)
+extract.modmed.mlm.brms(fit.randa, "indirect")
 
 #Only random b
-fit<-modmed.mlm.brms(BPG06dat,"id", "x", "y", "m",random.b=TRUE)
+fit.randb<-modmed.mlm.brms(BPG06dat,"id", "x", "y", "m",random.b=TRUE, cores=4)
+extract.modmed.mlm.brms(fit.randb, "indirect")
 
 #Random a and b
-fit<-modmed.mlm.brms(BPG06dat,"id", "x", "y", "m",
-  random.a=TRUE, random.b=TRUE)
+fit.randboth<-modmed.mlm.brms(BPG06dat,"id", "x", "y", "m",
+  random.a=TRUE, random.b=TRUE, cores=4)
+extract.modmed.mlm.brms(fit.randboth, "indirect")
 
  #All random
-fit<-modmed.mlm.brms(BPG06dat,"id", "x", "y", "m",
-  random.a=TRUE, random.b=TRUE, random.cprime=TRUE)
+fit.randall<-modmed.mlm.brms(BPG06dat,"id", "x", "y", "m",
+  random.a=TRUE, random.b=TRUE, random.cprime=TRUE, cores=4)
+extract.modmed.mlm.brms(fit.randall, "indirect")
 
 # Example data for 1-1-1 with moderation
 
@@ -130,36 +171,102 @@ data(simdat)
 # moderation for a path
 fitmoda<-modmed.mlm.brms(simdat,"L2id", "X", "Y", "M",
   random.a=TRUE, random.b=TRUE, random.cprime=TRUE,
-  moderator = "mod", mod.a=TRUE)
+  moderator = "mod", mod.a=TRUE, cores=4)
 
 # moderation for b path
 fitmodb<-modmed.mlm.brms(simdat,"L2id", "X", "Y", "M",
   random.a=TRUE, random.b=TRUE, random.cprime=TRUE,
-  moderator = "mod", mod.b=TRUE)
+  moderator = "mod", mod.b=TRUE, cores=4)
 
 # moderation for both a and b paths
 fitmodab<-modmed.mlm.brms(simdat,"L2id", "X", "Y", "M",
   random.a=TRUE, random.b=TRUE, random.cprime=TRUE,
-  moderator = "mod", mod.a=TRUE, mod.b=TRUE)
+  moderator = "mod", mod.a=TRUE, mod.b=TRUE, cores=4)
 
 # moderation for both a and b paths and random effect for interaction a
 fitmodab2<-modmed.mlm.brms(simdat,"L2id", "X", "Y", "M",
   random.a=TRUE, random.b=TRUE, random.cprime=TRUE,
   moderator = "mod", mod.a=TRUE, mod.b=TRUE,
-  random.mod.a = TRUE, random.mod.m = TRUE)
+  random.mod.a = TRUE, random.mod.m = TRUE, cores=4)
 
 # moderation for both a and b paths and random effect for interaction b
 fitmodab3<-modmed.mlm.brms(simdat,"L2id", "X", "Y", "M",
   random.a=TRUE, random.b=TRUE, random.cprime=TRUE,
   moderator = "mod", mod.a=TRUE, mod.b=TRUE,
-  random.mod.b = TRUE, random.mod.y = TRUE)
+  random.mod.b = TRUE, random.mod.y = TRUE, cores=4)
 
 # moderation for both a and b paths and random effect for both interactions
 fitmodab4<-modmed.mlm.brms(simdat,"L2id", "X", "Y", "M",
   random.a=TRUE, random.b=TRUE, random.cprime=TRUE,
   moderator = "mod", mod.a=TRUE, mod.b=TRUE,
   random.mod.a = TRUE, random.mod.b = TRUE,
-  random.mod.m = TRUE, random.mod.y = TRUE)
+  random.mod.m = TRUE, random.mod.y = TRUE, cores=4)
 
-  }
+extract.modmed.mlm.brms(fitmodab4, "indirect")
+extract.modmed.mlm.brms(fitmodab4, "indirect", modval1=0) # should match above
+extract.modmed.mlm.brms(fitmodab4, "indirect", modval1=1)
+extract.modmed.mlm.brms(fitmodab4, "indirect.diff", modval1 = 0, modval2=1)
+
+extract.modmed.mlm.brms(fitmodab4, "a")
+extract.modmed.mlm.brms(fitmodab4, "a", modval1=0) # should match above
+extract.modmed.mlm.brms(fitmodab4, "a", modval1=1)
+extract.modmed.mlm.brms(fitmodab4, "a.diff", modval1 = 0, modval2=1)
+
+extract.modmed.mlm.brms(fitmodab4, "b")
+extract.modmed.mlm.brms(fitmodab4, "b", modval1=0) # should match above
+extract.modmed.mlm.brms(fitmodab4, "b", modval1=1)
+extract.modmed.mlm.brms(fitmodab4, "b.diff", modval1 = 0, modval2=1)
+
+extract.modmed.mlm.brms(fitmodab3, "indirect")
+extract.modmed.mlm.brms(fitmodab3, "indirect", modval1=0) # should match above
+extract.modmed.mlm.brms(fitmodab3, "indirect", modval1=1)
+extract.modmed.mlm.brms(fitmodab3, "indirect.diff", modval1 = 0, modval2=1)
+
+extract.modmed.mlm.brms(fitmodab3, "a")
+extract.modmed.mlm.brms(fitmodab3, "a", modval1=0) # should match above
+extract.modmed.mlm.brms(fitmodab3, "a", modval1=1)
+extract.modmed.mlm.brms(fitmodab3, "a.diff", modval1 = 0, modval2=1)
+
+extract.modmed.mlm.brms(fitmodab3, "b")
+extract.modmed.mlm.brms(fitmodab3, "b", modval1=0) # should match above
+extract.modmed.mlm.brms(fitmodab3, "b", modval1=1)
+extract.modmed.mlm.brms(fitmodab3, "b.diff", modval1 = 0, modval2=1)
+
+extract.modmed.mlm.brms(fitmodab2, "indirect")
+extract.modmed.mlm.brms(fitmodab2, "indirect", modval1=0) # should match above
+extract.modmed.mlm.brms(fitmodab2, "indirect", modval1=1)
+extract.modmed.mlm.brms(fitmodab2, "indirect.diff", modval1 = 0, modval2=1)
+
+extract.modmed.mlm.brms(fitmodab2, "a")
+extract.modmed.mlm.brms(fitmodab2, "a", modval1=0) # should match above
+extract.modmed.mlm.brms(fitmodab2, "a", modval1=1)
+extract.modmed.mlm.brms(fitmodab2, "a.diff", modval1 = 0, modval2=1)
+
+extract.modmed.mlm.brms(fitmodab2, "b")
+extract.modmed.mlm.brms(fitmodab2, "b", modval1=0) # should match above
+extract.modmed.mlm.brms(fitmodab2, "b", modval1=1)
+extract.modmed.mlm.brms(fitmodab2, "b.diff", modval1 = 0, modval2=1)
+
+extract.modmed.mlm.brms(fitmoda, "indirect")
+extract.modmed.mlm.brms(fitmoda, "indirect", modval1=0)
+extract.modmed.mlm.brms(fitmoda, "indirect", modval1=1)
+extract.modmed.mlm.brms(fitmoda, "indirect", modval1=0, modval2=1)
+
+extract.modmed.mlm.brms(fitmodab, "indirect")
+extract.modmed.mlm.brms(fitmodab, "indirect", modval1=0) # should match above
+extract.modmed.mlm.brms(fitmodab, "indirect", modval1=1)
+extract.modmed.mlm.brms(fitmodab, "indirect.diff", modval1 = 0, modval2=1)
+
+extract.modmed.mlm.brms(fitmodab, "a")
+extract.modmed.mlm.brms(fitmodab, "a", modval1=0) # should match above
+extract.modmed.mlm.brms(fitmodab, "a", modval1=1)
+extract.modmed.mlm.brms(fitmodab, "a.diff", modval1 = 0, modval2=1)
+
+extract.modmed.mlm.brms(fitmodab, "b")
+extract.modmed.mlm.brms(fitmodab, "b", modval1=0) # should match above
+extract.modmed.mlm.brms(fitmodab, "b", modval1=1)
+extract.modmed.mlm.brms(fitmodab, "b.diff", modval1 = 0, modval2=1)
+
+}
+
 }
