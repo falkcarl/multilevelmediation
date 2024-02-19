@@ -47,6 +47,9 @@ van der Leeden, R., Meijer, E., & Busing, F. M. T. A. (2008). Resampling multile
 
 ## Updates
 
+- Version 0.3.0
+    - Merged brach for brms into master. This means that some support for brms is provided. Covariates with brms are not yet supported and that code could use some more testing. Also
+    protect against possible bug for `boot.modmed.mlm.custom`.
 - Version 0.2.1
     - Update to docs so that variables in restacked data are hopefully clearer.
     - Support for arbitrary function applied to data after restacking and prior to model fitting in `modmed.mlm`. Could support additional centering and/or missing data handling.

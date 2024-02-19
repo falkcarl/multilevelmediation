@@ -53,6 +53,16 @@ at two values of the moderator. If given and an appropriate option for such a di
 this value and that of \code{modval1} will be passed to \code{\link{extract.modmed.mlm}} to compute and save the difference.
 This is useful for obtaining a CI for the difference in the indirect effect at two different levels of the moderator.}
 }
+\value{
+A list with the following elements. Note that \code{t0} and \code{t} are intended to trick the \code{\link[boot]{boot}}
+  package into working with some if its functions.
+\itemize{
+ \item{\code{t0} Parameter estimates based on the dataset.}
+ \item{\code{t} Bootstrap distribution of all parameter estimates.}
+ \item{\code{model} Fitted model to restructured data as one would obtain from \code{modmed.mlm}.}
+ \item{\code{call} Call/arguments used when invoking this function. Useful for later extracting things like indirect effect.}
+}
+}
 \description{
 Custom function for residual bootstrap for (moderated) multilevel mediation
 }
@@ -83,11 +93,11 @@ extract.boot.modmed.mlm(bootresid, type="indirect")
 }
 }
 \references{
-Bauer, D. J., Preacher, K. J., & Gil, K. M. (2006). Conceptualizing and testing random indirect		effects and moderated mediation in multilevel models: new procedures and	recommendations. Psychological Methods, 11(2), 142-163. doi:10.1037/1082-989X.11.2.142
+Bauer, D. J., Preacher, K. J., & Gil, K. M. (2006). Conceptualizing and testing random indirect		effects and moderated mediation in multilevel models: new procedures and	recommendations. Psychological Methods, 11(2), 142-163. \doi{10.1037/1082-989X.11.2.142}
 
 Carpenter, J. R., Goldstein, H., & Rasbash, J. (2003). A novel bootstrap procedure for assessing the relationship between class size and achievement. Applied Statistics, 52(4), 431-443.
 
-Falk, C. F., Vogel, T., Hammami, S., & Miočević, M. (in press). Multilevel mediation analysis in R: A comparison of bootstrap and Bayesian approaches. Behavior Research Methods. doi: https://doi.org/10.3758/s13428-023-02079-4  Preprint: https://doi.org/10.31234/osf.io/ync34
+Falk, C. F., Vogel, T., Hammami, S., & Miočević, M. (in press). Multilevel mediation analysis in R: A comparison of bootstrap and Bayesian approaches. Behavior Research Methods. \doi{10.3758/s13428-023-02079-4}  Preprint: \doi{10.31234/osf.io/ync34}
 
-Lai, M. (2021). Bootstrap confidence intervals for multilevel standardized effect size. Multivariate Behavioral Research, 56(4), 558-578. doi: 10.1080/00273171.2020.1746902
+Lai, M. (2021). Bootstrap confidence intervals for multilevel standardized effect size. Multivariate Behavioral Research, 56(4), 558-578. \doi{10.1080/00273171.2020.1746902}
 }

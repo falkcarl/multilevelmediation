@@ -24,6 +24,6 @@ In supplementary materials, Bauer, Preacher, and Gil (2006) provide a simulated 
 That dataset is replicated here.
 }
 \references{
-Bauer, D. J., Preacher, K. J., & Gil, K. M. (2006). Conceptualizing and testing random indirect effects and moderated mediation in multilevel models: New procedures and recommendations. Psychological Methods, 11(2), 142–163. \url{https://doi.org/10.1037/1082-989X.11.2.142}
+Bauer, D. J., Preacher, K. J., & Gil, K. M. (2006). Conceptualizing and testing random indirect effects and moderated mediation in multilevel models: New procedures and recommendations. Psychological Methods, 11(2), 142–163. \doi{https://doi.org/10.1037/1082-989X.11.2.142}
 }
 \keyword{datasets}

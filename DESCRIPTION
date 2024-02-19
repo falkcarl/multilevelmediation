@@ -1,13 +1,14 @@
 Package: multilevelmediation
 Type: Package
-Title: Utility functions for multilevel mediation analysis in R
-Version: 0.2.1
-Date: 2024-02-04
+Title: Utility Functions for Multilevel Mediation Analysis in R
+Version: 0.3.0
+Date: 2024-02-19
 Author: Carl F. Falk, Todd Vogel, Sarah Hammami, & Milica Miočević
 Maintainer: Carl F. Falk <carl.falk@mcgill.ca>
 BugReports: https://github.com/falkcarl/multilevelmediation
-Description: Currently includes code for 1-1-1 multilevel mediation
- and moderated mediation using bootstrapping methods.
+Description: Includes code for 1-1-1 multilevel mediation
+ and moderated mediation using bootstrapping methods. Support for Bayesian
+ estimation with brms is in-progress.
 License: GPL-3
 Encoding: UTF-8
 LazyData: true
@@ -21,11 +22,12 @@ Imports:
   parallel,
   parallelly,
   stats,
-  tidyr
+  tidyr,
+  brms,
+  posterior
 Suggests:
     testthat (>= 3.0.0),
-    boot,
-    brms
+    boot
 Depends: 
     R (>= 2.10)
 Config/testthat/edition: 3

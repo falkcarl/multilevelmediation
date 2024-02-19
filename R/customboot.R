@@ -33,7 +33,7 @@
 #' @param nrep Number of bootstrap replications to perform. Pick a small number just for testing purposes, something larger (e.g., 1000 or more) for analyses.
 #' @param boot.type Character indicating the type of bootstrapping to perform. Options are: "caseboth", "case2", "case1", or "resid".
 #' @param parallel.type Character indicating type of parallel processing (if any) to use. Options are "lapply" (no parallel processing),"parallel"
-#' (use \code{\link[parallel]{parallel}} package), or "furrr" (use \code{\link{furrr}{furrr}} package.
+#' (uses \code{\link[parallel]{parallel}} package), or "furrr" (uses \code{\link[furrr]{furrr}} package.
 #' @param ncores Integer indicating the number of processing cores to attempt to use.
 #' @param seed Integer to set random number seed, for replication purposes. Note that replication may be somewhat R version or platform dependent.
 #'
@@ -41,7 +41,7 @@
 #'  case resampling at both levels, at level 2 only, at level 1 only, and the residual-based bootstrap (e.g., see Hox and van de Schoot, 2013;
 #'  van der Leeden, Meijer, & Busing, 2008). These functions also support moderated mediation. See also \code{\link{modmed.mlm}}.
 #'  Note that \code{\link{nlm}} was used as the optimizer for some of the examples below as it was found to be faster for the models/simulations
-#'  studied by Falk et al. Note that Level 1 only bootstrapping is typically not recommended. See Falk et al. for details.
+#'  studied by Falk et al (in press). Note that Level 1 only bootstrapping is typically not recommended. See Falk et al. (in press) for details.
 #'
 #'  This function is different from the original functions used for the publication and that as of this writing still appear here: \code{\link{boot.modmed.mlm}}
 #'  and here: \code{\link{bootresid.modmed.mlm}} . The present function seeks to unify case bootstrapping and residual-based bootstrapping in the same function. Furthermore,
@@ -49,12 +49,22 @@
 #'  Some performance gains in terms of speed have been observed via use of this function instead of \code{boot} in conjunction with \code{\link{boot.modmed.mlm}}.
 #'  Although somewhat slower, \code{\link[furrr]{furrr}} can also be used if one would like a progress bar.
 #'
+#' @return A list with the following elements. Note that \code{t0} and \code{t} are intended to trick the \code{\link[boot]{boot}}
+#'   package into working with some if its functions.
+#' \itemize{
+#'  \item{\code{call} Call/arguments used when invoking this function. Useful for later extracting things like indirect effect.}
+#'  \item{\code{t0} Parameter estimates based on the dataset.}
+#'  \item{\code{t} Bootstrap distribution of all parameter estimates.}
+#'  \item{\code{model} Fitted model to restructured data as one would obtain from \code{\link{modmed.mlm}}.}
+#'  \item{\code{conv} Whether model fit to restructured dataset converged.}
+#'  \item{\code{args} Arguments used when calling \code{\link{modmed.mlm}}. Useful for later extracting things like indirect effect.}
+#' }
 #' @references
-#' Bauer, D. J., Preacher, K. J., & Gil, K. M. (2006). Conceptualizing and testing random indirect effects and moderated mediation in multilevel models: New procedures and recommendations. Psychological Methods, 11(2), 142–163. https://doi.org/10.1037/1082-989X.11.2.142
+#' Bauer, D. J., Preacher, K. J., & Gil, K. M. (2006). Conceptualizing and testing random indirect effects and moderated mediation in multilevel models: New procedures and recommendations. Psychological Methods, 11(2), 142–163. \doi{10.1037/1082-989X.11.2.142}
 #'
-#' Falk, C. F., Vogel, T., Hammami, S., & Miočević, M. (in press). Multilevel mediation analysis in R: A comparison of bootstrap and Bayesian approaches. Behavior Research Methods. doi: https://doi.org/10.3758/s13428-023-02079-4  Preprint: https://doi.org/10.31234/osf.io/ync34
+#' Falk, C. F., Vogel, T., Hammami, S., & Miočević, M. (in press). Multilevel mediation analysis in R: A comparison of bootstrap and Bayesian approaches. Behavior Research Methods. \doi{10.3758/s13428-023-02079-4}  Preprint: \doi{10.31234/osf.io/ync34}
 #'
-#' Hox, J., & van de Schoot, R. (2013). Robust methods for multilevel analysis. In M. A. Scott, J. S. Simonoff & B. D. Marx (Eds.), The SAGE Handbook of Multilevel Modeling (pp. 387-402). SAGE Publications Ltd. doi: 10.4135/9781446247600.n22
+#' Hox, J., & van de Schoot, R. (2013). Robust methods for multilevel analysis. In M. A. Scott, J. S. Simonoff & B. D. Marx (Eds.), The SAGE Handbook of Multilevel Modeling (pp. 387-402). SAGE Publications Ltd. \doi{10.4135/9781446247600.n22}
 #'
 #' van der Leeden, R., Meijer, E., & Busing, F. M. T. A. (2008). Resampling multilevel models. In J. de Leeuw & E. Meijer (Eds.), Handbook of Multilevel Analysis (pp. 401-433). Springer.
 #' @examples
@@ -211,6 +221,7 @@ boot.modmed.mlm2 <- function(data, L2ID, ...,
       n_j <- nrow(L2_sub)
       L1_idx <- sample(1:n_j, n_j, replace = TRUE)
       L2_sub <- L2_sub[L1_idx, ]
+      return(L2_sub)
     })
     rdat <- do.call("rbind", rdat)
     result<-modmed.mlm(rdat,L2ID,...)
@@ -221,6 +232,7 @@ boot.modmed.mlm2 <- function(data, L2ID, ...,
     L2_indices <- sample(L2, N, replace = TRUE)
     rdat <- lapply(L2_indices, function(x) {
       L2_sub <- data[data[, L2ID] == x, , drop = FALSE] # in case there is only 1 obs
+      return(L2_sub)
     })
     rdat <- do.call("rbind", rdat)
     result<-modmed.mlm(rdat,L2ID,...)
@@ -235,6 +247,7 @@ boot.modmed.mlm2 <- function(data, L2ID, ...,
       n_j <- nrow(L2_sub)
       L1_idx <- sample(1:n_j, n_j, replace = TRUE)
       L2_sub <- L2_sub[L1_idx, ]
+      return(L2_sub)
     })
     rdat <- do.call("rbind", rdat)
     result<-modmed.mlm(rdat,L2ID,...)

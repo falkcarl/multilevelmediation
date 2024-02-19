@@ -40,13 +40,13 @@
 #'   Hammami & Miočević (in press). For use with boot package. This function aides in implementing case resampling methods
 #'   with support for resampling at level 2, level 1, or both (e.g., see Hox and van de Schoot, 2013; van der Leeden, Meijer, & Busing, 2008).
 #'   These functions also support moderated mediation. See also \code{\link{modmed.mlm}}. Note that \code{\link{nlm}} was used as the optimizer
-#'   for some of the examples below as it was found to be faster for the models/simulations studied by Falk et al.
+#'   for some of the examples below as it was found to be faster for the models/simulations studied by Falk et al (in press).
 #' @references
-#' Bauer, D. J., Preacher, K. J., & Gil, K. M. (2006). Conceptualizing and testing random indirect effects and moderated mediation in multilevel models: New procedures and recommendations. Psychological Methods, 11(2), 142–163. https://doi.org/10.1037/1082-989X.11.2.142
+#' Bauer, D. J., Preacher, K. J., & Gil, K. M. (2006). Conceptualizing and testing random indirect effects and moderated mediation in multilevel models: New procedures and recommendations. Psychological Methods, 11(2), 142–163. \doi{10.1037/1082-989X.11.2.142}
 #'
-#' Falk, C. F., Vogel, T., Hammami, S., & Miočević, M. (in press). Multilevel mediation analysis in R: A comparison of bootstrap and Bayesian approaches. Behavior Research Methods. doi: https://doi.org/10.3758/s13428-023-02079-4  Preprint: https://doi.org/10.31234/osf.io/ync34
+#' Falk, C. F., Vogel, T., Hammami, S., & Miočević, M. (in press). Multilevel mediation analysis in R: A comparison of bootstrap and Bayesian approaches. Behavior Research Methods. \doi{10.3758/s13428-023-02079-4}  Preprint: \doi{10.31234/osf.io/ync34}
 #'
-#' Hox, J., & van de Schoot, R. (2013). Robust methods for multilevel analysis. In M. A. Scott, J. S. Simonoff & B. D. Marx (Eds.), The SAGE Handbook of Multilevel Modeling (pp. 387-402). SAGE Publications Ltd. doi: 10.4135/9781446247600.n22
+#' Hox, J., & van de Schoot, R. (2013). Robust methods for multilevel analysis. In M. A. Scott, J. S. Simonoff & B. D. Marx (Eds.), The SAGE Handbook of Multilevel Modeling (pp. 387-402). SAGE Publications Ltd. \doi{10.4135/9781446247600.n22}
 #'
 #' van der Leeden, R., Meijer, E., & Busing, F. M. T. A. (2008). Resampling multilevel models. In J. de Leeuw & E. Meijer (Eds.), Handbook of Multilevel Analysis (pp. 401-433). Springer.
 #' @examples
@@ -174,7 +174,8 @@ boot.modmed.mlm <- function(data, indices, L2ID, ...,
         L2_sub <- data[data[, L2ID] == x, , drop = FALSE] # in case there is only 1 obs
         n_j <- nrow(L2_sub)
         L1_idx <- sample(1:n_j, n_j, replace = TRUE)
-        L2_sub <- L2_sub[L1_idx,]
+        L2_sub <- L2_sub[L1_idx, ]
+        return(L2_sub)
       })
       #re-index L2ID names
       rdat <- lapply(seq_along(rdat), function(x) {
@@ -240,15 +241,24 @@ boot.modmed.mlm <- function(data, indices, L2ID, ...,
 #' generally follows the procedure by Carpenter, Goldstein, & Rashbash (2003; See also Lai, 2021). Currently this function
 #' does not support parallel processing. See the newer \code{\link{boot.modmed.mlm.custom}} version for a re-write that does.
 #'
+#' @return A list with the following elements. Note that \code{t0} and \code{t} are intended to trick the \code{\link[boot]{boot}}
+#'   package into working with some if its functions.
+#' \itemize{
+#'  \item{\code{t0} Parameter estimates based on the dataset.}
+#'  \item{\code{t} Bootstrap distribution of all parameter estimates.}
+#'  \item{\code{model} Fitted model to restructured data as one would obtain from \code{modmed.mlm}.}
+#'  \item{\code{call} Call/arguments used when invoking this function. Useful for later extracting things like indirect effect.}
+#' }
+#'
 #' @references
 #'
-#' Bauer, D. J., Preacher, K. J., & Gil, K. M. (2006). Conceptualizing and testing random indirect		effects and moderated mediation in multilevel models: new procedures and	recommendations. Psychological Methods, 11(2), 142-163. doi:10.1037/1082-989X.11.2.142
+#' Bauer, D. J., Preacher, K. J., & Gil, K. M. (2006). Conceptualizing and testing random indirect		effects and moderated mediation in multilevel models: new procedures and	recommendations. Psychological Methods, 11(2), 142-163. \doi{10.1037/1082-989X.11.2.142}
 #'
 #' Carpenter, J. R., Goldstein, H., & Rasbash, J. (2003). A novel bootstrap procedure for assessing the relationship between class size and achievement. Applied Statistics, 52(4), 431-443.
 #'
-#' Falk, C. F., Vogel, T., Hammami, S., & Miočević, M. (in press). Multilevel mediation analysis in R: A comparison of bootstrap and Bayesian approaches. Behavior Research Methods. doi: https://doi.org/10.3758/s13428-023-02079-4  Preprint: https://doi.org/10.31234/osf.io/ync34
+#' Falk, C. F., Vogel, T., Hammami, S., & Miočević, M. (in press). Multilevel mediation analysis in R: A comparison of bootstrap and Bayesian approaches. Behavior Research Methods. \doi{10.3758/s13428-023-02079-4}  Preprint: \doi{10.31234/osf.io/ync34}
 #'
-#' Lai, M. (2021). Bootstrap confidence intervals for multilevel standardized effect size. Multivariate Behavioral Research, 56(4), 558-578. doi: 10.1080/00273171.2020.1746902
+#' Lai, M. (2021). Bootstrap confidence intervals for multilevel standardized effect size. Multivariate Behavioral Research, 56(4), 558-578. \doi{10.1080/00273171.2020.1746902}
 #'
 #' @examples
 #' \dontrun{
@@ -441,8 +451,18 @@ bootresid.modmed.mlm <- function(data, L2ID, R=1000, X, Y, M,
 #'
 #'   For more information for variable labels and how these will correspond to the output coefficients, see the documentation for \code{\link{stack_bpg}},
 #'   as those docs contain a description of all of the variables.
+#'
+#' @return A list with the following elements:
+#' \itemize{
+#'  \item{\code{model} The fitted model using \code{\link[nlme]{lme}}. Use as you would a fitted model from that package.}
+#'  \item{\code{args} Arguments used to call the function. Useful for later automating extraction of the indirect
+#'    effect or other quantities.}
+#'  \item{\code{conv} Whether estimation appeared to converge.}
+#'  \item{\code{data} If you asked for the restructured dataset to be returned, it shall be here.}
+#' }
+#'
 #' @references
-#' Bauer, D. J., Preacher, K. J., & Gil, K. M. (2006). Conceptualizing and testing random indirect effects and moderated mediation in multilevel models: New procedures and recommendations. Psychological Methods, 11(2), 142–163. https://doi.org/10.1037/1082-989X.11.2.142
+#' Bauer, D. J., Preacher, K. J., & Gil, K. M. (2006). Conceptualizing and testing random indirect effects and moderated mediation in multilevel models: New procedures and recommendations. Psychological Methods, 11(2), 142–163. \doi{10.1037/1082-989X.11.2.142}
 #' @examples
 #' \donttest{
 #' # Example data for 1-1-1 w/o moderation
@@ -987,35 +1007,71 @@ extract.boot.modmed.mlm <- function(boot.obj, type=c("indirect","a","b","cprime"
 
 
 # Compute stuff from a vector of fixed effects and random effects
+# Toggling b/w boot and brms a bit ad-hoc for now.
+# At least best to have all computations in the same place
+
+#' @importFrom brms as_draws_matrix
 compute.indirect <- function(v, args,
                              type=c("indirect","a","b","cprime","covab","indirect.diff","a.diff","b.diff","cprime.diff"),
-                             modval1 = NULL, modval2 = NULL){
+                             modval1 = NULL, modval2 = NULL,
+                             boot = TRUE){
 
   # TODO: need some input checking here. e.g., .diff isn't relevant unless both modval1 and modval2 are specified
   # And these would not work unless relevant moderation effects are actually estimated mod.a, mod.b, mod.cprime
 
-  a1 <- a2 <- v["SmX"]
-  b1 <- b2 <- v["SyM"]
-  cprime1 <- cprime2 <- v["SyX"]
+  if(boot){
+    a1 <- a2 <- v["SmX"]
+    b1 <- b2 <- v["SyM"]
+    cprime1 <- cprime2 <- v["SyX"]
+  } else {
+    a1 <- a2 <- as_draws_matrix(v, "b_SmX")
+    b1 <- b2 <- as_draws_matrix(v, "b_SyM")
+    cprime1 <- cprime2 <- as_draws_matrix(v, "b_SyX")
+  }
+
 
   # If moderation effects, modify a and b
   if(!is.null(args$mod.a) && args$mod.a && !is.null(modval1)){
-    a1 <- a1 + v["SmX:W"]*modval1
+    if(boot){
+      a1 <- a1 + v["SmX:W"]*modval1
+    } else {
+      a1 <- a1 + as_draws_matrix(v, "b_SmX:W")*modval1
+    }
   }
   if(!is.null(args$mod.a) && args$mod.a && !is.null(modval2)){
-    a2 <- a2 + v["SmX:W"]*modval2
+    if(boot){
+      a2 <- a2 + v["SmX:W"]*modval2
+    } else {
+      a2 <- a2 + as_draws_matrix(v, "b_SmX:W")*modval2
+    }
   }
   if(!is.null(args$mod.b) && args$mod.b && !is.null(modval1)){
-    b1 <- b1 + v["SyM:W"]*modval1
+    if(boot){
+      b1 <- b1 + v["SyM:W"]*modval1
+    } else {
+      b1 <- b1 + as_draws_matrix(v, "b_SyM:W")*modval1
+    }
   }
   if(!is.null(args$mod.b) && args$mod.b && !is.null(modval2)){
-    b2 <- b2 + v["SyM:W"]*modval2
+    if(boot){
+      b2 <- b2 + v["SyM:W"]*modval2
+    } else {
+      b2 <- b2 + as_draws_matrix(v, "b_SyM:W")*modval2
+    }
   }
   if(!is.null(args$mod.cprime) && args$mod.cprime && !is.null(modval1)){
-    cprime1 <- cprime1 + v["SyX:W"]*modval1
+    if(boot){
+      cprime1 <- cprime1 + v["SyX:W"]*modval1
+    } else {
+      cprime1 <- cprime1 + as_draws_matrix(v, "b_SyX:W")*modval1
+    }
   }
   if(!is.null(args$mod.cprime) && args$mod.cprime && !is.null(modval2)){
-    cprime2 <- cprime2 + v["SyX:W"]*modval2
+    if(boot){
+      cprime2 <- cprime2 + v["SyX:W"]*modval2
+    } else {
+      cprime2 <- cprime2 + as_draws_matrix(v, "b_SyX:W")*modval2
+    }
   }
 
   # compute indirect effect using only fixed effects
@@ -1026,7 +1082,14 @@ compute.indirect <- function(v, args,
 
   # cov among a and b paths
   if(!is.null(args$random.a) && !is.null(args$random.b) && args$random.a && args$random.b){
-    covab <- v["re.SmXSyM"]
+    if(boot){
+      covab <- v["re.SmXSyM"]
+    } else {
+      corab <- as_draws_matrix(v, "cor_L2id__SmX__SyM")
+      sda <- as_draws_matrix(v, "sd_L2id__SmX")
+      sdb <- as_draws_matrix(v, "sd_L2id__SyM")
+      covab <- corab*sda*sdb
+    }
     ab1 <- ab1 + covab
     if(!is.null(modval2)){ ab2 <- ab2 + covab }
   }
@@ -1037,29 +1100,80 @@ compute.indirect <- function(v, args,
   if(!is.null(modval1)){
     if(!is.null(args$random.b) && !is.null(args$mod.a) && !is.null(args$random.mod.a) &&
        args$random.b && args$mod.a && args$random.mod.a){
-      ab1 <- ab1 + modval1 * v["re.SyMSmX:W"] # times covariance between re.b and re.mod.a
+      if(boot){
+        ab1 <- ab1 + modval1 * v["re.SyMSmX:W"] # times covariance between re.b and re.mod.a
+      } else {
+
+        # correl bw/ re.b and re.mod.a
+        correl <- as_draws_matrix(v, "cor_L2id__SyM__SmX:W")
+        sd1 <- as_draws_matrix(v, "sd_L2id__SyM") # sd
+        sd2 <- as_draws_matrix(v, "sd_L2id__SmX:W") # sd
+        covre <- correl*sd1*sd2
+        ab1 <- ab1 + modval1 * covre
+      }
     }
     if(!is.null(args$random.a) && !is.null(args$mod.b) && !is.null(args$random.mod.b) &&
        args$random.a && args$mod.b && args$random.mod.b){
-      ab1 <- ab1 + modval1 * v["re.SmXSyM:W"] # times covariance between re.a and re.mod.b
+      if(boot){
+        ab1 <- ab1 + modval1 * v["re.SmXSyM:W"] # times covariance between re.a and re.mod.b
+      } else {
+        # correl between re.a and re.modm.b
+        correl <- as_draws_matrix(v, "cor_L2id__SmX__SyM:W")
+        sd1 <- as_draws_matrix(v, "sd_L2id__SmX") # sd
+        sd2 <- as_draws_matrix(v, "sd_L2id__SyM:W") # sd
+        covre <- correl*sd1*sd2
+        ab1 <- ab1 + modval1 * covre
+      }
     }
     if(!is.null(args$random.mod.a) && !is.null(args$random.mod.b) &&
        args$random.mod.a && args$random.mod.b){
-      ab1 <- ab1 + (modval1^2) * v["re.SmX:WSyM:W"] # times covariance between re.mod.a and re.mod.b
+      if(boot){
+        ab1 <- ab1 + (modval1^2) * v["re.SmX:WSyM:W"] # times covariance between re.mod.a and re.mod.b
+      } else {
+        correl <- as_draws_matrix(v, "cor_L2id__SmX:W__SyM:W")
+        sd1 <- as_draws_matrix(v, "sd_L2id__SmX:W") # sd
+        sd2 <- as_draws_matrix(v, "sd_L2id__SyM:W") # sd
+        covre <- correl*sd1*sd2
+        ab1 <- ab1 + (modval1^2) * covre
+      }
     }
   }
   if(!is.null(modval2)){
     if(!is.null(args$random.b) && !is.null(args$mod.a) && !is.null(args$random.mod.a) &&
        args$random.b && args$mod.a && args$random.mod.a){
-      ab2 <- ab2 + modval2 * v["re.SyMSmX:W"] # times covariance between re.b and re.mod.a
+      if(boot){
+        ab2 <- ab2 + modval2 * v["re.SyMSmX:W"] # times covariance between re.b and re.mod.a
+      } else {
+        correl <- as_draws_matrix(v, "cor_L2id__SyM__SmX:W")
+        sd1 <- as_draws_matrix(v, "sd_L2id__SyM") # sd
+        sd2 <- as_draws_matrix(v, "sd_L2id__SmX:W") # sd
+        covre <- correl*sd1*sd2
+        ab2 <- ab2 + modval2 * covre
+      }
     }
     if(!is.null(args$random.a) && !is.null(args$mod.b) && !is.null(args$random.mod.b) &&
        args$random.a && args$mod.b && args$random.mod.b){
-      ab2 <- ab2 + modval2 *  v["re.SmXSyM:W"] # times covariance between re.a and re.mod.b
+      if(boot){
+        ab2 <- ab2 + modval2 *  v["re.SmXSyM:W"] # times covariance between re.a and re.mod.b
+      } else {
+        correl <- as_draws_matrix(v, "cor_L2id__SmX__SyM:W")
+        sd1 <- as_draws_matrix(v, "sd_L2id__SmX") # sd
+        sd2 <- as_draws_matrix(v, "sd_L2id__SyM:W") # sd
+        covre <- correl*sd1*sd2
+        ab2 <- ab2 + modval2 *  covre
+      }
     }
     if(!is.null(args$random.mod.a) && !is.null(args$random.mod.b) &&
        args$random.mod.a && args$random.mod.b){
-      ab2 <- ab2 + (modval2^2) * v["re.SmX:WSyM:W"] # times covariance between re.mod.a and re.mod.b
+      if(boot){
+        ab2 <- ab2 + (modval2^2) * v["re.SmX:WSyM:W"] # times covariance between re.mod.a and re.mod.b
+      } else {
+        correl <- as_draws_matrix(v, "cor_L2id__SmX:W__SyM:W")
+        sd1 <- as_draws_matrix(v, "sd_L2id__SmX:W") # sd
+        sd2 <- as_draws_matrix(v, "sd_L2id__SyM:W") # sd
+        covre <- correl*sd1*sd2
+        ab2 <- ab2 + (modval2^2) * covre
+      }
     }
   }
 
