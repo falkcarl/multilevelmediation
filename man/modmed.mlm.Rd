@@ -2,7 +2,7 @@
 % Please edit documentation in R/modmedmlm.R
 \name{modmed.mlm}
 \alias{modmed.mlm}
-\title{Custom model fitting function for two-level (moderated) mediation}
+\title{Model definition and estimation function for two-level (moderated) mediation}
 \usage{
 modmed.mlm(
   data,
@@ -29,7 +29,10 @@ modmed.mlm(
   method = "REML",
   control = lmeControl(maxIter = 10000, msMaxIter = 10000, niterEM = 10000, msMaxEval =
     10000, tolerance = 1e-06),
-  returndata = FALSE
+  returndata = FALSE,
+  datmfun = NULL,
+  data.stacked = NULL,
+  ...
 )
 }
 \arguments{
@@ -80,15 +83,30 @@ modmed.mlm(
 \item{control}{Argument passed to \code{\link[nlme]{lme}} that controls other estimation options.}
 
 \item{returndata}{(Logical) Whether to save restructured data in its own slot. Note: nlme may do this automatically. Defaults to \code{FALSE}.}
+
+\item{datmfun}{(experimental) A function that will do additional data manipulation on the restacked dataset. The function ought to take
+the restacked dataset (e.g., done using \code{\link{stack_bpg}}) and return a dataset that can be analyzed using \code{\link{modmed.mlm}} Could be used for
+some kind of additional centering strategy after data are restacked (and after bootstrapped) or some other missing data handling strategy.
+Either suggestion requires further study.#'}
+
+\item{data.stacked}{(experimental) Currently used internally by bootresid.modmed.mlm to feed already stacked data to the function.}
+
+\item{...}{Pass any additional options down to \code{link[nlme]{lme}}. Added to handle missing values. e.g., \code{na.action = na.omit}.}
 }
 \description{
-Custom model fitting function for two-level (moderated) mediation
+Model definition and estimation function for two-level (moderated) mediation
 }
 \details{
-Implements custom function to do moderated mediation with multilevel models.
-  Capable of doing moderation as well. Need to detail which kinds of moderation. Believed that it currently supports 2-1-1, 2-2-1, 1-1-1
-  with moderator at either level and moderator and any paths can have indirect effects.
-  Initially implemented for the BPG06 model for 1-1-1 mediation with moderation...
+Implements custom function to do 1-1-1 multilevel mediation model following Bauer, Preacher, & Gil (2006).
+  The basic procedure involves restructuring the data (\code{\link{stack_bpg}}) and then estimating the model using \code{\link[nlme]{lme}}.
+  The model assumes heteroscedasticity  since the mediator and outcome variable may have different error variances.
+  The function also supports covariates as predictors of the mediator and/or outcome, as well as moderated mediation.
+  Currently a single moderator variable is supported and it may moderate any/all paths of the model. However, the
+  the moderator is assumed continuous. While it may be possible to include moderators that are categorical, it is
+  not currently automated (i.e., the user will need to manually code the categorical variable as numeric).
+
+  For more information for variable labels and how these will correspond to the output coefficients, see the documentation for \code{\link{stack_bpg}},
+  as those docs contain a description of all of the variables.
 }
 \examples{
 \donttest{
@@ -110,8 +128,8 @@ extract.modmed.mlm(fit, type="covab")
 
 # The saved, fitted model following Bauer, Preacher, & Gil (2006)
 summary(fit$model)
-
-
+}
+\dontrun{
 # Fit model with moderation
 data(simdat)
 
@@ -158,8 +176,6 @@ AIC(fitmodab2$model)
 AIC(fitmodab3$model)
 AIC(fitmodab4$model) # AIC here is best. Great simulated data we have here
 
-
-#TODO: move this to testing file to ensure package does not break
 extract.modmed.mlm(fitmodab4, "indirect")
 extract.modmed.mlm(fitmodab4, "indirect", modval1=0) # should match above
 extract.modmed.mlm(fitmodab4, "indirect", modval1=1)
@@ -244,5 +260,18 @@ extract.modmed.mlm(fitmodab, "b.diff", modval1 = 0, modval2=1)
 extract.modmed.mlm(fitmodab, "b", modval1=0)-
   extract.modmed.mlm(fitmodab, "b", modval1=1)  # should match prev line
 
+
+# Example to not fail when using missing values
+# Missing data handling is not that great as not all info is used, but is typical
+# of default missing data handling strategies in MLM
+dat.miss <- BPG06dat
+dat.miss$m[c(1,2,3,4)]<-NA
+dat.miss$y[c(5,6,7,8)]<-NA
+fit<-modmed.mlm(dat.miss,"id", "x", "y", "m",
+                random.a=TRUE, random.b=TRUE, random.cprime=TRUE,
+                na.action = na.omit)
 }
+}
+\references{
+Bauer, D. J., Preacher, K. J., & Gil, K. M. (2006). Conceptualizing and testing random indirect effects and moderated mediation in multilevel models: New procedures and recommendations. Psychological Methods, 11(2), 142–163. https://doi.org/10.1037/1082-989X.11.2.142
 }

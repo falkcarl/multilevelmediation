@@ -2,7 +2,7 @@
 % Please edit documentation in R/modmedmlm.R
 \name{boot.modmed.mlm}
 \alias{boot.modmed.mlm}
-\title{Custom boot function for (moderated) mediation with 2-level multilevel models}
+\title{Boot function for (moderated) mediation with 2-level multilevel models}
 \usage{
 boot.modmed.mlm(
   data,
@@ -18,25 +18,25 @@ boot.modmed.mlm(
 \arguments{
 \item{data}{Data frame in long format.}
 
-\item{indices}{\code{\link[boot]{boot}} requires the function signature to accept a vector of
+\item{indices}{\code{boot} requires the function signature to accept a vector of
 index numbers and so this argument is required. If the index numbers are all in order starting at 1,
 then the relevant model will be fit to the data without any resampling. If some other vector is supplied,
 then resampling is done as described in details.}
 
 \item{L2ID}{Name of column that contains grouping variable in 'data' (e.g., "SubjectID")}
 
-\item{...}{Arguments passed to \code{modmed.mlm} to define the mediation analysis model.}
+\item{...}{Arguments passed to \code{\link{modmed.mlm}} to define the mediation analysis model.}
 
-\item{type}{Character that defines what information to extract from the model. Default and options are in \code{extract.modmed.mlm}.
+\item{type}{Character that defines what information to extract from the model. Default and options are in \code{\link{extract.modmed.mlm}}.
 As examples, "indirect" will compute the indirect effect, "all" will save all random and fixed effects for possible additional
 computations, "indirect.diff" will compute the difference in the indirect effect at two values of a possible moderating variable.}
 
-\item{modval1}{(Optional) Numeric. If the model has a moderator, this value will be passed to \code{extract.modmed.mlm}
-to compute the indirect effect or other effects at that value. See \code{extract.modmed.mlm} for details.}
+\item{modval1}{(Optional) Numeric. If the model has a moderator, this value will be passed to \code{\link{extract.modmed.mlm}}
+to compute the indirect effect or other effects at that value. See \code{\link{extract.modmed.mlm}} for details.}
 
 \item{modval2}{(Optional). If the model has a moderator, it is possible to compute the difference in the indirect
 at two values of the moderator. If given and an appropriate option for such a difference is chosen for \code{type},
-this value and that of \code{modval1} will be passed to \code{extract.modmed.mlm} to compute and save the difference.
+this value and that of \code{modval1} will be passed to \code{\link{extract.modmed.mlm}} to compute and save the difference.
 This is useful for obtaining a CI for the difference in the indirect effect at two different levels of the moderator.}
 
 \item{boot.lvl}{Character that defines at what level resampling should occur. Options are "both", "1", or "2". "both" will sample L2 units
@@ -45,59 +45,72 @@ and then L1 units w/in each cluster. This has been noted to result in unequal sa
 be used. This probably only makes sense if \code{strata} is specified.}
 }
 \description{
-Custom boot function for (moderated) mediation with 2-level multilevel models
+Boot function for (moderated) mediation with 2-level multilevel models
 }
 \details{
-TO DO. Implements custom function to do resampling at level 2, then level 1. For use with boot package.
-  Capable of doing moderation as well. Need to detail which kinds of moderation, which mediation models (e.g., 1-1-1 only?).
-  This resamples L2 units, then L1 units within each L2 unit
+Implements function to do bootstrapping with the 1-1-1 multilevel mediation analysis models as used in Falk, Vogel,
+  Hammami & Miočević (in press). For use with boot package. This function aides in implementing case resampling methods
+  with support for resampling at level 2, level 1, or both (e.g., see Hox and van de Schoot, 2013; van der Leeden, Meijer, & Busing, 2008).
+  These functions also support moderated mediation. See also \code{\link{modmed.mlm}}. Note that \code{\link{nlm}} was used as the optimizer
+  for some of the examples below as it was found to be faster for the models/simulations studied by Falk et al.
 }
 \examples{
-\donttest{
+\dontrun{
 ## Mediation for 1-1-1 model
 data(BPG06dat)
 
 # Do bootstrapping... w/ parallel processing
 # snow appears to work on Windows; something else may be better on Unix/Mac/Linux
 
+
 #library(parallel)
 #library(boot)
 #ncpu<-6
+#RNGkind("L'Ecuyer-CMRG") # set type of random number generation that works in parallel
 #cl<-makeCluster(ncpu)
+#clusterSetRNGStream(cl, 9912) # set random number seeds for cluster
 
 # bootstrap just the indirect effect
 #boot.result<-boot(BPG06dat, statistic=boot.modmed.mlm, R=100,
-# L2ID = "id", X = "x", Y = "y", M = "m",
-# random.a=TRUE, random.b=TRUE, random.cprime=TRUE,
-# type="indirect",
-# parallel="snow",ncpus=ncpu,cl=cl)
-
-# bootstrap all fixed and random effects (recommended)
-#boot.result<-boot(BPG06dat, statistic=boot.modmed.mlm, R=100,
-#   L2ID = "id", X = "x", Y = "y", M = "m",
-# random.a=TRUE, random.b=TRUE, random.cprime=TRUE,
-#   type="all",
+#  L2ID = "id", X = "x", Y = "y", M = "m",
+#  random.a=TRUE, random.b=TRUE, random.cprime=TRUE,
+#  type="indirect",
+#  control=list(opt="nlm"),
 #  parallel="snow",ncpus=ncpu,cl=cl)
 
-#stopCluster(cl)
+
 
 #boot.result$t0 # point estimates for everything based on original data
 #boot.ci(boot.result, index=1, type="perc") # percentile interval of first element
 
+# bootstrap all fixed and random effects (recommended)
+#boot.result<-boot(BPG06dat, statistic=boot.modmed.mlm, R=100,
+#  L2ID = "id", X = "x", Y = "y", M = "m",
+#  random.a=TRUE, random.b=TRUE, random.cprime=TRUE,
+#  type="all",
+#  control=list(opt="nlm"),
+#  parallel="snow",ncpus=ncpu,cl=cl)
+
 # Point estimate and 95\% CI for indirect effect
 #extract.boot.modmed.mlm(boot.result, type="indirect", ci.conf=.95)
+
+#stopCluster(cl)
 
 # without cluster
 # boot.result<-boot(BPG06dat, statistic=boot.modmed.mlm, R=5,
 #   L2ID = "id", X = "x", Y = "y", M = "m",
-#  random.a=TRUE, random.b=TRUE, random.cprime=TRUE,
-#  type="indirect")
+#   random.a=TRUE, random.b=TRUE, random.cprime=TRUE,
+#   control=list(opt="nlm"),
+#   type="indirect")
 
 ## Moderated mediation
 
 #data(simdat)
 #ncpu<-12
 #cl<-makeCluster(ncpu)
+
+# note: use of nlm apparently fails in this moderated mediation model
+# default optimizer for lme instead is used
 
 # Bootstrap w/ moderation of a and b paths
 
@@ -128,5 +141,26 @@ data(BPG06dat)
 #extract.boot.modmed.mlm(boot.result2, type="indirect.diff",
 #   modval1=0, modval2=1)
 
+# Example to not fail when using missing values
+# Missing data handling is not that great as not all info is used
+# dat.miss <- BPG06dat
+# dat.miss$m[c(1,2,3,4)]<-NA
+# dat.miss$y[c(5,6,7,8)]<-NA
+# boot.result<-boot(dat.miss, statistic=boot.modmed.mlm, R=100,
+#  L2ID = "id", X = "x", Y = "y", M = "m",
+#  random.a=TRUE, random.b=TRUE, random.cprime=TRUE,
+#  type="all",
+#  control=list(opt="nlm"),
+#  na.action = na.omit)
+
 }
+}
+\references{
+Bauer, D. J., Preacher, K. J., & Gil, K. M. (2006). Conceptualizing and testing random indirect effects and moderated mediation in multilevel models: New procedures and recommendations. Psychological Methods, 11(2), 142–163. https://doi.org/10.1037/1082-989X.11.2.142
+
+Falk, C. F., Vogel, T., Hammami, S., & Miočević, M. (in press). Multilevel mediation analysis in R: A comparison of bootstrap and Bayesian approaches. Behavior Research Methods. doi: https://doi.org/10.3758/s13428-023-02079-4  Preprint: https://doi.org/10.31234/osf.io/ync34
+
+Hox, J., & van de Schoot, R. (2013). Robust methods for multilevel analysis. In M. A. Scott, J. S. Simonoff & B. D. Marx (Eds.), The SAGE Handbook of Multilevel Modeling (pp. 387-402). SAGE Publications Ltd. doi: 10.4135/9781446247600.n22
+
+van der Leeden, R., Meijer, E., & Busing, F. M. T. A. (2008). Resampling multilevel models. In J. de Leeuw & E. Meijer (Eds.), Handbook of Multilevel Analysis (pp. 401-433). Springer.
 }
