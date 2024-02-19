@@ -83,7 +83,7 @@ modmed.mlm.brms(
 
 \item{iter}{Argument passed to \code{\link[brms]{brm}} Number of total iterations.}
 
-\item{control}{Argument passed to \code{\link[brms]{brms}} To decrease (or eliminate at best) the number of divergent transitions that cause a bias in the obtained posterior samples.}
+\item{control}{Argument passed to \code{\link[brms]{brm}} To decrease (or eliminate at best) the number of divergent transitions that cause a bias in the obtained posterior samples.}
 
 \item{chains}{Argument passed to \code{\link[brms]{brm}} Set the number of chains}
 
@@ -102,11 +102,10 @@ A list with the following elements:
 Custom model fitting function for a 1-1-1 (moderated) mediation for the brms code
 }
 \details{
-TO DO. Implements custom function to do moderated mediation with multilevel models in the Bayesian setting.
-  Capable of doing moderation as well. Need to detail which kinds of moderation. Believed that it currently includes 1-1-1
-  model moderation at level-1. Can include moderation at any path, but currently, only moderation in the a and b paths was tested.
-  Does not handle covariates at the moment.
-  Initially implemented for the BPG06 model for 1-1-1 mediation with moderation...
+Implements custom function to do (moderated) mediation with two-level multilevel models
+  with Bayesian estimation via the \code{\link[brms]{brms}} package. Does not handle covariates at the moment.
+  Bayesian estimation using \code{\link[brms]{brms}} was studied by Falk, Vogel, Hammami & Miočević (in press). It is
+  suggested if you use this function that you also do \code{cite("brms")} to figure out how to cite that package.
 }
 \examples{
 \dontrun{
@@ -273,4 +272,9 @@ extract.modmed.mlm.brms(fitmodab, "b.diff", modval1 = 0, modval2=1)
 
 }
 
+}
+\references{
+Falk, C. F., Vogel, T., Hammami, S., & Miočević, M. (in press). Multilevel mediation analysis in R: A comparison of bootstrap and Bayesian approaches. Behavior Research Methods. \doi{10.3758/s13428-023-02079-4}  Preprint: \doi{10.31234/osf.io/ync34}
+
+Paul-Christian Bürkner (2017). brms: An R Package for Bayesian Multilevel Models Using Stan. Journal of Statistical Software, 80(1), 1-28. doi:10.18637/jss.v080.i01
 }

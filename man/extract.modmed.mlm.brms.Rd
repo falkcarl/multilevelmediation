@@ -44,7 +44,7 @@ A list with two elements:
 \itemize{
  \item{\code{CI} Point estimate (mean and median of posterior), sd, mad, credibility interval (quantiles), and other diagnostic information (rhat, ess_bulk, ess_tail).}
  \item{\code{draws} Contains \code{\link[posterior]{draws_matrix}} (from the posterior package) for quantity of interest. i.e., all posterior draws, for which the user may do additional work with.}
-}#'
+}
 }
 \description{
 Post-processing of results from modmed.mlm.brms

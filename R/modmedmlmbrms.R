@@ -28,12 +28,11 @@
 #' @param family Argument passed to \code{\link[brms]{brm}} A character string naming the distribution of the response variable to be used in the model.
 #' @param iter Argument passed to \code{\link[brms]{brm}} Number of total iterations.
 #' @param ... Additional arguments to pass to \code{\link[brms]{brm}}
-#' @param control Argument passed to \code{\link[brms]{brms}} To decrease (or eliminate at best) the number of divergent transitions that cause a bias in the obtained posterior samples.
-#' @details TO DO. Implements custom function to do moderated mediation with multilevel models in the Bayesian setting.
-#'   Capable of doing moderation as well. Need to detail which kinds of moderation. Believed that it currently includes 1-1-1
-#'   model moderation at level-1. Can include moderation at any path, but currently, only moderation in the a and b paths was tested.
-#'   Does not handle covariates at the moment.
-#'   Initially implemented for the BPG06 model for 1-1-1 mediation with moderation...
+#' @param control Argument passed to \code{\link[brms]{brm}} To decrease (or eliminate at best) the number of divergent transitions that cause a bias in the obtained posterior samples.
+#' @details Implements custom function to do (moderated) mediation with two-level multilevel models
+#'   with Bayesian estimation via the \code{\link[brms]{brms}} package. Does not handle covariates at the moment.
+#'   Bayesian estimation using \code{\link[brms]{brms}} was studied by Falk, Vogel, Hammami & Miočević (in press). It is
+#'   suggested if you use this function that you also do \code{cite("brms")} to figure out how to cite that package.
 #' @return A list with the following elements:
 #' \itemize{
 #'  \item{\code{model} The fitted model from \code{\link[brms]{brm}}. Use as you would a fitted model from that package.}
@@ -41,6 +40,11 @@
 #'    effect or other quantities.}
 #'  \item{\code{conv} Whether \code{\link[brms]{brm}} finished estimation, not diagnostic of convergence.}
 #' }
+#' @references
+#' Falk, C. F., Vogel, T., Hammami, S., & Miočević, M. (in press). Multilevel mediation analysis in R: A comparison of bootstrap and Bayesian approaches. Behavior Research Methods. \doi{10.3758/s13428-023-02079-4}  Preprint: \doi{10.31234/osf.io/ync34}
+#'
+#' Paul-Christian Bürkner (2017). brms: An R Package for Bayesian Multilevel Models Using Stan. Journal of Statistical Software, 80(1), 1-28. doi:10.18637/jss.v080.i01
+#'
 #' @examples
 #' \dontrun{
 #'
@@ -341,7 +345,7 @@ modmed.mlm.brms<-function(data, L2ID, X, Y, M,
 #' \itemize{
 #'  \item{\code{CI} Point estimate (mean and median of posterior), sd, mad, credibility interval (quantiles), and other diagnostic information (rhat, ess_bulk, ess_tail).}
 #'  \item{\code{draws} Contains \code{\link[posterior]{draws_matrix}} (from the posterior package) for quantity of interest. i.e., all posterior draws, for which the user may do additional work with.}
-#' }#'
+#' }
 #' @export
 #' @examples
 #' \dontrun{

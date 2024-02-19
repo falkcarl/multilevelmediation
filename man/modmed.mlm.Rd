@@ -93,6 +93,16 @@ Either suggestion requires further study.#'}
 
 \item{...}{Pass any additional options down to \code{link[nlme]{lme}}. Added to handle missing values. e.g., \code{na.action = na.omit}.}
 }
+\value{
+A list with the following elements:
+\itemize{
+ \item{\code{model} The fitted model using \code{\link[nlme]{lme}}. Use as you would a fitted model from that package.}
+ \item{\code{args} Arguments used to call the function. Useful for later automating extraction of the indirect
+   effect or other quantities.}
+ \item{\code{conv} Whether estimation appeared to converge.}
+ \item{\code{data} If you asked for the restructured dataset to be returned, it shall be here.}
+}
+}
 \description{
 Model definition and estimation function for two-level (moderated) mediation
 }
@@ -273,5 +283,5 @@ fit<-modmed.mlm(dat.miss,"id", "x", "y", "m",
 }
 }
 \references{
-Bauer, D. J., Preacher, K. J., & Gil, K. M. (2006). Conceptualizing and testing random indirect effects and moderated mediation in multilevel models: New procedures and recommendations. Psychological Methods, 11(2), 142–163. https://doi.org/10.1037/1082-989X.11.2.142
+Bauer, D. J., Preacher, K. J., & Gil, K. M. (2006). Conceptualizing and testing random indirect effects and moderated mediation in multilevel models: New procedures and recommendations. Psychological Methods, 11(2), 142–163. \doi{10.1037/1082-989X.11.2.142}
 }
