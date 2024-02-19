@@ -31,7 +31,7 @@ extract.modmed.mlm.brms(
 \item{ci.type}{Character indicating the type of confidence interval to compute. For now, just "ECI" is supported,
 an equal-tailed credible interval.}
 
-\item{ci.conf}{Numeric value indicating the confidence level for the interval.}
+\item{ci.conf}{Numeric value indicating the confidence level for the credibility interval.}
 
 \item{modval1}{If enabled, other quantities such as the indirect effect, a, b, and cprime, will be computed
 at this particular value of the moderator. Otherwise, value of these quantities is directly extracted from
@@ -39,16 +39,42 @@ the model output (i.e., these would represent values of the effects when the mod
 
 \item{modval2}{Second value of the moderator at which to compute the indirect effect.}
 }
+\value{
+A list with two elements:
+\itemize{
+ \item{\code{CI} Point estimate (mean and median of posterior), sd, mad, credibility interval (quantiles), and other diagnostic information (rhat, ess_bulk, ess_tail).}
+ \item{\code{draws} Contains \code{\link[posterior]{draws_matrix}} (from the posterior package) for quantity of interest. i.e., all posterior draws, for which the user may do additional work with.}
+}#'
+}
 \description{
 Post-processing of results from modmed.mlm.brms
 }
 \details{
 This function generally assumes that type="all" was used when initially fitting the model, making all necessary
   information available for computation of indirect effects, differences between effects, and so on. If type="all"
-  was not used, there is no guarantee that confidence intervals for the effects of interest can be extracted.
+  was not used, there is no guarantee that credibility intervals for the effects of interest can be extracted.
 }
 \examples{
-\donttest{
+\dontrun{
+data(BPG06dat)
+
+# Only fixed effects with random intercept
+fit<-modmed.mlm.brms(BPG06dat,"id", "x", "y" , "m", cores = 4,
+                     iter = 7000, control = list(adapt_delta=0.95))
+
+
+res.indirect <- extract.modmed.mlm.brms(fit, "indirect")
+res.a <- extract.modmed.mlm.brms(fit, "a")
+res.b <- extract.modmed.mlm.brms(fit, "b")
+res.cprime <- extract.modmed.mlm.brms(fit, "cprime")
+
+# Summary of results is in CI slot, example.
+# Here, 95\% credibility interval is denoted by q2.5 and q97.5
+res.indirect$CI
+
+# Matrix of draws in another slot:
+res.indirect$draws
+
 
 }
 }

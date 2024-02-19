@@ -44,11 +44,11 @@
 #' @examples
 #' \dontrun{
 #'
-#' Example data for 1-1-1 w/o moderation
+#' # Example data for 1-1-1 w/o moderation
 #' data(BPG06dat)
 #'
-#' Only fixed effects with random intercept
-#' fit<-modmed.mlm.brms(BPG06dat,"id", "x", "y" , "m", cores=4,
+#' # Only fixed effects with random intercept
+#' fit<-modmed.mlm.brms(BPG06dat,"id", "x", "y" , "m", cores=1,
 #'                      iter = 7000, control = list(adapt_delta=0.95))
 #'
 #' # Examine model results and some diagnostics
@@ -66,16 +66,20 @@
 #' # Point and interval estimates, diagnostics, for quantities of interest
 #' debug(extract.modmed.mlm.brms)
 #'
+#' # Traceplots: TODO, list conversions for how brms represents parameters with
+#' # How these are colloquially referred to in mediation literature.
+#' plot(fit$model, variable="b_SmX") # this is traceplot for one parameter
+#'
 #' # Example of extracting/computing intervals for particular quantities
 #' res.indirect <- extract.modmed.mlm.brms(fit, "indirect")
 #' res.a <- extract.modmed.mlm.brms(fit, "a")
 #' res.b <- extract.modmed.mlm.brms(fit, "b")
-#' res.cprime <- extract.modmed.mlm.brms(fit, "cprime")#'
+#' res.cprime <- extract.modmed.mlm.brms(fit, "cprime")
 #'
 #' # Summary of results is in CI slot, example:
 #' res.indirect$CI
 #'
-#' # 99% CI (move to docs for extract.modmed.mlm.brms)
+#' # 99% CI
 #' res.indirect <- extract.modmed.mlm.brms(fit, "indirect", ci.conf = .99)
 #'
 #' #Only random a
@@ -227,7 +231,7 @@ modmed.mlm.brms<-function(data, L2ID, X, Y, M,
     stop("No moderator was specified for the moderated path(s).")
   }
 
-  tmp <- stack.bpg(data, L2ID, X, Y, M,
+  tmp <- stack_bpg(data, L2ID, X, Y, M,
                    moderator=moderator,
                    covars.m = covars.m,
                    covars.y = covars.y
@@ -280,7 +284,7 @@ modmed.mlm.brms<-function(data, L2ID, X, Y, M,
   out <- list()
 
   # some error handling, just in case
-  if (class(mod_med_brms_tmp) == "try-error") {
+  if (inherits(mod_med_brms_tmp,"try-error")) {
     out$model <- NULL
     out$conv <- FALSE # boolean or some other code?
   } else {
@@ -324,7 +328,7 @@ modmed.mlm.brms<-function(data, L2ID, X, Y, M,
 #'   "cprime.diff": difference cprime at two values of the moderator (set by \code{modval1} and \code{modval2}).
 #' @param ci.type Character indicating the type of confidence interval to compute. For now, just "ECI" is supported,
 #'   an equal-tailed credible interval.
-#' @param ci.conf Numeric value indicating the confidence level for the interval.
+#' @param ci.conf Numeric value indicating the confidence level for the credibility interval.
 #' @param modval1 If enabled, other quantities such as the indirect effect, a, b, and cprime, will be computed
 #'   at this particular value of the moderator. Otherwise, value of these quantities is directly extracted from
 #'   the model output (i.e., these would represent values of the effects when the moderator = 0).
@@ -332,10 +336,34 @@ modmed.mlm.brms<-function(data, L2ID, X, Y, M,
 #' @details
 #'   This function generally assumes that type="all" was used when initially fitting the model, making all necessary
 #'   information available for computation of indirect effects, differences between effects, and so on. If type="all"
-#'   was not used, there is no guarantee that confidence intervals for the effects of interest can be extracted.
+#'   was not used, there is no guarantee that credibility intervals for the effects of interest can be extracted.
+#' @return A list with two elements:
+#' \itemize{
+#'  \item{\code{CI} Point estimate (mean and median of posterior), sd, mad, credibility interval (quantiles), and other diagnostic information (rhat, ess_bulk, ess_tail).}
+#'  \item{\code{draws} Contains \code{\link[posterior]{draws_matrix}} (from the posterior package) for quantity of interest. i.e., all posterior draws, for which the user may do additional work with.}
+#' }#'
 #' @export
 #' @examples
-#' \donttest{
+#' \dontrun{
+#' data(BPG06dat)
+#'
+#' # Only fixed effects with random intercept
+#' fit<-modmed.mlm.brms(BPG06dat,"id", "x", "y" , "m", cores = 4,
+#'                      iter = 7000, control = list(adapt_delta=0.95))
+#'
+#'
+#' res.indirect <- extract.modmed.mlm.brms(fit, "indirect")
+#' res.a <- extract.modmed.mlm.brms(fit, "a")
+#' res.b <- extract.modmed.mlm.brms(fit, "b")
+#' res.cprime <- extract.modmed.mlm.brms(fit, "cprime")
+#'
+#' # Summary of results is in CI slot, example.
+#' # Here, 95% credibility interval is denoted by q2.5 and q97.5
+#' res.indirect$CI
+#'
+#' # Matrix of draws in another slot:
+#' res.indirect$draws
+#'
 #'
 #' }
 #' @importFrom stats median
@@ -345,10 +373,6 @@ extract.modmed.mlm.brms <- function(brms.obj, type=c("indirect","a","b","cprime"
                                     modval1 = NULL, modval2 = NULL){
   type <- match.arg(type)
   ci.type <- match.arg(ci.type)
-
-  # Obtain posterior draws?
-  # Better to just send directly to the model
-  #draws <- as.data.frame(as_draws(fit$model))
 
   # guess what options were used for modmed.mlm.brms by extracting from it from call
   args <- as.list(args(modmed.mlm.brms))

@@ -111,11 +111,11 @@ TO DO. Implements custom function to do moderated mediation with multilevel mode
 \examples{
 \dontrun{
 
-Example data for 1-1-1 w/o moderation
+# Example data for 1-1-1 w/o moderation
 data(BPG06dat)
 
-Only fixed effects with random intercept
-fit<-modmed.mlm.brms(BPG06dat,"id", "x", "y" , "m", cores=4,
+# Only fixed effects with random intercept
+fit<-modmed.mlm.brms(BPG06dat,"id", "x", "y" , "m", cores=1,
                      iter = 7000, control = list(adapt_delta=0.95))
 
 # Examine model results and some diagnostics
@@ -133,16 +133,20 @@ brms::waic(fit$model)
 # Point and interval estimates, diagnostics, for quantities of interest
 debug(extract.modmed.mlm.brms)
 
+# Traceplots: TODO, list conversions for how brms represents parameters with
+# How these are colloquially referred to in mediation literature.
+plot(fit$model, variable="b_SmX") # this is traceplot for one parameter
+
 # Example of extracting/computing intervals for particular quantities
 res.indirect <- extract.modmed.mlm.brms(fit, "indirect")
 res.a <- extract.modmed.mlm.brms(fit, "a")
 res.b <- extract.modmed.mlm.brms(fit, "b")
-res.cprime <- extract.modmed.mlm.brms(fit, "cprime")#'
+res.cprime <- extract.modmed.mlm.brms(fit, "cprime")
 
 # Summary of results is in CI slot, example:
 res.indirect$CI
 
-# 99\% CI (move to docs for extract.modmed.mlm.brms)
+# 99\% CI
 res.indirect <- extract.modmed.mlm.brms(fit, "indirect", ci.conf = .99)
 
 #Only random a
