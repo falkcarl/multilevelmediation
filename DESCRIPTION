@@ -17,7 +17,7 @@ Description: The ultimate goal is to support 2-2-1, 2-1-1, and 1-1-1 model for
 License: GPL-3
 Encoding: UTF-8
 LazyData: true
-RoxygenNote: 7.2.3
+RoxygenNote: 7.3.1
 Imports: 
   furrr,
   future,
@@ -29,7 +29,8 @@ Imports:
   stats,
   tidyr,
   brms,
-  posterior
+  posterior,
+  glmmTMB
 Suggests:
     testthat (>= 3.0.0),
     boot
