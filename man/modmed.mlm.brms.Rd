@@ -130,7 +130,6 @@ brms::loo(fit$model)
 brms::waic(fit$model)
 
 # Point and interval estimates, diagnostics, for quantities of interest
-debug(extract.modmed.mlm.brms)
 
 # Traceplots: TODO, list conversions for how brms represents parameters with
 # How these are colloquially referred to in mediation literature.

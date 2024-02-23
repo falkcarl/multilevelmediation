@@ -16,7 +16,7 @@
 ## GNU General Public License for more details.
 ## <http://www.gnu.org/licenses/>
 
-#' Bootstrapping MLM mediation model (without boot package)
+#' Bootstrapping multilevel mediation model (without boot package)
 #'
 #' @param data Data frame in long format. The function will do restructuring using \code{\link{stack_bpg}}.
 #' @param L2ID Name of column that contains grouping variable in 'data' (e.g., "SubjectID")
