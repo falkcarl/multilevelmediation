@@ -1,6 +1,4 @@
-citHeader("Documentation for individual functions contains additional references.
-  Bootstrapping heavily uses the nlme packge. Bayesian estimation heavily uses
-  brms.")
+citHeader("Documentation for individual functions contains additional references.")
 
 bibentry(
   bibtype = "Article",
