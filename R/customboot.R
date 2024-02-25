@@ -130,7 +130,7 @@ boot.modmed.mlm.custom <- function(data, L2ID, ...,
                                    boot.type = c("caseboth","case2","case1","resid"),
                                    parallel.type=c("lapply","parallel","furrr"),
                                    ncores=NULL,
-                                   seed=1234)
+                                   seed=NULL)
 {
 
   call <- match.call()
