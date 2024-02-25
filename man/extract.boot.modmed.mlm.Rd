@@ -39,6 +39,14 @@ the model output (i.e., these would represent values of the effects when the mod
 
 \item{modval2}{Second value of the moderator at which to compute the indirect effect.}
 }
+\value{
+A list with the following elements:
+\itemize{
+ \item{\code{CI} A vector, typically two elements, that has the lower and upper endpoints requested confidence interval
+ for the quantity requested by \code{type}.}
+ \item{\code{est} Point estimate for the quantity requested by \code{type}.}
+}
+}
 \description{
 Post-processing of bootstrap results from boot.modmed.mlm
 }
@@ -52,35 +60,25 @@ This is a convenience function that computes point estimates and confidence inte
 \examples{
 \donttest{
 ## Mediation for 1-1-1 model
+library(boot)
+
 data(BPG06dat)
 
-#library(parallel)
-#library(boot)
-#ncpu<-6
-#cl<-makeCluster(ncpu)
+set.seed(1234)
 
+# Note that R should be be MUCH larger than the value used here (e.g., 1000 or
+# larger). A small number is chosen just so examples run relatively fast when
+# tested.
 
-# bootstrap all fixed and random effects (recommended)
-#boot.result<-boot(BPG06dat, statistic=boot.modmed.mlm, R=100,
-#   L2ID = "id", X = "x", Y = "y", M = "m",
-#   random.a=TRUE, random.b=TRUE, random.cprime=TRUE,
-#   type="all",
-#   control=list(opt="nlm"),
-#   parallel="snow",ncpus=ncpu,cl=cl)
-
-#stopCluster(cl)
-
+# bootstrap all fixed and random effects
+boot.result<-boot(BPG06dat, statistic=boot.modmed.mlm, R=5,
+   L2ID = "id", X = "x", Y = "y", M = "m",
+   random.a=TRUE, random.b=TRUE, random.cprime=TRUE,
+   type="all",
+   control=list(opt="nlm"))
 
 # Point estimate and 95\% CI for indirect effect
-#extract.boot.modmed.mlm(boot.result, type="indirect", ci.conf=.95)
-
-# residual-based bootstrap
-# bootresid <- bootresid.modmed.mlm(BPG06dat,L2ID="id", X="x", Y="y", M="m",
-#   R=100, random.a=TRUE, random.b=TRUE, random.cprime=TRUE,
-#   control=list(opt="nlm"))
-#
-# interval for the indirect effect
-#extract.boot.modmed.mlm(bootresid, type="indirect")
+extract.boot.modmed.mlm(boot.result, type="indirect", ci.conf=.95)
 
 }
 }

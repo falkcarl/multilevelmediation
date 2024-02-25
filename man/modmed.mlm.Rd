@@ -119,6 +119,7 @@ Implements custom function to do 1-1-1 multilevel mediation model following Baue
   as those docs contain a description of all of the variables.
 }
 \examples{
+
 \donttest{
 # Example data for 1-1-1 w/o moderation
 data(BPG06dat)
@@ -139,7 +140,8 @@ extract.modmed.mlm(fit, type="covab")
 # The saved, fitted model following Bauer, Preacher, & Gil (2006)
 summary(fit$model)
 }
-\dontrun{
+
+\donttest{
 # Fit model with moderation
 data(simdat)
 
@@ -273,7 +275,8 @@ extract.modmed.mlm(fitmodab, "b", modval1=0)-
 
 # Example to not fail when using missing values
 # Missing data handling is not that great as not all info is used, but is typical
-# of default missing data handling strategies in MLM
+# of default missing data handling strategies in MLM. See documentation for
+# lme function in the nlme package for more options for na.action
 dat.miss <- BPG06dat
 dat.miss$m[c(1,2,3,4)]<-NA
 dat.miss$y[c(5,6,7,8)]<-NA

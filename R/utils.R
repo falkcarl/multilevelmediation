@@ -14,25 +14,32 @@
 #'   between "a" and "b" paths at the same time when both have random effects. Two selector variables, "Sy" and "Sm" toggle
 #'   whether each row corresponds to the outcome or the mediator, respectively.
 #'
-#'   So that coefficients extracted later from \code{\link{modmed.mlm}} hopefully make more sense, the below lists all variables.
+#' @return An object that is a subclass of \code{data.frame} is returned. In particular a \code{tbl_df} or "tibble."
+#'
+#'
+#' So that coefficients extracted later from \code{\link{modmed.mlm}} hopefully make more sense, the below lists all variables
+#'   (i.e., typical column names) for the data frame.
 #'
 #' \itemize{
-#'  \item{\code{"X"} Independent variable.}
-#'  \item{\code{"L2id"} Level 2 ID variable.}
-#'  \item{\code{"Md"} Value of the mediator (not necessarily used due to restructuring, however).}
-#'  \item{\code{"Outcome"} Whether the row corresponds to M or Y as the outcome.}
-#'  \item{\code{"Z"} Value of the outcome variable.}
-#'  \item{\code{"Sy"} Indicator variable for Y as outcome. 0 if Y is not outcome for this row. 1 if Y is outcome for this row. In model output, this is the intercept for Y.}
-#'  \item{\code{"Sm"} Indicator variable for M as outcome. 0 if M is not outcome for this row. 1 if M is outcome for this row. In model output, this is the intercept for M.}
-#'  \item{\code{"SmX"} Value of X when M is the outcome (literally X times Sm); will be 0 when Y is outcome. In model output, this is the "a" path.}
-#'  \item{\code{"SyX"} Value of X when Y is the outcome (literally X times Sy); will be 0 when M is outcome. In model output, this is the "cprime" path (direct effect).}
-#'  \item{\code{"SyM"} Calue of M when Y is the outcome (literally M times Sy); will be 0 when M is the outcome. In model output, this is the "a" path.}
-#'  \item{\code{"W"} Value of any moderating variable. This may show up in output later on as "SmX:W" (interaction with "a" path) or "SyM:W" (interaction with "b" path) or "SyX:W"
+#'  \item{\code{X} Independent variable.}
+#'  \item{\code{L2id} Level 2 ID variable.}
+#'  \item{\code{Md} Value of the mediator (not necessarily used due to restructuring, however).}
+#'  \item{\code{Outcome} Whether the row corresponds to M or Y as the outcome.}
+#'  \item{\code{Z} Value of the outcome variable.}
+#'  \item{\code{Sy} Indicator variable for Y as outcome. 0 if Y is not outcome for this row. 1 if Y is outcome for this row. In model output, this is the intercept for Y.}
+#'  \item{\code{Sm} Indicator variable for M as outcome. 0 if M is not outcome for this row. 1 if M is outcome for this row. In model output, this is the intercept for M.}
+#'  \item{\code{SmX} Value of X when M is the outcome (literally X times Sm); will be 0 when Y is outcome. In model output, this is the "a" path.}
+#'  \item{\code{SyX} Value of X when Y is the outcome (literally X times Sy); will be 0 when M is outcome. In model output, this is the "cprime" path (direct effect).}
+#'  \item{\code{SyM} Calue of M when Y is the outcome (literally M times Sy); will be 0 when M is the outcome. In model output, this is the "a" path.}
+#'  \item{\code{W} Value of any moderating variable. This may show up in output later on as "SmX:W" (interaction with "a" path) or "SyM:W" (interaction with "b" path) or "SyX:W"
 #'     (interaction with "cprime" path) depending on which path it moderates.}
-#'  \item{When \code{\link{modmed.mlm}} is used, anything with an "re" prefix will correspond to a random effect. Note that estimation with brms
-#'     will result in slightly different output than listed here. Coefficients typically have a "b_" prefix, and random effects are parameterized not
-#'     such that we end up with covariances, but using correlations and standard deviations for each effect.}
+#'  \item{If \code{covars.m} or \code{covars.y} are not null, any additional covariates will also be added to the data frame and their
+#'     original names will be retained.}
 #' }
+#'
+#' When \code{\link{modmed.mlm}} is used, any output with an "re" prefix will correspond to a random effect. Note that estimation with brms
+#' will result in slightly different output than listed here. Coefficients typically have a "b_" prefix, and random effects are parameterized not
+#' such that we end up with covariances, but using correlations and standard deviations for each effect.
 #'
 #' @references
 #' Bauer, D. J., Preacher, K. J., & Gil, K. M. (2006). Conceptualizing and testing random indirect effects and moderated mediation in multilevel models: new procedures and	recommendations. Psychological Methods, 11(2), 142-163. \doi{10.1037/1082-989X.11.2.142}
@@ -52,7 +59,7 @@
 #' data(simdat)
 #' dat2 <- stack_bpg(simdat,
 #'   "L2id", "X", "M", "Y",
-#'   moderator="mod"
+#'   moderator = "mod"
 #' )
 #'
 #' head(dat2)

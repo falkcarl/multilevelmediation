@@ -44,6 +44,10 @@ and then L1 units w/in each cluster. This has been noted to result in unequal sa
 "2" resamples only L2 units and leaves all L1 units intact. "1" will assume that whatever indices are fed from the boot function will
 be used. This probably only makes sense if \code{strata} is specified.}
 }
+\value{
+A vector of parameter estimates, depending on the value of \code{type} specified as input. Once the model is estimated,
+  \code{\link{extract.modmed.mlm} is used to obtain the parameter estimates.}
+}
 \description{
 Boot function for (moderated) mediation with 2-level multilevel models
 }
@@ -55,103 +59,77 @@ Implements function to do bootstrapping with the 1-1-1 multilevel mediation anal
   for some of the examples below as it was found to be faster for the models/simulations studied by Falk et al (in press).
 }
 \examples{
-\dontrun{
+
+\donttest{
+
+# Note that for all examples below, R should be increased to something
+#  MUCH larger (e.g., 1000). Small values here are used only so that the code
+#  runs relatively quickly when tested.
+
 ## Mediation for 1-1-1 model
 data(BPG06dat)
 
-# Do bootstrapping... w/ parallel processing
+#Setup parallel processing
 # snow appears to work on Windows; something else may be better on Unix/Mac/Linux
+library(parallel)
+library(boot)
+ncpu<-2
+RNGkind("L'Ecuyer-CMRG") # set type of random number generation that works in parallel
+cl<-makeCluster(ncpu)
+clusterSetRNGStream(cl, 9912) # set random number seeds for cluster
 
-
-#library(parallel)
-#library(boot)
-#ncpu<-6
-#RNGkind("L'Ecuyer-CMRG") # set type of random number generation that works in parallel
-#cl<-makeCluster(ncpu)
-#clusterSetRNGStream(cl, 9912) # set random number seeds for cluster
-
-# bootstrap just the indirect effect
-#boot.result<-boot(BPG06dat, statistic=boot.modmed.mlm, R=100,
-#  L2ID = "id", X = "x", Y = "y", M = "m",
-#  random.a=TRUE, random.b=TRUE, random.cprime=TRUE,
-#  type="indirect",
-#  control=list(opt="nlm"),
-#  parallel="snow",ncpus=ncpu,cl=cl)
-
-
-
-#boot.result$t0 # point estimates for everything based on original data
-#boot.ci(boot.result, index=1, type="perc") # percentile interval of first element
-
-# bootstrap all fixed and random effects (recommended)
-#boot.result<-boot(BPG06dat, statistic=boot.modmed.mlm, R=100,
-#  L2ID = "id", X = "x", Y = "y", M = "m",
-#  random.a=TRUE, random.b=TRUE, random.cprime=TRUE,
-#  type="all",
-#  control=list(opt="nlm"),
-#  parallel="snow",ncpus=ncpu,cl=cl)
+# bootstrap all fixed and random effects (type="all")
+boot.result<-boot(BPG06dat, statistic=boot.modmed.mlm, R=10,
+  L2ID = "id", X = "x", Y = "y", M = "m",
+  random.a=TRUE, random.b=TRUE, random.cprime=TRUE,
+  type="all",
+  control=list(opt="nlm"),
+  parallel="snow",ncpus=ncpu,cl=cl)
 
 # Point estimate and 95\% CI for indirect effect
-#extract.boot.modmed.mlm(boot.result, type="indirect", ci.conf=.95)
+extract.boot.modmed.mlm(boot.result, type="indirect", ci.conf=.95)
 
-#stopCluster(cl)
-
-# without cluster
-# boot.result<-boot(BPG06dat, statistic=boot.modmed.mlm, R=5,
-#   L2ID = "id", X = "x", Y = "y", M = "m",
-#   random.a=TRUE, random.b=TRUE, random.cprime=TRUE,
-#   control=list(opt="nlm"),
-#   type="indirect")
+stopCluster(cl) # shut down cluster
 
 ## Moderated mediation
 
-#data(simdat)
-#ncpu<-12
-#cl<-makeCluster(ncpu)
+data(simdat)
 
-# note: use of nlm apparently fails in this moderated mediation model
+# Note: use of nlm apparently fails in this moderated mediation model
 # default optimizer for lme instead is used
 
-# Bootstrap w/ moderation of a and b paths
+## Bootstrap w/ moderation of a and b paths
+set.seed(1234)
 
-#boot.result2<-boot(simdat, statistic=boot.modmed.mlm, R=10000,
-# L2ID = "L2id", X = "X", Y = "Y", M = "M",
-#   random.a=TRUE, random.b=TRUE, random.cprime=TRUE,
-#   moderator = "mod", mod.a=TRUE, mod.b=TRUE,
-#   random.mod.a = TRUE, random.mod.b = TRUE,
-#   type="all",
-#   parallel="snow",ncpus=ncpu,cl=cl)
-
-#  test<-modmed.mlm(simdat,
-#  L2ID = "L2id", X = "X", Y = "Y", M = "M",
-#   random.a=TRUE, random.b=TRUE, random.cprime=TRUE,
-#   moderator = "mod", mod.a=TRUE, mod.b=TRUE,
-#   random.mod.a = TRUE, random.mod.b = TRUE)
-
-# stopCluster(cl)
+boot.result2<-boot(simdat, statistic=boot.modmed.mlm, R=5,
+ L2ID = "L2id", X = "X", Y = "Y", M = "M",
+   random.a=TRUE, random.b=TRUE, random.cprime=TRUE,
+   moderator = "mod", mod.a=TRUE, mod.b=TRUE,
+   type="all")
 
 # indirect effect point estimate and 95\% CI when moderator = 0
-#extract.boot.modmed.mlm(boot.result2, type="indirect")
-#extract.boot.modmed.mlm(boot.result2, type="indirect", modval1=0)
+extract.boot.modmed.mlm(boot.result2, type="indirect")
+extract.boot.modmed.mlm(boot.result2, type="indirect", modval1=0)
 
 # indirect effect point estimate and 95\% CI when moderator = 1
-#extract.boot.modmed.mlm(boot.result2, type="indirect", modval1=1)
+extract.boot.modmed.mlm(boot.result2, type="indirect", modval1=1)
 
 # indirect effect difference point estimate and 95\% CI
-#extract.boot.modmed.mlm(boot.result2, type="indirect.diff",
-#   modval1=0, modval2=1)
+extract.boot.modmed.mlm(boot.result2, type="indirect.diff",
+   modval1=0, modval2=1)
 
 # Example to not fail when using missing values
-# Missing data handling is not that great as not all info is used
-# dat.miss <- BPG06dat
-# dat.miss$m[c(1,2,3,4)]<-NA
-# dat.miss$y[c(5,6,7,8)]<-NA
-# boot.result<-boot(dat.miss, statistic=boot.modmed.mlm, R=100,
-#  L2ID = "id", X = "x", Y = "y", M = "m",
-#  random.a=TRUE, random.b=TRUE, random.cprime=TRUE,
-#  type="all",
-#  control=list(opt="nlm"),
-#  na.action = na.omit)
+# See documentation for lme function from the nlme package for other
+# options for na.action
+dat.miss <- BPG06dat
+dat.miss$m[c(1,2,3,4)]<-NA
+dat.miss$y[c(5,6,7,8)]<-NA
+boot.result<-boot(dat.miss, statistic=boot.modmed.mlm, R=5,
+  L2ID = "id", X = "x", Y = "y", M = "m",
+  random.a=TRUE, random.b=TRUE, random.cprime=TRUE,
+  type="all",
+  control=list(opt="nlm"),
+  na.action = na.omit)
 
 }
 }

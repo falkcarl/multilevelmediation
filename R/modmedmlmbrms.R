@@ -46,14 +46,20 @@
 #' Paul-Christian Bürkner (2017). brms: An R Package for Bayesian Multilevel Models Using Stan. Journal of Statistical Software, 80(1), 1-28. doi:10.18637/jss.v080.i01
 #'
 #' @examples
-#' \dontrun{
+#' \donttest{
+#'
+#' # Note: 500 iterations is just an example so that run time is not too long.
+#' # Pick something larger (e.g., 5000+) in practice
 #'
 #' # Example data for 1-1-1 w/o moderation
 #' data(BPG06dat)
 #'
-#' # Only fixed effects with random intercept
-#' fit<-modmed.mlm.brms(BPG06dat,"id", "x", "y" , "m", cores=1,
-#'                      iter = 7000, control = list(adapt_delta=0.95))
+#' # random effects for a and b paths (and intercept), no moderation
+#' # (For moderation, note that modmed.mlm syntax is typically the same)
+#' fit<-modmed.mlm.brms(BPG06dat,"id", "x", "y" , "m", cores=2,
+#'                      random.a=TRUE, random.b=TRUE,
+#'                      iter = 500, control = list(adapt_delta=0.95),
+#'                      seed = 1234)
 #'
 #' # Examine model results and some diagnostics
 #' summary(fit$model)
@@ -84,129 +90,6 @@
 #'
 #' # 99% CI
 #' res.indirect <- extract.modmed.mlm.brms(fit, "indirect", ci.conf = .99)
-#'
-#' #Only random a
-#' fit.randa<-modmed.mlm.brms(BPG06dat,"id", "x", "y", "m",random.a=TRUE, cores=4)
-#' extract.modmed.mlm.brms(fit.randa, "indirect")
-#'
-#' #Only random b
-#' fit.randb<-modmed.mlm.brms(BPG06dat,"id", "x", "y", "m",random.b=TRUE, cores=4)
-#' extract.modmed.mlm.brms(fit.randb, "indirect")
-#'
-#' #Random a and b
-#' fit.randboth<-modmed.mlm.brms(BPG06dat,"id", "x", "y", "m",
-#'   random.a=TRUE, random.b=TRUE, cores=4)
-#' extract.modmed.mlm.brms(fit.randboth, "indirect")
-#'
-#'  #All random
-#' fit.randall<-modmed.mlm.brms(BPG06dat,"id", "x", "y", "m",
-#'   random.a=TRUE, random.b=TRUE, random.cprime=TRUE, cores=4)
-#' extract.modmed.mlm.brms(fit.randall, "indirect")
-#'
-#'# Example data for 1-1-1 with moderation
-#'
-#'# Fit model with moderation
-#' data(simdat)
-#'
-#' # moderation for a path
-#' fitmoda<-modmed.mlm.brms(simdat,"L2id", "X", "Y", "M",
-#'   random.a=TRUE, random.b=TRUE, random.cprime=TRUE,
-#'   moderator = "mod", mod.a=TRUE, cores=4)
-#'
-#' # moderation for b path
-#' fitmodb<-modmed.mlm.brms(simdat,"L2id", "X", "Y", "M",
-#'   random.a=TRUE, random.b=TRUE, random.cprime=TRUE,
-#'   moderator = "mod", mod.b=TRUE, cores=4)
-#'
-#' # moderation for both a and b paths
-#' fitmodab<-modmed.mlm.brms(simdat,"L2id", "X", "Y", "M",
-#'   random.a=TRUE, random.b=TRUE, random.cprime=TRUE,
-#'   moderator = "mod", mod.a=TRUE, mod.b=TRUE, cores=4)
-#'
-#' # moderation for both a and b paths and random effect for interaction a
-#' fitmodab2<-modmed.mlm.brms(simdat,"L2id", "X", "Y", "M",
-#'   random.a=TRUE, random.b=TRUE, random.cprime=TRUE,
-#'   moderator = "mod", mod.a=TRUE, mod.b=TRUE,
-#'   random.mod.a = TRUE, random.mod.m = TRUE, cores=4)
-#'
-#' # moderation for both a and b paths and random effect for interaction b
-#' fitmodab3<-modmed.mlm.brms(simdat,"L2id", "X", "Y", "M",
-#'   random.a=TRUE, random.b=TRUE, random.cprime=TRUE,
-#'   moderator = "mod", mod.a=TRUE, mod.b=TRUE,
-#'   random.mod.b = TRUE, random.mod.y = TRUE, cores=4)
-#'
-#' # moderation for both a and b paths and random effect for both interactions
-#' fitmodab4<-modmed.mlm.brms(simdat,"L2id", "X", "Y", "M",
-#'   random.a=TRUE, random.b=TRUE, random.cprime=TRUE,
-#'   moderator = "mod", mod.a=TRUE, mod.b=TRUE,
-#'   random.mod.a = TRUE, random.mod.b = TRUE,
-#'   random.mod.m = TRUE, random.mod.y = TRUE, cores=4)
-#'
-#' extract.modmed.mlm.brms(fitmodab4, "indirect")
-#' extract.modmed.mlm.brms(fitmodab4, "indirect", modval1=0) # should match above
-#' extract.modmed.mlm.brms(fitmodab4, "indirect", modval1=1)
-#' extract.modmed.mlm.brms(fitmodab4, "indirect.diff", modval1 = 0, modval2=1)
-#'
-#' extract.modmed.mlm.brms(fitmodab4, "a")
-#' extract.modmed.mlm.brms(fitmodab4, "a", modval1=0) # should match above
-#' extract.modmed.mlm.brms(fitmodab4, "a", modval1=1)
-#' extract.modmed.mlm.brms(fitmodab4, "a.diff", modval1 = 0, modval2=1)
-#'
-#' extract.modmed.mlm.brms(fitmodab4, "b")
-#' extract.modmed.mlm.brms(fitmodab4, "b", modval1=0) # should match above
-#' extract.modmed.mlm.brms(fitmodab4, "b", modval1=1)
-#' extract.modmed.mlm.brms(fitmodab4, "b.diff", modval1 = 0, modval2=1)
-#'
-#' extract.modmed.mlm.brms(fitmodab3, "indirect")
-#' extract.modmed.mlm.brms(fitmodab3, "indirect", modval1=0) # should match above
-#' extract.modmed.mlm.brms(fitmodab3, "indirect", modval1=1)
-#' extract.modmed.mlm.brms(fitmodab3, "indirect.diff", modval1 = 0, modval2=1)
-#'
-#' extract.modmed.mlm.brms(fitmodab3, "a")
-#' extract.modmed.mlm.brms(fitmodab3, "a", modval1=0) # should match above
-#' extract.modmed.mlm.brms(fitmodab3, "a", modval1=1)
-#' extract.modmed.mlm.brms(fitmodab3, "a.diff", modval1 = 0, modval2=1)
-#'
-#' extract.modmed.mlm.brms(fitmodab3, "b")
-#' extract.modmed.mlm.brms(fitmodab3, "b", modval1=0) # should match above
-#' extract.modmed.mlm.brms(fitmodab3, "b", modval1=1)
-#' extract.modmed.mlm.brms(fitmodab3, "b.diff", modval1 = 0, modval2=1)
-#'
-#' extract.modmed.mlm.brms(fitmodab2, "indirect")
-#' extract.modmed.mlm.brms(fitmodab2, "indirect", modval1=0) # should match above
-#' extract.modmed.mlm.brms(fitmodab2, "indirect", modval1=1)
-#' extract.modmed.mlm.brms(fitmodab2, "indirect.diff", modval1 = 0, modval2=1)
-#'
-#' extract.modmed.mlm.brms(fitmodab2, "a")
-#' extract.modmed.mlm.brms(fitmodab2, "a", modval1=0) # should match above
-#' extract.modmed.mlm.brms(fitmodab2, "a", modval1=1)
-#' extract.modmed.mlm.brms(fitmodab2, "a.diff", modval1 = 0, modval2=1)
-#'
-#' extract.modmed.mlm.brms(fitmodab2, "b")
-#' extract.modmed.mlm.brms(fitmodab2, "b", modval1=0) # should match above
-#' extract.modmed.mlm.brms(fitmodab2, "b", modval1=1)
-#' extract.modmed.mlm.brms(fitmodab2, "b.diff", modval1 = 0, modval2=1)
-#'
-#' extract.modmed.mlm.brms(fitmoda, "indirect")
-#' extract.modmed.mlm.brms(fitmoda, "indirect", modval1=0)
-#' extract.modmed.mlm.brms(fitmoda, "indirect", modval1=1)
-#' extract.modmed.mlm.brms(fitmoda, "indirect", modval1=0, modval2=1)
-#'
-#' extract.modmed.mlm.brms(fitmodab, "indirect")
-#' extract.modmed.mlm.brms(fitmodab, "indirect", modval1=0) # should match above
-#' extract.modmed.mlm.brms(fitmodab, "indirect", modval1=1)
-#' extract.modmed.mlm.brms(fitmodab, "indirect.diff", modval1 = 0, modval2=1)
-#'
-#' extract.modmed.mlm.brms(fitmodab, "a")
-#' extract.modmed.mlm.brms(fitmodab, "a", modval1=0) # should match above
-#' extract.modmed.mlm.brms(fitmodab, "a", modval1=1)
-#' extract.modmed.mlm.brms(fitmodab, "a.diff", modval1 = 0, modval2=1)
-#'
-#' extract.modmed.mlm.brms(fitmodab, "b")
-#' extract.modmed.mlm.brms(fitmodab, "b", modval1=0) # should match above
-#' extract.modmed.mlm.brms(fitmodab, "b", modval1=1)
-#' extract.modmed.mlm.brms(fitmodab, "b.diff", modval1 = 0, modval2=1)
-#'
 #' }
 #'
 #' @import brms
@@ -347,12 +230,16 @@ modmed.mlm.brms<-function(data, L2ID, X, Y, M,
 #' }
 #' @export
 #' @examples
-#' \dontrun{
+#' \donttest{
 #' data(BPG06dat)
 #'
+#' # Note: 500 iterations is just an example so that run time is not too long.
+#' # Pick something larger (e.g., 5000+) in practice
+#'
 #' # Only fixed effects with random intercept
-#' fit<-modmed.mlm.brms(BPG06dat,"id", "x", "y" , "m", cores = 4,
-#'                      iter = 7000, control = list(adapt_delta=0.95))
+#' fit<-modmed.mlm.brms(BPG06dat,"id", "x", "y" , "m", cores = 2,
+#'                      iter = 500, control = list(adapt_delta=0.95),
+#'                      seed = 1234)
 #'
 #'
 #' res.indirect <- extract.modmed.mlm.brms(fit, "indirect")
