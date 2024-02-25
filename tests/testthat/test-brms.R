@@ -4,7 +4,7 @@ data("simdat")
 test_that("random a", {
   skip_on_cran()
   fit.randa<-modmed.mlm.brms(BPG06dat,"id", "x", "y", "m",random.a=TRUE, cores=2,
-                             iter = 500,
+                             iter = 2000,
                               seed = 1234)
   expect_snapshot(extract.modmed.mlm.brms(fit.randa, "indirect")$CI)
 })
@@ -12,7 +12,7 @@ test_that("random a", {
 test_that("random b", {
   skip_on_cran()
   fit.randb<-modmed.mlm.brms(BPG06dat,"id", "x", "y", "m",random.b=TRUE, cores=2,
-                             iter = 500,
+                             iter = 2000,
                               seed = 1234)
    expect_snapshot(extract.modmed.mlm.brms(fit.randb, "indirect")$CI)
 })
@@ -20,7 +20,7 @@ test_that("random b", {
 test_that("random a and b", {
   skip_on_cran()
   fit.randboth<-modmed.mlm.brms(BPG06dat,"id", "x", "y", "m",
-     random.a=TRUE, random.b=TRUE, cores=2, seed = 1234, iter = 500)
+     random.a=TRUE, random.b=TRUE, cores=2, seed = 1234, iter = 2000)
   expect_snapshot(extract.modmed.mlm.brms(fit.randboth, "indirect")$CI)
 })
 
@@ -28,7 +28,7 @@ test_that("all random", {
   skip_on_cran()
   fit.randall<-modmed.mlm.brms(BPG06dat,"id", "x", "y", "m",
      random.a=TRUE, random.b=TRUE, random.cprime=TRUE, cores=2, seed = 1234,
-     iter = 500)
+     iter = 3000)
    expect_snapshot(extract.modmed.mlm.brms(fit.randall, "indirect")$CI)
 })
 
@@ -37,7 +37,7 @@ test_that("moderation of a", {
   # moderation for a path
   fitmoda<-modmed.mlm.brms(simdat,"L2id", "X", "Y", "M",
      random.a=TRUE, random.b=TRUE, random.cprime=TRUE,
-     moderator = "mod", mod.a=TRUE, cores=2, iter=500,
+     moderator = "mod", mod.a=TRUE, cores=2, iter=2000,
      seed = 1234)
 
   expect_snapshot(extract.modmed.mlm.brms(fitmoda, "indirect")$CI)
@@ -50,7 +50,7 @@ test_that("moderation of b", {
   skip_on_cran()
   fitmodb<-modmed.mlm.brms(simdat,"L2id", "X", "Y", "M",
     random.a=TRUE, random.b=TRUE, random.cprime=TRUE,
-    moderator = "mod", mod.b=TRUE, cores=2, iter = 500,
+    moderator = "mod", mod.b=TRUE, cores=2, iter = 2000,
     seed = 1234)
 
   expect_snapshot(extract.modmed.mlm.brms(fitmodb, "indirect")$CI)
@@ -64,7 +64,7 @@ test_that("moderation of a and b", {
   # moderation for both a and b paths
   fitmodab<-modmed.mlm.brms(simdat,"L2id", "X", "Y", "M",
     random.a=TRUE, random.b=TRUE, random.cprime=TRUE,
-    moderator = "mod", mod.a=TRUE, mod.b=TRUE, cores=2, iter=500,
+    moderator = "mod", mod.a=TRUE, mod.b=TRUE, cores=2, iter=2000,
     seed = 1234)
 
   expect_snapshot(extract.modmed.mlm.brms(fitmodab, "indirect")$CI)

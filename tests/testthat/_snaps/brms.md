@@ -6,7 +6,7 @@
       # A tibble: 1 x 10
         variable  mean median     sd    mad  q2.5 q97.5  rhat ess_bulk ess_tail
         <chr>    <dbl>  <dbl>  <dbl>  <dbl> <dbl> <dbl> <dbl>    <dbl>    <dbl>
-      1 indirect 0.420  0.419 0.0397 0.0386 0.343 0.499  1.00     443.     643.
+      1 indirect 0.419  0.418 0.0395 0.0389 0.342 0.500  1.00    1947.    2850.
 
 # random b
 
@@ -16,7 +16,7 @@
       # A tibble: 1 x 10
         variable  mean median     sd    mad  q2.5 q97.5  rhat ess_bulk ess_tail
         <chr>    <dbl>  <dbl>  <dbl>  <dbl> <dbl> <dbl> <dbl>    <dbl>    <dbl>
-      1 indirect 0.377  0.378 0.0362 0.0372 0.306 0.447  1.00     525.     555.
+      1 indirect 0.378  0.378 0.0382 0.0374 0.307 0.456  1.00    1298.    2140.
 
 # random a and b
 
@@ -26,7 +26,7 @@
       # A tibble: 1 x 10
         variable  mean median     sd    mad  q2.5 q97.5  rhat ess_bulk ess_tail
         <chr>    <dbl>  <dbl>  <dbl>  <dbl> <dbl> <dbl> <dbl>    <dbl>    <dbl>
-      1 indirect 0.454  0.450 0.0558 0.0512 0.357 0.581  1.00     570.     746.
+      1 indirect 0.451  0.448 0.0529 0.0529 0.355 0.561  1.00    2826.    2900.
 
 # all random
 
@@ -36,7 +36,7 @@
       # A tibble: 1 x 10
         variable  mean median     sd    mad  q2.5 q97.5  rhat ess_bulk ess_tail
         <chr>    <dbl>  <dbl>  <dbl>  <dbl> <dbl> <dbl> <dbl>    <dbl>    <dbl>
-      1 indirect 0.460  0.457 0.0547 0.0525 0.365 0.582  1.01     459.     609.
+      1 indirect 0.460  0.458 0.0539 0.0540 0.363 0.570  1.00    3304.    4401.
 
 # moderation of a
 
@@ -46,7 +46,7 @@
       # A tibble: 1 x 10
         variable  mean median     sd    mad  q2.5 q97.5  rhat ess_bulk ess_tail
         <chr>    <dbl>  <dbl>  <dbl>  <dbl> <dbl> <dbl> <dbl>    <dbl>    <dbl>
-      1 indirect 0.204  0.199 0.0578 0.0555 0.102 0.331  1.01     241.     635.
+      1 indirect 0.206  0.201 0.0593 0.0564 0.105 0.336  1.00    1780.    2136.
 
 ---
 
@@ -56,7 +56,7 @@
       # A tibble: 1 x 10
         variable  mean median     sd    mad  q2.5 q97.5  rhat ess_bulk ess_tail
         <chr>    <dbl>  <dbl>  <dbl>  <dbl> <dbl> <dbl> <dbl>    <dbl>    <dbl>
-      1 indirect 0.246  0.240 0.0636 0.0606 0.134 0.380  1.01     260.     598.
+      1 indirect 0.248  0.241 0.0647 0.0624 0.137 0.392  1.00    1835.    2211.
 
 ---
 
@@ -66,7 +66,7 @@
       # A tibble: 1 x 10
         variable  mean median     sd    mad  q2.5 q97.5  rhat ess_bulk ess_tail
         <chr>    <dbl>  <dbl>  <dbl>  <dbl> <dbl> <dbl> <dbl>    <dbl>    <dbl>
-      1 indirect 0.204  0.199 0.0578 0.0555 0.102 0.331  1.01     241.     635.
+      1 indirect 0.206  0.201 0.0593 0.0564 0.105 0.336  1.00    1780.    2136.
 
 # moderation of b
 
@@ -76,7 +76,7 @@
       # A tibble: 1 x 10
         variable  mean median     sd    mad  q2.5 q97.5  rhat ess_bulk ess_tail
         <chr>    <dbl>  <dbl>  <dbl>  <dbl> <dbl> <dbl> <dbl>    <dbl>    <dbl>
-      1 indirect 0.305  0.298 0.0682 0.0669 0.197 0.460  1.00     408.     520.
+      1 indirect 0.303  0.299 0.0678 0.0678 0.186 0.444  1.00    1538.    2210.
 
 ---
 
@@ -84,9 +84,9 @@
       extract.modmed.mlm.brms(fitmodb, "indirect", modval1 = 1)$CI
     Output
       # A tibble: 1 x 10
-        variable  mean median     sd    mad  q2.5 q97.5  rhat ess_bulk ess_tail
-        <chr>    <dbl>  <dbl>  <dbl>  <dbl> <dbl> <dbl> <dbl>    <dbl>    <dbl>
-      1 indirect 0.189  0.182 0.0539 0.0522 0.104 0.309  1.00     463.     784.
+        variable  mean median     sd    mad   q2.5 q97.5  rhat ess_bulk ess_tail
+        <chr>    <dbl>  <dbl>  <dbl>  <dbl>  <dbl> <dbl> <dbl>    <dbl>    <dbl>
+      1 indirect 0.188  0.185 0.0547 0.0543 0.0943 0.306  1.00    1490.    2715.
 
 ---
 
@@ -96,7 +96,7 @@
       # A tibble: 1 x 10
         variable  mean median     sd    mad  q2.5 q97.5  rhat ess_bulk ess_tail
         <chr>    <dbl>  <dbl>  <dbl>  <dbl> <dbl> <dbl> <dbl>    <dbl>    <dbl>
-      1 indirect 0.305  0.298 0.0682 0.0669 0.197 0.460  1.00     408.     520.
+      1 indirect 0.303  0.299 0.0678 0.0678 0.186 0.444  1.00    1538.    2210.
 
 # moderation of a and b
 
@@ -106,7 +106,7 @@
       # A tibble: 1 x 10
         variable  mean median     sd    mad  q2.5 q97.5  rhat ess_bulk ess_tail
         <chr>    <dbl>  <dbl>  <dbl>  <dbl> <dbl> <dbl> <dbl>    <dbl>    <dbl>
-      1 indirect 0.275  0.269 0.0682 0.0667 0.157 0.428  1.00     347.     501.
+      1 indirect 0.271  0.264 0.0694 0.0659 0.152 0.422  1.00    1995.    2496.
 
 ---
 
@@ -116,7 +116,7 @@
       # A tibble: 1 x 10
         variable  mean median     sd    mad  q2.5 q97.5  rhat ess_bulk ess_tail
         <chr>    <dbl>  <dbl>  <dbl>  <dbl> <dbl> <dbl> <dbl>    <dbl>    <dbl>
-      1 indirect 0.205  0.200 0.0587 0.0543 0.106 0.338  1.00     382.     622.
+      1 indirect 0.202  0.196 0.0592 0.0560 0.103 0.337  1.00    2078.    2637.
 
 ---
 
@@ -126,7 +126,7 @@
       # A tibble: 1 x 10
         variable       mean median     sd    mad    q2.5 q97.5  rhat ess_bulk ess_tail
         <chr>         <dbl>  <dbl>  <dbl>  <dbl>   <dbl> <dbl> <dbl>    <dbl>    <dbl>
-      1 indirect.di~ 0.0706 0.0698 0.0321 0.0311 0.00988 0.139  1.00     610.     701.
+      1 indirect.di~ 0.0688 0.0683 0.0320 0.0311 0.00777 0.134  1.00    3433.    3347.
 
 ---
 
@@ -136,7 +136,7 @@
       # A tibble: 1 x 10
         variable  mean median     sd    mad  q2.5 q97.5  rhat ess_bulk ess_tail
         <chr>    <dbl>  <dbl>  <dbl>  <dbl> <dbl> <dbl> <dbl>    <dbl>    <dbl>
-      1 a        0.288  0.291 0.0769 0.0754 0.140 0.444  1.01     344.     585.
+      1 a        0.281  0.282 0.0753 0.0722 0.130 0.432  1.00    2173.    2391.
 
 ---
 
@@ -146,7 +146,7 @@
       # A tibble: 1 x 10
         variable  mean median     sd    mad  q2.5 q97.5  rhat ess_bulk ess_tail
         <chr>    <dbl>  <dbl>  <dbl>  <dbl> <dbl> <dbl> <dbl>    <dbl>    <dbl>
-      1 a        0.403  0.403 0.0774 0.0793 0.249 0.554  1.01     434.     785.
+      1 a        0.398  0.399 0.0735 0.0720 0.252 0.541  1.00    2252.    2831.
 
 ---
 
@@ -156,7 +156,7 @@
       # A tibble: 1 x 10
         variable   mean median     sd    mad   q2.5   q97.5  rhat ess_bulk ess_tail
         <chr>     <dbl>  <dbl>  <dbl>  <dbl>  <dbl>   <dbl> <dbl>    <dbl>    <dbl>
-      1 a.diff   -0.115 -0.115 0.0488 0.0497 -0.213 -0.0227  1.01    2103.     875.
+      1 a.diff   -0.117 -0.117 0.0485 0.0486 -0.212 -0.0215  1.00    8020.    3053.
 
 ---
 
@@ -166,7 +166,7 @@
       # A tibble: 1 x 10
         variable  mean median     sd    mad  q2.5 q97.5  rhat ess_bulk ess_tail
         <chr>    <dbl>  <dbl>  <dbl>  <dbl> <dbl> <dbl> <dbl>    <dbl>    <dbl>
-      1 b        0.540  0.540 0.0862 0.0852 0.376 0.708  1.01     419.     700.
+      1 b        0.539  0.537 0.0792 0.0798 0.385 0.695  1.00    1960.    2478.
 
 ---
 
@@ -176,7 +176,7 @@
       # A tibble: 1 x 10
         variable  mean median     sd    mad   q2.5 q97.5  rhat ess_bulk ess_tail
         <chr>    <dbl>  <dbl>  <dbl>  <dbl>  <dbl> <dbl> <dbl>    <dbl>    <dbl>
-      1 b        0.210  0.210 0.0845 0.0851 0.0446 0.366  1.00     381.     480.
+      1 b        0.208  0.208 0.0785 0.0781 0.0545 0.363  1.00    2008.    2799.
 
 ---
 
@@ -186,7 +186,7 @@
       # A tibble: 1 x 10
         variable  mean median     sd    mad  q2.5 q97.5  rhat ess_bulk ess_tail
         <chr>    <dbl>  <dbl>  <dbl>  <dbl> <dbl> <dbl> <dbl>    <dbl>    <dbl>
-      1 b.diff   0.330  0.329 0.0420 0.0451 0.253 0.410  1.00    1666.     898.
+      1 b.diff   0.331  0.332 0.0412 0.0417 0.250 0.411  1.00    7386.    2898.
 
 # moderation of a and b, re for a int
 
