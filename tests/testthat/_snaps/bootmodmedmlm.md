@@ -28,11 +28,11 @@
       boot.result$t0
     Output
                 Sm           Sy          SmX          SyX          SyM      re.SmSm 
-       0.093216534 -0.097030372  0.611850845  0.220992327  0.610417713  0.679294071 
+       0.093216534 -0.097030372  0.611850845  0.220992327  0.610417713  0.679294070 
            re.SySm     re.SmXSm     re.SyMSm     re.SyXSm      re.SmSy      re.SySy 
        0.056841871  0.017842843  0.009498816 -0.006990675  0.056841871  0.270142249 
           re.SmXSy     re.SyMSy     re.SyXSy     re.SmSmX     re.SySmX    re.SmXSmX 
-       0.011784875 -0.004323056 -0.018316454  0.017842843  0.011784875  0.120091126 
+       0.011784875 -0.004323056 -0.018316454  0.017842843  0.011784875  0.120091124 
          re.SyMSmX    re.SyXSmX     re.SmSyM     re.SySyM    re.SmXSyM    re.SyMSyM 
        0.098645577 -0.021301243  0.009498816 -0.004323056  0.098645577  0.111982257 
          re.SyXSyM     re.SmSyX     re.SySyX    re.SmXSyX    re.SyMSyX    re.SyXSyX 
@@ -150,11 +150,11 @@
       boot.result$t0
     Output
                 Sm           Sy          SmX          SyX          SyM      re.SmSm 
-       0.093216534 -0.097030372  0.611850845  0.220992327  0.610417713  0.679294071 
+       0.093216534 -0.097030372  0.611850845  0.220992327  0.610417713  0.679294070 
            re.SySm     re.SmXSm     re.SyMSm     re.SyXSm      re.SmSy      re.SySy 
        0.056841871  0.017842843  0.009498816 -0.006990675  0.056841871  0.270142249 
           re.SmXSy     re.SyMSy     re.SyXSy     re.SmSmX     re.SySmX    re.SmXSmX 
-       0.011784875 -0.004323056 -0.018316454  0.017842843  0.011784875  0.120091126 
+       0.011784875 -0.004323056 -0.018316454  0.017842843  0.011784875  0.120091124 
          re.SyMSmX    re.SyXSmX     re.SmSyM     re.SySyM    re.SmXSyM    re.SyMSyM 
        0.098645577 -0.021301243  0.009498816 -0.004323056  0.098645577  0.111982257 
          re.SyXSyM     re.SmSyX     re.SySyX    re.SmXSyX    re.SyMSyX    re.SyXSyX 
@@ -236,7 +236,7 @@
     Output
       $CI
             2.5%      97.5% 
-      0.04834915 0.13732896 
+      0.04834917 0.13732887 
       
       $est
       [1] 0.09864558
