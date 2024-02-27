@@ -36,10 +36,25 @@ the model output (i.e., these would represent values of the effects when the mod
 
 \item{modval2}{Second value of the moderator at which to compute the indirect effect.}
 }
+\value{
+A vector or single numeric value corresponding to the parameter estimate(s) of interest is returned.
+}
 \description{
 Post-processing of a model fit with modmed.mlm
 }
 \details{
 This function extracts relevant parameter estimates from models estimated using \code{\link{modmed.mlm}}.
   For any of the .diff values, these are always the value of the effect at modval1 minus modval2.
+}
+\examples{
+\donttest{
+# Example data for 1-1-1 w/o moderation
+data(BPG06dat)
+
+# Fit model
+fit<-modmed.mlm(BPG06dat,"id", "x", "y", "m",
+  random.a=TRUE, random.b=TRUE, random.cprime=TRUE)
+extract.modmed.mlm(fit, type="indirect")
+}
+
 }

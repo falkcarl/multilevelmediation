@@ -2,7 +2,7 @@
 % Please edit documentation in R/customboot.R
 \name{boot.modmed.mlm.custom}
 \alias{boot.modmed.mlm.custom}
-\title{Bootstrapping MLM mediation model (without boot package)}
+\title{Bootstrapping multilevel mediation model (without boot package)}
 \usage{
 boot.modmed.mlm.custom(
   data,
@@ -61,7 +61,7 @@ A list with the following elements. Note that \code{t0} and \code{t} are intende
 }
 }
 \description{
-Bootstrapping MLM mediation model (without boot package)
+Bootstrapping multilevel mediation model (without boot package)
 }
 \details{
 This function was written to do all four kinds of bootstrapping outlined in Falk, Vogel, Hammami & Miočević (in press):
@@ -77,45 +77,38 @@ This function was written to do all four kinds of bootstrapping outlined in Falk
  Although somewhat slower, \code{\link[furrr]{furrr}} can also be used if one would like a progress bar.
 }
 \examples{
-\dontrun{
+
+\donttest{
 
 data(BPG06dat)
 
+# Note that for all examples below, nrep should be increased to something
+#  MUCH larger (e.g., 1000). Small values here are used only so that the code
+#  runs relatively quickly when tested.
+
 # double bootstrap, no parallel processing
-boot.result<-boot.modmed.mlm.custom(BPG06dat, nrep=50, L2ID="id", X="x", Y="y", M="m",
+boot.result<-boot.modmed.mlm.custom(BPG06dat, nrep=10, L2ID="id", X="x", Y="y", M="m",
   boot.type="caseboth",
-  control=list(opt="nlm"))
-
-extract.boot.modmed.mlm(boot.result, type="indirect", ci.conf=.95)
-
-# level 2 bootstrap, parallel package
-boot.result<-boot.modmed.mlm.custom(BPG06dat, nrep=100, L2ID="id", X="x", Y="y", M="m",
-  boot.type="case2",
-  parallel.type="parallel",ncores=2,seed=2299,
-  control=list(opt="nlm"))
-extract.boot.modmed.mlm(boot.result, type="indirect", ci.conf=.95)
-
-# residual bootstrap, no parallel processing
-boot.result<-boot.modmed.mlm.custom(BPG06dat, nrep=100, L2ID="id", X="x", Y="y", M="m",
-  boot.type="resid", random.a=TRUE, random.b=TRUE,
-  control=list(opt="nlm"))
+  control=list(opt="nlm"), seed=1234)
 
 extract.boot.modmed.mlm(boot.result, type="indirect", ci.conf=.95)
 
 # residual bootstrap, parallel package
-boot.result<-boot.modmed.mlm.custom(BPG06dat, nrep=100, L2ID="id", X="x", Y="y", M="m",
+boot.result<-boot.modmed.mlm.custom(BPG06dat, nrep=10, L2ID="id", X="x", Y="y", M="m",
   boot.type="resid", random.a=TRUE, random.b=TRUE,
   parallel.type="parallel",ncores=2,seed=2299,
   control=list(opt="nlm"))
 
 extract.boot.modmed.mlm(boot.result, type="indirect", ci.conf=.95)
+}
 
-# Examples/tests with moderation
+\donttest{
+# Example with moderation
 data(simdat)
 
 # moderation
-boot.result<-boot.modmed.mlm.custom(simdat, nrep=100, L2ID = "L2id", X = "X", Y = "Y", M = "M",
-   boot.type="resid",
+boot.result<-boot.modmed.mlm.custom(simdat, nrep=5, L2ID = "L2id", X = "X", Y = "Y", M = "M",
+   boot.type="caseboth",
    random.a=TRUE, random.b=TRUE, random.cprime=TRUE,
    moderator = "mod", mod.a=TRUE, mod.b=TRUE,
    random.mod.a = TRUE, random.mod.b = TRUE,

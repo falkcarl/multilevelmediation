@@ -1,23 +1,36 @@
 Package: multilevelmediation
 Type: Package
-Title: Utility Functions for Multilevel Mediation Analysis in R
-Version: 0.3.0
-Date: 2024-02-19
-Author: Carl F. Falk, Todd Vogel, Sarah Hammami, & Milica Miočević
+Title: Utility Functions for Multilevel Mediation Analysis
+Version: 0.3.1
+Date: 2024-02-27
+Authors@R: 
+  c(person(given = c("Carl","F."),
+           family = "Falk",
+           role = c("cre","aut"),
+           email = "carl.falk@mcgill.ca"),
+    person(given = "Todd",
+           family = "Vogel",
+           role = "aut"),
+    person(given = "Sarah",
+           family = "Hammami",
+           role = "aut"),
+    person(given = "Milica",
+           family = "Miočević",
+           role = "aut"))
 Maintainer: Carl F. Falk <carl.falk@mcgill.ca>
 BugReports: https://github.com/falkcarl/multilevelmediation
-Description: The ultimate goal is to support 2-2-1, 2-1-1, and 1-1-1 model for
+Description: The ultimate goal is to support 2-2-1, 2-1-1, and 1-1-1 models for
  multilevel mediation, the option of a moderating variable for either the a, b,
- or both paths, as well as covariates. Currently the 1-1-1 model is supported
- and several options of random effects are supported; the initial underlying
- code for bootstrapping has been evaluated in simulations (see Falk et al in
- references). Support for Bayesian estimation using brms comprises ongoing work.
- Currently only continuous mediators and outcomes are supported. Factors for any
+ or both paths, and as covariates. Currently the 1-1-1 model is supported
+ and several options of random effects; the initial code for bootstrapping was
+ evaluated in simulations by Falk, Vogel, Hammami, and Miočević (2024) <doi:10.3758/s13428-023-02079-4>.
+ Support for Bayesian estimation using 'brms' comprises ongoing work. Currently
+ only continuous mediators and outcomes are supported. Factors for any
  predictors must be numerically represented.
 License: GPL-3
 Encoding: UTF-8
 LazyData: true
-RoxygenNote: 7.2.3
+RoxygenNote: 7.3.1
 Imports: 
   furrr,
   future,

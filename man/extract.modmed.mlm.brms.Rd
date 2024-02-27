@@ -55,12 +55,16 @@ This function generally assumes that type="all" was used when initially fitting 
   was not used, there is no guarantee that credibility intervals for the effects of interest can be extracted.
 }
 \examples{
-\dontrun{
+\donttest{
 data(BPG06dat)
 
+# Note: 500 iterations is just an example so that run time is not too long.
+# Pick something larger (e.g., 5000+) in practice
+
 # Only fixed effects with random intercept
-fit<-modmed.mlm.brms(BPG06dat,"id", "x", "y" , "m", cores = 4,
-                     iter = 7000, control = list(adapt_delta=0.95))
+fit<-modmed.mlm.brms(BPG06dat,"id", "x", "y" , "m", cores = 2,
+                     iter = 500, control = list(adapt_delta=0.95),
+                     seed = 1234)
 
 
 res.indirect <- extract.modmed.mlm.brms(fit, "indirect")

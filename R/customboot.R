@@ -16,7 +16,7 @@
 ## GNU General Public License for more details.
 ## <http://www.gnu.org/licenses/>
 
-#' Bootstrapping MLM mediation model (without boot package)
+#' Bootstrapping multilevel mediation model (without boot package)
 #'
 #' @param data Data frame in long format. The function will do restructuring using \code{\link{stack_bpg}}.
 #' @param L2ID Name of column that contains grouping variable in 'data' (e.g., "SubjectID")
@@ -68,45 +68,38 @@
 #'
 #' van der Leeden, R., Meijer, E., & Busing, F. M. T. A. (2008). Resampling multilevel models. In J. de Leeuw & E. Meijer (Eds.), Handbook of Multilevel Analysis (pp. 401-433). Springer.
 #' @examples
-#' \dontrun{
+#'
+#' \donttest{
 #'
 #' data(BPG06dat)
 #'
+#' # Note that for all examples below, nrep should be increased to something
+#' #  MUCH larger (e.g., 1000). Small values here are used only so that the code
+#' #  runs relatively quickly when tested.
+#'
 #' # double bootstrap, no parallel processing
-#' boot.result<-boot.modmed.mlm.custom(BPG06dat, nrep=50, L2ID="id", X="x", Y="y", M="m",
+#' boot.result<-boot.modmed.mlm.custom(BPG06dat, nrep=10, L2ID="id", X="x", Y="y", M="m",
 #'   boot.type="caseboth",
-#'   control=list(opt="nlm"))
-#'
-#' extract.boot.modmed.mlm(boot.result, type="indirect", ci.conf=.95)
-#'
-#' # level 2 bootstrap, parallel package
-#' boot.result<-boot.modmed.mlm.custom(BPG06dat, nrep=100, L2ID="id", X="x", Y="y", M="m",
-#'   boot.type="case2",
-#'   parallel.type="parallel",ncores=2,seed=2299,
-#'   control=list(opt="nlm"))
-#' extract.boot.modmed.mlm(boot.result, type="indirect", ci.conf=.95)
-#'
-#' # residual bootstrap, no parallel processing
-#' boot.result<-boot.modmed.mlm.custom(BPG06dat, nrep=100, L2ID="id", X="x", Y="y", M="m",
-#'   boot.type="resid", random.a=TRUE, random.b=TRUE,
-#'   control=list(opt="nlm"))
+#'   control=list(opt="nlm"), seed=1234)
 #'
 #' extract.boot.modmed.mlm(boot.result, type="indirect", ci.conf=.95)
 #'
 #' # residual bootstrap, parallel package
-#' boot.result<-boot.modmed.mlm.custom(BPG06dat, nrep=100, L2ID="id", X="x", Y="y", M="m",
+#' boot.result<-boot.modmed.mlm.custom(BPG06dat, nrep=10, L2ID="id", X="x", Y="y", M="m",
 #'   boot.type="resid", random.a=TRUE, random.b=TRUE,
 #'   parallel.type="parallel",ncores=2,seed=2299,
 #'   control=list(opt="nlm"))
 #'
 #' extract.boot.modmed.mlm(boot.result, type="indirect", ci.conf=.95)
+#' }
 #'
-#' # Examples/tests with moderation
+#' \donttest{
+#' # Example with moderation
 #' data(simdat)
 #'
 #' # moderation
-#' boot.result<-boot.modmed.mlm.custom(simdat, nrep=100, L2ID = "L2id", X = "X", Y = "Y", M = "M",
-#'    boot.type="resid",
+#' boot.result<-boot.modmed.mlm.custom(simdat, nrep=5, L2ID = "L2id", X = "X", Y = "Y", M = "M",
+#'    boot.type="caseboth",
 #'    random.a=TRUE, random.b=TRUE, random.cprime=TRUE,
 #'    moderator = "mod", mod.a=TRUE, mod.b=TRUE,
 #'    random.mod.a = TRUE, random.mod.b = TRUE,
@@ -137,7 +130,7 @@ boot.modmed.mlm.custom <- function(data, L2ID, ...,
                                    boot.type = c("caseboth","case2","case1","resid"),
                                    parallel.type=c("lapply","parallel","furrr"),
                                    ncores=NULL,
-                                   seed=1234)
+                                   seed=NULL)
 {
 
   call <- match.call()
@@ -191,15 +184,6 @@ boot.modmed.mlm.custom <- function(data, L2ID, ...,
 
 # Custom model fitting function for two-level (moderated) mediation
 # Currently hidden
-# @param data placeholder
-# @param L2ID placeholder
-# @param ... placeholder
-# @param type placeholder
-# @param modval1 placeholder
-# @param modval2 placeholder
-# @param boot.type placeholder
-# @param model placeholder
-# @importFrom stats model.matrix
 boot.modmed.mlm2 <- function(data, L2ID, ...,
                              type="all",
                              modval1=NULL, modval2=NULL,
@@ -254,7 +238,7 @@ boot.modmed.mlm2 <- function(data, L2ID, ...,
   } else if(boot.type=="resid"){
 
     ## Extract stuff from model and compute residuals
-    #TODO: separate out this logic from that which does resampling
+    #TODO: separate out this logic from that which does resampling?
     # This may require computing all of this stuff and then passing residuals to this function
 
     # fixed effects
