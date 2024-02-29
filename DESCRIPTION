@@ -21,7 +21,7 @@ Maintainer: Carl F. Falk <carl.falk@mcgill.ca>
 BugReports: https://github.com/falkcarl/multilevelmediation
 Description: The ultimate goal is to support 2-2-1, 2-1-1, and 1-1-1 models for
  multilevel mediation, the option of a moderating variable for either the a, b,
- or both paths, and as covariates. Currently the 1-1-1 model is supported
+ or both paths, and covariates. Currently the 1-1-1 model is supported
  and several options of random effects; the initial code for bootstrapping was
  evaluated in simulations by Falk, Vogel, Hammami, and Miočević (2024) <doi:10.3758/s13428-023-02079-4>.
  Support for Bayesian estimation using 'brms' comprises ongoing work. Currently
