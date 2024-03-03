@@ -663,7 +663,7 @@ modmed.mlm <- function(data, L2ID, X, Y, M,
   method <- match.arg(method)
 
   # save default estimation options, for backwards compatibility
-  if(estimator == "nlme" & is.null(control)){
+  if(estimator == "lme" & is.null(control)){
     control <- lmeControl(maxIter = 10000, msMaxIter = 10000, niterEM = 10000,
                msMaxEval = 10000, tolerance = 1e-6)
   } else if (estimator == "glmmTMB" & is.null(control)){
