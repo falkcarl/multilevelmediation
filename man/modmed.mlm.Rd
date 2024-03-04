@@ -78,7 +78,7 @@ modmed.mlm(
 
 \item{random.covars.y}{(Logical vector) Add random slopes for covariates on Y?}
 
-\item{estimator}{Which program to use to estimate models? \code{\link[nlme]{lme}} is what was originally tested
+\item{estimator}{(Character) Which program to use to estimate models? \code{\link[nlme]{lme}} is what was originally tested
 with the package and publication, but support for \code{\link[glmmTMB]{glmmTMB}} is now available.}
 
 \item{method}{Argument used to control estimation method. Options are "REML" (default) or "ML".}
@@ -93,7 +93,7 @@ iterations.}
 \item{datmfun}{(experimental) A function that will do additional data manipulation on the restacked dataset. The function ought to take
 the restacked dataset (e.g., done using \code{\link{stack_bpg}}) and return a dataset that can be analyzed using \code{\link{modmed.mlm}} Could be used for
 some kind of additional centering strategy after data are restacked (and after bootstrapped) or some other missing data handling strategy.
-Either suggestion requires further study.#'}
+Either suggestion requires further study.}
 
 \item{data.stacked}{(experimental) Currently used internally by bootresid.modmed.mlm to feed already stacked data to the function.}
 

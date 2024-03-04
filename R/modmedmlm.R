@@ -411,7 +411,7 @@ bootresid.modmed.mlm <- function(data, L2ID, R=1000, X, Y, M,
 #' @param random.covars.m (Logical vector) Add random slopes for covariates on M?
 #' @param random.covars.y (Logical vector) Add random slopes for covariates on Y?
 #' @param method Argument used to control estimation method. Options are "REML" (default) or "ML".
-#' @param estimator Which program to use to estimate models? \code{\link[nlme]{lme}} is what was originally tested
+#' @param estimator (Character) Which program to use to estimate models? \code{\link[nlme]{lme}} is what was originally tested
 #'   with the package and publication, but support for \code{\link[glmmTMB]{glmmTMB}} is now available.
 #' @param control Argument passed to \code{\link[nlme]{lme}} or \code{\link[glmmTMB]{glmmTMB}} that controls other estimation options.
 #'   See those functions for the \code{control} argument. If \code{\link[nlme]{lme}} is chosen for estimation, but nothing is specified
@@ -421,7 +421,7 @@ bootresid.modmed.mlm <- function(data, L2ID, R=1000, X, Y, M,
 #' @param datmfun (experimental) A function that will do additional data manipulation on the restacked dataset. The function ought to take
 #'   the restacked dataset (e.g., done using \code{\link{stack_bpg}}) and return a dataset that can be analyzed using \code{\link{modmed.mlm}} Could be used for
 #'   some kind of additional centering strategy after data are restacked (and after bootstrapped) or some other missing data handling strategy.
-#'   Either suggestion requires further study.#'
+#'   Either suggestion requires further study.
 #' @param data.stacked (experimental) Currently used internally by bootresid.modmed.mlm to feed already stacked data to the function.
 #' @param ... Pass any additional options down to \code{link[nlme]{lme}}. Added to handle missing values. e.g., \code{na.action = na.omit}.
 #' @details Implements custom function to do 1-1-1 multilevel mediation model following Bauer, Preacher, & Gil (2006).
