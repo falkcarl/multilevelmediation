@@ -16,6 +16,35 @@ test_that("custom double boot", {
   expect_snapshot(extract.boot.modmed.mlm(boot.result, type="b", ci.conf=.95))
   expect_snapshot(extract.boot.modmed.mlm(boot.result, type="cprime", ci.conf=.95))
   expect_snapshot(extract.boot.modmed.mlm(boot.result, type="covab", ci.conf=.95))
+
+  boot.result2<-boot.modmed.mlm.custom(BPG06dat, nrep=100,
+                                      L2ID = "id", X = "x", Y = "y", M = "m",
+                                      random.a=TRUE, random.b=TRUE, random.cprime=TRUE,
+                                      boot.type="caseboth", estimator = "glmmTMB",
+                                      parallel.type="parallel",ncores=2,seed=9912)
+
+
+  # check glmmTMB vs nlme
+  expect_equal(extract.boot.modmed.mlm(boot.result, type="indirect", ci.conf=.95)$CI,
+               extract.boot.modmed.mlm(boot.result2, type="indirect", ci.conf=.95)$CI,
+               tolerance = 1e-3)
+
+  expect_equal(extract.boot.modmed.mlm(boot.result, type="a", ci.conf=.95)$CI,
+               extract.boot.modmed.mlm(boot.result2, type="a", ci.conf=.95)$CI,
+               tolerance = 1e-3)
+
+  expect_equal(extract.boot.modmed.mlm(boot.result, type="b", ci.conf=.95)$CI,
+               extract.boot.modmed.mlm(boot.result2, type="b", ci.conf=.95)$CI,
+               tolerance = 1e-3)
+
+  expect_equal(extract.boot.modmed.mlm(boot.result, type="cprime", ci.conf=.95)$CI,
+               extract.boot.modmed.mlm(boot.result2, type="cprime", ci.conf=.95)$CI,
+               tolerance = 1e-3)
+
+  expect_equal(extract.boot.modmed.mlm(boot.result, type="covab", ci.conf=.95)$CI,
+               extract.boot.modmed.mlm(boot.result2, type="covab", ci.conf=.95)$CI,
+               tolerance = 1e-2)
+
 })
 
 test_that("custom level 2 boot", {

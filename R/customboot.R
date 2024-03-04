@@ -118,6 +118,7 @@
 #'   modval1=0, modval2=1)
 #'
 #' }
+#' @importFrom nlme random.effects
 #' @importFrom parallel makeCluster clusterSetRNGStream parLapply stopCluster
 #' @importFrom furrr future_map furrr_options
 #' @importFrom future plan multicore multisession
