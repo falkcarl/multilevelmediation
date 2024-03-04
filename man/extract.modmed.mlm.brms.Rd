@@ -58,12 +58,12 @@ This function generally assumes that type="all" was used when initially fitting 
 \donttest{
 data(BPG06dat)
 
-# Note: 500 iterations is just an example so that run time is not too long.
+# Note: 2000 iterations is just an example so that run time is not too long.
 # Pick something larger (e.g., 5000+) in practice
 
 # Only fixed effects with random intercept
 fit<-modmed.mlm.brms(BPG06dat,"id", "x", "y" , "m", cores = 2,
-                     iter = 500, control = list(adapt_delta=0.95),
+                     iter = 2000, control = list(adapt_delta=0.95),
                      seed = 1234)
 
 

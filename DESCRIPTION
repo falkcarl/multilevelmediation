@@ -42,7 +42,8 @@ Imports:
   stats,
   tidyr,
   brms,
-  posterior
+  posterior,
+  glmmTMB
 Suggests:
     testthat (>= 3.0.0),
     boot
