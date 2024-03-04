@@ -413,6 +413,8 @@ bootresid.modmed.mlm <- function(data, L2ID, R=1000, X, Y, M,
 #'   are added for them.
 #' @param random.covars.y (Character vector) If any covariates specified from \code{covars.y} are present, random effects
 #'   are added for them.
+#' @param random.int.m (Logical) Add random intercept for M? (defaults to TRUE)
+#' @param random.int.y (Logical) Add random intercept for Y? (defaults to TRUE)
 #' @param method Argument used to control estimation method. Options are "REML" (default) or "ML".
 #' @param estimator (Character) Which program to use to estimate models? \code{\link[nlme]{lme}} is what was originally tested
 #'   with the package and publication, but support for \code{\link[glmmTMB]{glmmTMB}} is now available.
@@ -693,10 +695,12 @@ modmed.mlm <- function(data, L2ID, X, Y, M,
   }
 
   # Create the formula for the random effects
-  random.formula <- "~ 0 + Sm + Sy"
-  if (random.a == TRUE) {random.formula <- paste(random.formula, "+ SmX")}
-  if (random.b == TRUE) {random.formula <- paste(random.formula, "+ SyM")}
-  if (random.cprime == TRUE) {random.formula <- paste(random.formula, "+ SyX")}
+  random.formula <- "~ 0 "
+  if (random.int.m) {random.formula <- paste(random.formula, "+ Sm")}
+  if (random.int.y) {random.formula <- paste(random.formula, "+ Sy")}
+  if (random.a) {random.formula <- paste(random.formula, "+ SmX")}
+  if (random.b) {random.formula <- paste(random.formula, "+ SyM")}
+  if (random.cprime) {random.formula <- paste(random.formula, "+ SyX")}
 
   # Add random effects for moderator here, if any
   if(random.mod.a && mod.a){random.formula <- paste(random.formula, "+ SmX:W")}
@@ -787,6 +791,8 @@ modmed.mlm <- function(data, L2ID, X, Y, M,
     random.mod.y = random.mod.y,
     random.covars.m = random.covars.m,
     random.covars.y = random.covars.y,
+    random.int.m = random.int.m,
+    random.int.y = random.int.y,
     estimator = estimator,
     method = method,
     control = control,
@@ -860,8 +866,12 @@ extract.modmed.mlm <- function(fit, type=c("all","fixef","recov","recov.vec","in
     nfixefb <- 3 + ifelse(any(modb)||any(modc),1,0) + any(modb) + any(modc) + covb #number of fixed effects second model
     nfex <- nfixefa + nfixefb # combined
 
-    # re due to 2 random intercepts + abc paths
-    nre <- 2 + sum(unlist(args[grepl("^random\\.([ab]|cprime)$",names(args))]))
+    # re due to 2 random intercepts
+    nre <- 0
+    nre <- nre + sum(unlist(args[grepl("^random\\.int\\.([my])$",names(args))]))
+
+    # re due to abc paths
+    nre <- nre + sum(unlist(args[grepl("^random\\.([ab]|cprime)$",names(args))]))
 
     # re due to covariates
     nre <- nre + length(unlist(args[grepl("^random\\.covars\\.([my])$",names(args))]))

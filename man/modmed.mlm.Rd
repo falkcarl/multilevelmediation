@@ -26,6 +26,8 @@ modmed.mlm(
   random.mod.y = FALSE,
   random.covars.m = NULL,
   random.covars.y = NULL,
+  random.int.m = TRUE,
+  random.int.y = TRUE,
   estimator = c("lme", "glmmTMB"),
   method = c("REML", "ML"),
   control = NULL,
@@ -79,6 +81,10 @@ are added for them.}
 
 \item{random.covars.y}{(Character vector) If any covariates specified from \code{covars.y} are present, random effects
 are added for them.}
+
+\item{random.int.m}{(Logical) Add random intercept for M? (defaults to TRUE)}
+
+\item{random.int.y}{(Logical) Add random intercept for Y? (defaults to TRUE)}
 
 \item{estimator}{(Character) Which program to use to estimate models? \code{\link[nlme]{lme}} is what was originally tested
 with the package and publication, but support for \code{\link[glmmTMB]{glmmTMB}} is now available.}
