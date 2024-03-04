@@ -15,10 +15,19 @@ represented.
 
 ## Installation
 
+Note that GitHub contains the development version of the package. If you want
+new, sometimes minimally tested features, install from here.
+
 ``` r
 # From GitHub:
 # install.packages("devtools")
 devtools::install_github("falkcarl/multilevelmediation")
+```
+
+Otherwise, a release should be available on CRAN:
+
+``` r
+install.packages("multilevelmediation")
 ```
 
 ## Some relevant references
@@ -47,6 +56,10 @@ van der Leeden, R., Meijer, E., & Busing, F. M. T. A. (2008). Resampling multile
 
 ## Updates
 
+- Upcoming version
+    - Support for glmmTMB.
+    - Fixes to random effects for covariates (in progress).
+    - Ability to omit intercept random effects (in progress).
 - Version 0.3.1
     - Random number seed for `boot.modmed.mlm.custom` is not set by default (it's `NULL`).
     - Update to docs.
