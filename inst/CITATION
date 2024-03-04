@@ -1,6 +1,4 @@
-citHeader("Documentation for individual functions contains additional references.
-  Bootstrapping heavily uses the nlme packge. Bayesian estimation heavily uses
-  brms.")
+citHeader("Documentation for individual functions contains additional references.")
 
 bibentry(
   bibtype = "Article",
@@ -21,6 +19,6 @@ bibentry(
   title = "multilevelmediation: Utility functions for multilevel mediation analysis in R",
   author = "C.F. Falk and T. Vogel and S. Hammami and M. Miočević",
   year = "2024",
-  note = "R package version 0.3.0",
+  note = "R package version 0.3.1",
   url = "https://github.com/falkcarl/multilevelmediation"
 )

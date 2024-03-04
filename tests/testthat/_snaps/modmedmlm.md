@@ -4,48 +4,48 @@
       extract.modmed.mlm(fit)
     Output
                 Sm           Sy          SmX          SyX          SyM      re.SmSm 
-       0.096021427 -0.093769548  0.612020474  0.244975872  0.588036977  0.698025213 
+       0.096021954 -0.093772127  0.612020371  0.244975365  0.588036915  0.698044627 
            re.SySm     re.SmXSm     re.SyMSm      re.SmSy      re.SySy     re.SmXSy 
-       0.050824164  0.017477586  0.008356598  0.050824164  0.276503200  0.012162786 
+       0.050825005  0.017486251  0.008367895  0.050825005  0.276507737  0.012162696 
           re.SyMSy     re.SmSmX     re.SySmX    re.SmXSmX    re.SyMSmX     re.SmSyM 
-      -0.013229249  0.017477586  0.012162786  0.120764870  0.092540870  0.008356598 
+      -0.013223201  0.017486251  0.012162696  0.120767200  0.092542236  0.008367895 
           re.SySyM    re.SmXSyM    re.SyMSyM 
-      -0.013229249  0.092540870  0.134696988 
+      -0.013223201  0.092542236  0.134700854 
 
 ---
 
     Code
       extract.modmed.mlm(fit, type = "indirect")
     Output
-      [1] 0.4524315
+      [1] 0.4524328
 
 ---
 
     Code
       extract.modmed.mlm(fit, type = "a")
     Output
-      [1] 0.6120205
+      [1] 0.6120204
 
 ---
 
     Code
       extract.modmed.mlm(fit, type = "b")
     Output
-      [1] 0.588037
+      [1] 0.5880369
 
 ---
 
     Code
       extract.modmed.mlm(fit, type = "covab")
     Output
-      [1] 0.09254087
+      [1] 0.09254224
 
 ---
 
     Code
       extract.modmed.mlm(fit, type = "cprime")
     Output
-      [1] 0.2449759
+      [1] 0.2449754
 
 ---
 
@@ -53,18 +53,18 @@
       extract.modmed.mlm(fit, type = "fixef")
     Output
                Sm          Sy         SmX         SyX         SyM 
-       0.09602143 -0.09376955  0.61202047  0.24497587  0.58803698 
+       0.09602195 -0.09377213  0.61202037  0.24497536  0.58803691 
 
 ---
 
     Code
       extract.modmed.mlm(fit, type = "recov")
     Output
-                   Sm          Sy        SmX          SyM
-      Sm  0.698025213  0.05082416 0.01747759  0.008356598
-      Sy  0.050824164  0.27650320 0.01216279 -0.013229249
-      SmX 0.017477586  0.01216279 0.12076487  0.092540870
-      SyM 0.008356598 -0.01322925 0.09254087  0.134696988
+                   Sm         Sy        SmX          SyM
+      Sm  0.698044627  0.0508250 0.01748625  0.008367895
+      Sy  0.050825005  0.2765077 0.01216270 -0.013223201
+      SmX 0.017486251  0.0121627 0.12076720  0.092542236
+      SyM 0.008367895 -0.0132232 0.09254224  0.134700854
 
 ---
 
@@ -72,11 +72,11 @@
       extract.modmed.mlm(fit, type = "recov.vec")
     Output
            re.SmSm      re.SySm     re.SmXSm     re.SyMSm      re.SmSy      re.SySy 
-       0.698025213  0.050824164  0.017477586  0.008356598  0.050824164  0.276503200 
+       0.698044627  0.050825005  0.017486251  0.008367895  0.050825005  0.276507737 
           re.SmXSy     re.SyMSy     re.SmSmX     re.SySmX    re.SmXSmX    re.SyMSmX 
-       0.012162786 -0.013229249  0.017477586  0.012162786  0.120764870  0.092540870 
+       0.012162696 -0.013223201  0.017486251  0.012162696  0.120767200  0.092542236 
           re.SmSyM     re.SySyM    re.SmXSyM    re.SyMSyM 
-       0.008356598 -0.013229249  0.092540870  0.134696988 
+       0.008367895 -0.013223201  0.092542236  0.134700854 
 
 # BPG rand a, rand b, rand c
 
@@ -84,50 +84,50 @@
       extract.modmed.mlm(fit)
     Output
                 Sm           Sy          SmX          SyX          SyM      re.SmSm 
-       0.092678686 -0.097199099  0.611892573  0.219354446  0.611767037  0.677715690 
+       0.092678783 -0.097198953  0.611892535  0.219355102  0.611766783  0.677715547 
            re.SySm     re.SmXSm     re.SyMSm     re.SyXSm      re.SmSy      re.SySy 
-       0.056226677  0.018588010  0.009326880 -0.005992049  0.056226677  0.271355806 
+       0.056226656  0.018587977  0.009326583 -0.005992485  0.056226656  0.271354193 
           re.SmXSy     re.SyMSy     re.SyXSy     re.SmSmX     re.SySmX    re.SmXSmX 
-       0.012226367 -0.004331304 -0.017459285  0.018588010  0.012226367  0.120099569 
+       0.012226000 -0.004331612 -0.017460059  0.018587977  0.012226000  0.120100414 
          re.SyMSmX    re.SyXSmX     re.SmSyM     re.SySyM    re.SmXSyM    re.SyMSyM 
-       0.099872856 -0.022767536  0.009326880 -0.004331304  0.099872856  0.110315721 
+       0.099872640 -0.022766909  0.009326583 -0.004331612  0.099872640  0.110314811 
          re.SyXSyM     re.SmSyX     re.SySyX    re.SmXSyX    re.SyMSyX    re.SyXSyX 
-       0.007043619 -0.005992049 -0.017459285 -0.022767536  0.007043619  0.030513005 
+       0.007044345 -0.005992485 -0.017460059 -0.022766909  0.007044345  0.030512781 
 
 ---
 
     Code
       extract.modmed.mlm(fit, type = "indirect")
     Output
-      [1] 0.4742086
+      [1] 0.4742082
 
 ---
 
     Code
       extract.modmed.mlm(fit, type = "a")
     Output
-      [1] 0.6118926
+      [1] 0.6118925
 
 ---
 
     Code
       extract.modmed.mlm(fit, type = "b")
     Output
-      [1] 0.611767
+      [1] 0.6117668
 
 ---
 
     Code
       extract.modmed.mlm(fit, type = "covab")
     Output
-      [1] 0.09987286
+      [1] 0.09987264
 
 ---
 
     Code
       extract.modmed.mlm(fit, type = "cprime")
     Output
-      [1] 0.2193544
+      [1] 0.2193551
 
 ---
 
@@ -135,7 +135,7 @@
       extract.modmed.mlm(fit, type = "fixef")
     Output
                Sm          Sy         SmX         SyX         SyM 
-       0.09267869 -0.09719910  0.61189257  0.21935445  0.61176704 
+       0.09267878 -0.09719895  0.61189254  0.21935510  0.61176678 
 
 ---
 
@@ -143,11 +143,11 @@
       extract.modmed.mlm(fit, type = "recov")
     Output
                     Sm           Sy         SmX          SyM          SyX
-      Sm   0.677715690  0.056226677  0.01858801  0.009326880 -0.005992049
-      Sy   0.056226677  0.271355806  0.01222637 -0.004331304 -0.017459285
-      SmX  0.018588010  0.012226367  0.12009957  0.099872856 -0.022767536
-      SyM  0.009326880 -0.004331304  0.09987286  0.110315721  0.007043619
-      SyX -0.005992049 -0.017459285 -0.02276754  0.007043619  0.030513005
+      Sm   0.677715547  0.056226656  0.01858798  0.009326583 -0.005992485
+      Sy   0.056226656  0.271354193  0.01222600 -0.004331612 -0.017460059
+      SmX  0.018587977  0.012226000  0.12010041  0.099872640 -0.022766909
+      SyM  0.009326583 -0.004331612  0.09987264  0.110314811  0.007044345
+      SyX -0.005992485 -0.017460059 -0.02276691  0.007044345  0.030512781
 
 ---
 
@@ -155,15 +155,15 @@
       extract.modmed.mlm(fit, type = "recov.vec")
     Output
            re.SmSm      re.SySm     re.SmXSm     re.SyMSm     re.SyXSm      re.SmSy 
-       0.677715690  0.056226677  0.018588010  0.009326880 -0.005992049  0.056226677 
+       0.677715547  0.056226656  0.018587977  0.009326583 -0.005992485  0.056226656 
            re.SySy     re.SmXSy     re.SyMSy     re.SyXSy     re.SmSmX     re.SySmX 
-       0.271355806  0.012226367 -0.004331304 -0.017459285  0.018588010  0.012226367 
+       0.271354193  0.012226000 -0.004331612 -0.017460059  0.018587977  0.012226000 
          re.SmXSmX    re.SyMSmX    re.SyXSmX     re.SmSyM     re.SySyM    re.SmXSyM 
-       0.120099569  0.099872856 -0.022767536  0.009326880 -0.004331304  0.099872856 
+       0.120100414  0.099872640 -0.022766909  0.009326583 -0.004331612  0.099872640 
          re.SyMSyM    re.SyXSyM     re.SmSyX     re.SySyX    re.SmXSyX    re.SyMSyX 
-       0.110315721  0.007043619 -0.005992049 -0.017459285 -0.022767536  0.007043619 
+       0.110314811  0.007044345 -0.005992485 -0.017460059 -0.022766909  0.007044345 
          re.SyXSyX 
-       0.030513005 
+       0.030512781 
 
 # BPG rand a
 
@@ -171,18 +171,18 @@
       extract.modmed.mlm(fit)
     Output
                 Sm           Sy          SmX          SyX          SyM      re.SmSm 
-       0.094696300 -0.122614524  0.611216774  0.284493927  0.685198460  0.708110602 
+       0.094696305 -0.122614503  0.611216790  0.284494102  0.685198220  0.708110737 
            re.SySm     re.SmXSm      re.SmSy      re.SySy     re.SmXSy     re.SmSmX 
-       0.049549372  0.007702749  0.049549372  0.417117063 -0.007003034  0.007702749 
+       0.049550703  0.007702409  0.049550703  0.417115234 -0.007002409  0.007702409 
           re.SySmX    re.SmXSmX 
-      -0.007003034  0.115590562 
+      -0.007002409  0.115591134 
 
 ---
 
     Code
       extract.modmed.mlm(fit, type = "indirect")
     Output
-      [1] 0.4188048
+      [1] 0.4188047
 
 ---
 
@@ -196,14 +196,14 @@
     Code
       extract.modmed.mlm(fit, type = "b")
     Output
-      [1] 0.6851985
+      [1] 0.6851982
 
 ---
 
     Code
       extract.modmed.mlm(fit, type = "cprime")
     Output
-      [1] 0.2844939
+      [1] 0.2844941
 
 ---
 
@@ -211,7 +211,7 @@
       extract.modmed.mlm(fit, type = "fixef")
     Output
               Sm         Sy        SmX        SyX        SyM 
-       0.0946963 -0.1226145  0.6112168  0.2844939  0.6851985 
+       0.0946963 -0.1226145  0.6112168  0.2844941  0.6851982 
 
 ---
 
@@ -219,9 +219,9 @@
       extract.modmed.mlm(fit, type = "recov")
     Output
                    Sm           Sy          SmX
-      Sm  0.708110602  0.049549372  0.007702749
-      Sy  0.049549372  0.417117063 -0.007003034
-      SmX 0.007702749 -0.007003034  0.115590562
+      Sm  0.708110737  0.049550703  0.007702409
+      Sy  0.049550703  0.417115234 -0.007002409
+      SmX 0.007702409 -0.007002409  0.115591134
 
 ---
 
@@ -229,9 +229,9 @@
       extract.modmed.mlm(fit, type = "recov.vec")
     Output
            re.SmSm      re.SySm     re.SmXSm      re.SmSy      re.SySy     re.SmXSy 
-       0.708110602  0.049549372  0.007702749  0.049549372  0.417117063 -0.007003034 
+       0.708110737  0.049550703  0.007702409  0.049550703  0.417115234 -0.007002409 
           re.SmSmX     re.SySmX    re.SmXSmX 
-       0.007702749 -0.007003034  0.115590562 
+       0.007702409 -0.007002409  0.115591134 
 
 # BPG rand b
 
@@ -239,18 +239,18 @@
       extract.modmed.mlm(fit)
     Output
                Sm          Sy         SmX         SyX         SyM     re.SmSm 
-       0.07089517 -0.08971696  0.62127749  0.26163168  0.60777759  0.80731951 
+       0.07089517 -0.08971709  0.62127750  0.26163174  0.60777762  0.80731942 
           re.SySm    re.SyMSm     re.SmSy     re.SySy    re.SyMSy    re.SmSyM 
-       0.04491563 -0.02923564  0.04491563  0.27556666 -0.01777719 -0.02923564 
+       0.04491574 -0.02923504  0.04491574  0.27556755 -0.01777642 -0.02923504 
          re.SySyM   re.SyMSyM 
-      -0.01777719  0.13410971 
+      -0.01777642  0.13410918 
 
 ---
 
     Code
       extract.modmed.mlm(fit, type = "indirect")
     Output
-      [1] 0.3775985
+      [1] 0.3775986
 
 ---
 
@@ -279,7 +279,7 @@
       extract.modmed.mlm(fit, type = "fixef")
     Output
                Sm          Sy         SmX         SyX         SyM 
-       0.07089517 -0.08971696  0.62127749  0.26163168  0.60777759 
+       0.07089517 -0.08971709  0.62127750  0.26163174  0.60777762 
 
 ---
 
@@ -287,9 +287,9 @@
       extract.modmed.mlm(fit, type = "recov")
     Output
                    Sm          Sy         SyM
-      Sm   0.80731951  0.04491563 -0.02923564
-      Sy   0.04491563  0.27556666 -0.01777719
-      SyM -0.02923564 -0.01777719  0.13410971
+      Sm   0.80731942  0.04491574 -0.02923504
+      Sy   0.04491574  0.27556755 -0.01777642
+      SyM -0.02923504 -0.01777642  0.13410918
 
 ---
 
@@ -297,30 +297,30 @@
       extract.modmed.mlm(fit, type = "recov.vec")
     Output
           re.SmSm     re.SySm    re.SyMSm     re.SmSy     re.SySy    re.SyMSy 
-       0.80731951  0.04491563 -0.02923564  0.04491563  0.27556666 -0.01777719 
+       0.80731942  0.04491574 -0.02923504  0.04491574  0.27556755 -0.01777642 
          re.SmSyM    re.SySyM   re.SyMSyM 
-      -0.02923564 -0.01777719  0.13410971 
+      -0.02923504 -0.01777642  0.13410918 
 
 # moderated a
 
     Code
       extract.modmed.mlm(fitmoda, "indirect", modval1 = 0)
     Output
-      [1] 0.2064083
+      [1] 0.2064048
 
 ---
 
     Code
       extract.modmed.mlm(fitmoda, "indirect", modval1 = 1)
     Output
-      [1] 0.2479526
+      [1] 0.247949
 
 ---
 
     Code
       extract.modmed.mlm(fitmoda, "indirect.diff", modval1 = 0, modval2 = 1)
     Output
-      [1] -0.04154434
+      [1] -0.04154419
 
 ---
 
@@ -328,28 +328,28 @@
       extract.modmed.mlm(fitmoda, "indirect", modval1 = 0) - extract.modmed.mlm(
         fitmoda, "indirect", modval1 = 1)
     Output
-      [1] -0.04154434
+      [1] -0.04154419
 
 ---
 
     Code
       extract.modmed.mlm(fitmoda, "a", modval1 = 0)
     Output
-      [1] 0.2824568
+      [1] 0.2824572
 
 ---
 
     Code
       extract.modmed.mlm(fitmoda, "a", modval1 = 1)
     Output
-      [1] 0.3988152
+      [1] 0.3988154
 
 ---
 
     Code
       extract.modmed.mlm(fitmoda, "a.diff", modval1 = 0, modval2 = 1)
     Output
-      [1] -0.1163584
+      [1] -0.1163582
 
 ---
 
@@ -357,21 +357,21 @@
       extract.modmed.mlm(fitmoda, "a", modval1 = 0) - extract.modmed.mlm(fitmoda, "a",
         modval1 = 1)
     Output
-      [1] -0.1163584
+      [1] -0.1163582
 
 ---
 
     Code
       extract.modmed.mlm(fitmoda, "b", modval1 = 0)
     Output
-      [1] 0.3570378
+      [1] 0.3570369
 
 ---
 
     Code
       extract.modmed.mlm(fitmoda, "b", modval1 = 1)
     Output
-      [1] 0.3570378
+      [1] 0.3570369
 
 ---
 
@@ -393,14 +393,14 @@
     Code
       extract.modmed.mlm(fitmodb, "indirect", modval1 = 0)
     Output
-      [1] 0.3029876
+      [1] 0.3029866
 
 ---
 
     Code
       extract.modmed.mlm(fitmodb, "indirect", modval1 = 1)
     Output
-      [1] 0.1880406
+      [1] 0.1880396
 
 ---
 
@@ -422,14 +422,14 @@
     Code
       extract.modmed.mlm(fitmodb, "a", modval1 = 0)
     Output
-      [1] 0.3466759
+      [1] 0.3466758
 
 ---
 
     Code
       extract.modmed.mlm(fitmodb, "a", modval1 = 1)
     Output
-      [1] 0.3466759
+      [1] 0.3466758
 
 ---
 
@@ -451,21 +451,21 @@
     Code
       extract.modmed.mlm(fitmodb, "b", modval1 = 0)
     Output
-      [1] 0.5390711
+      [1] 0.5390697
 
 ---
 
     Code
       extract.modmed.mlm(fitmodb, "b", modval1 = 1)
     Output
-      [1] 0.207502
+      [1] 0.2075004
 
 ---
 
     Code
       extract.modmed.mlm(fitmodb, "b.diff", modval1 = 0, modval2 = 1)
     Output
-      [1] 0.3315691
+      [1] 0.3315693
 
 ---
 
@@ -473,28 +473,28 @@
       extract.modmed.mlm(fitmodb, "b", modval1 = 0) - extract.modmed.mlm(fitmodb, "b",
         modval1 = 1)
     Output
-      [1] 0.3315691
+      [1] 0.3315693
 
 # moderated a and b
 
     Code
       extract.modmed.mlm(fitmodab, "indirect", modval1 = 0)
     Output
-      [1] 0.2705027
+      [1] 0.2704902
 
 ---
 
     Code
       extract.modmed.mlm(fitmodab, "indirect", modval1 = 1)
     Output
-      [1] 0.2007436
+      [1] 0.2007316
 
 ---
 
     Code
       extract.modmed.mlm(fitmodab, "indirect.diff", modval1 = 0, modval2 = 1)
     Output
-      [1] 0.06975914
+      [1] 0.06975858
 
 ---
 
@@ -502,28 +502,28 @@
       extract.modmed.mlm(fitmodab, "indirect", modval1 = 0) - extract.modmed.mlm(
         fitmodab, "indirect", modval1 = 1)
     Output
-      [1] 0.06975914
+      [1] 0.06975858
 
 ---
 
     Code
       extract.modmed.mlm(fitmodab, "a", modval1 = 0)
     Output
-      [1] 0.2831149
+      [1] 0.283115
 
 ---
 
     Code
       extract.modmed.mlm(fitmodab, "a", modval1 = 1)
     Output
-      [1] 0.3998559
+      [1] 0.3998554
 
 ---
 
     Code
       extract.modmed.mlm(fitmodab, "a.diff", modval1 = 0, modval2 = 1)
     Output
-      [1] -0.1167409
+      [1] -0.1167403
 
 ---
 
@@ -531,28 +531,28 @@
       extract.modmed.mlm(fitmodab, "a", modval1 = 0) - extract.modmed.mlm(fitmodab,
         "a", modval1 = 1)
     Output
-      [1] -0.1167409
+      [1] -0.1167403
 
 ---
 
     Code
       extract.modmed.mlm(fitmodab, "b", modval1 = 0)
     Output
-      [1] 0.5384093
+      [1] 0.5384096
 
 ---
 
     Code
       extract.modmed.mlm(fitmodab, "b", modval1 = 1)
     Output
-      [1] 0.2067559
+      [1] 0.206758
 
 ---
 
     Code
       extract.modmed.mlm(fitmodab, "b.diff", modval1 = 0, modval2 = 1)
     Output
-      [1] 0.3316534
+      [1] 0.3316517
 
 ---
 
@@ -560,28 +560,28 @@
       extract.modmed.mlm(fitmodab, "b", modval1 = 0) - extract.modmed.mlm(fitmodab,
         "b", modval1 = 1)
     Output
-      [1] 0.3316534
+      [1] 0.3316517
 
 # moderated a and b rand interaction a
 
     Code
       extract.modmed.mlm(fitmodab2, "indirect", modval1 = 0)
     Output
-      [1] 0.3088488
+      [1] 0.3088432
 
 ---
 
     Code
       extract.modmed.mlm(fitmodab2, "indirect", modval1 = 1)
     Output
-      [1] 0.1614119
+      [1] 0.1614151
 
 ---
 
     Code
       extract.modmed.mlm(fitmodab2, "indirect.diff", modval1 = 0, modval2 = 1)
     Output
-      [1] 0.1474369
+      [1] 0.1474281
 
 ---
 
@@ -589,28 +589,28 @@
       extract.modmed.mlm(fitmodab2, "indirect", modval1 = 0) - extract.modmed.mlm(
         fitmodab2, "indirect", modval1 = 1)
     Output
-      [1] 0.1474369
+      [1] 0.1474281
 
 ---
 
     Code
       extract.modmed.mlm(fitmodab2, "a", modval1 = 0)
     Output
-      [1] 0.286757
+      [1] 0.2867552
 
 ---
 
     Code
       extract.modmed.mlm(fitmodab2, "a", modval1 = 1)
     Output
-      [1] 0.3806721
+      [1] 0.3806712
 
 ---
 
     Code
       extract.modmed.mlm(fitmodab2, "a.diff", modval1 = 0, modval2 = 1)
     Output
-      [1] -0.09391512
+      [1] -0.09391599
 
 ---
 
@@ -618,28 +618,28 @@
       extract.modmed.mlm(fitmodab2, "a", modval1 = 0) - extract.modmed.mlm(fitmodab2,
         "a", modval1 = 1)
     Output
-      [1] -0.09391512
+      [1] -0.09391599
 
 ---
 
     Code
       extract.modmed.mlm(fitmodab2, "b", modval1 = 0)
     Output
-      [1] 0.5325093
+      [1] 0.5325046
 
 ---
 
     Code
       extract.modmed.mlm(fitmodab2, "b", modval1 = 1)
     Output
-      [1] 0.2099432
+      [1] 0.2099373
 
 ---
 
     Code
       extract.modmed.mlm(fitmodab2, "b.diff", modval1 = 0, modval2 = 1)
     Output
-      [1] 0.322566
+      [1] 0.3225673
 
 ---
 
@@ -647,28 +647,28 @@
       extract.modmed.mlm(fitmodab2, "b", modval1 = 0) - extract.modmed.mlm(fitmodab2,
         "b", modval1 = 1)
     Output
-      [1] 0.322566
+      [1] 0.3225673
 
 # moderated a and b rand interaction b
 
     Code
       extract.modmed.mlm(fitmodab3, "indirect", modval1 = 0)
     Output
-      [1] 0.2928725
+      [1] 0.2928716
 
 ---
 
     Code
       extract.modmed.mlm(fitmodab3, "indirect", modval1 = 1)
     Output
-      [1] 0.1901692
+      [1] 0.1901704
 
 ---
 
     Code
       extract.modmed.mlm(fitmodab3, "indirect.diff", modval1 = 0, modval2 = 1)
     Output
-      [1] 0.1027033
+      [1] 0.1027011
 
 ---
 
@@ -676,28 +676,28 @@
       extract.modmed.mlm(fitmodab3, "indirect", modval1 = 0) - extract.modmed.mlm(
         fitmodab3, "indirect", modval1 = 1)
     Output
-      [1] 0.1027033
+      [1] 0.1027011
 
 ---
 
     Code
       extract.modmed.mlm(fitmodab3, "a", modval1 = 0)
     Output
-      [1] 0.2874946
+      [1] 0.2874954
 
 ---
 
     Code
       extract.modmed.mlm(fitmodab3, "a", modval1 = 1)
     Output
-      [1] 0.4079787
+      [1] 0.4079777
 
 ---
 
     Code
       extract.modmed.mlm(fitmodab3, "a.diff", modval1 = 0, modval2 = 1)
     Output
-      [1] -0.1204841
+      [1] -0.1204823
 
 ---
 
@@ -705,28 +705,28 @@
       extract.modmed.mlm(fitmodab3, "a", modval1 = 0) - extract.modmed.mlm(fitmodab3,
         "a", modval1 = 1)
     Output
-      [1] -0.1204841
+      [1] -0.1204823
 
 ---
 
     Code
       extract.modmed.mlm(fitmodab3, "b", modval1 = 0)
     Output
-      [1] 0.5946357
+      [1] 0.5946465
 
 ---
 
     Code
       extract.modmed.mlm(fitmodab3, "b", modval1 = 1)
     Output
-      [1] 0.2143952
+      [1] 0.214396
 
 ---
 
     Code
       extract.modmed.mlm(fitmodab3, "b.diff", modval1 = 0, modval2 = 1)
     Output
-      [1] 0.3802405
+      [1] 0.3802505
 
 ---
 
@@ -734,28 +734,28 @@
       extract.modmed.mlm(fitmodab3, "b", modval1 = 0) - extract.modmed.mlm(fitmodab3,
         "b", modval1 = 1)
     Output
-      [1] 0.3802405
+      [1] 0.3802505
 
 # moderated a and b rand interaction both
 
     Code
       extract.modmed.mlm(fitmodab4, "indirect", modval1 = 0)
     Output
-      [1] 0.3091185
+      [1] 0.3091309
 
 ---
 
     Code
       extract.modmed.mlm(fitmodab4, "indirect", modval1 = 1)
     Output
-      [1] 0.1511969
+      [1] 0.1511918
 
 ---
 
     Code
       extract.modmed.mlm(fitmodab4, "indirect.diff", modval1 = 0, modval2 = 1)
     Output
-      [1] 0.1579216
+      [1] 0.1579391
 
 ---
 
@@ -763,28 +763,28 @@
       extract.modmed.mlm(fitmodab4, "indirect", modval1 = 0) - extract.modmed.mlm(
         fitmodab4, "indirect", modval1 = 1)
     Output
-      [1] 0.1579216
+      [1] 0.1579391
 
 ---
 
     Code
       extract.modmed.mlm(fitmodab4, "a", modval1 = 0)
     Output
-      [1] 0.2909437
+      [1] 0.2909317
 
 ---
 
     Code
       extract.modmed.mlm(fitmodab4, "a", modval1 = 1)
     Output
-      [1] 0.3874318
+      [1] 0.3874295
 
 ---
 
     Code
       extract.modmed.mlm(fitmodab4, "a.diff", modval1 = 0, modval2 = 1)
     Output
-      [1] -0.0964881
+      [1] -0.09649783
 
 ---
 
@@ -792,28 +792,28 @@
       extract.modmed.mlm(fitmodab4, "a", modval1 = 0) - extract.modmed.mlm(fitmodab4,
         "a", modval1 = 1)
     Output
-      [1] -0.0964881
+      [1] -0.09649783
 
 ---
 
     Code
       extract.modmed.mlm(fitmodab4, "b", modval1 = 0)
     Output
-      [1] 0.5846794
+      [1] 0.5847626
 
 ---
 
     Code
       extract.modmed.mlm(fitmodab4, "b", modval1 = 1)
     Output
-      [1] 0.2282893
+      [1] 0.2282696
 
 ---
 
     Code
       extract.modmed.mlm(fitmodab4, "b.diff", modval1 = 0, modval2 = 1)
     Output
-      [1] 0.3563901
+      [1] 0.356493
 
 ---
 
@@ -821,5 +821,5 @@
       extract.modmed.mlm(fitmodab4, "b", modval1 = 0) - extract.modmed.mlm(fitmodab4,
         "b", modval1 = 1)
     Output
-      [1] 0.3563901
+      [1] 0.356493
 

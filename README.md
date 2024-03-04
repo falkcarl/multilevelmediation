@@ -47,8 +47,11 @@ van der Leeden, R., Meijer, E., & Busing, F. M. T. A. (2008). Resampling multile
 
 ## Updates
 
+- Version 0.3.1
+    - Random number seed for `boot.modmed.mlm.custom` is not set by default (it's `NULL`).
+    - Update to docs.
 - Version 0.3.0
-    - Merged brach for brms into master. This means that some support for brms is provided. Covariates with brms are not yet supported and that code could use some more testing. Also
+    - Merged branch for `brms` into master. This means that some support for `brms` is provided. Covariates with `brms` are not yet supported and that code could use some more testing. Also
     protect against possible bug for `boot.modmed.mlm.custom`.
 - Version 0.2.1
     - Update to docs so that variables in restacked data are hopefully clearer.

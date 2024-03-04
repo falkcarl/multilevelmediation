@@ -41,6 +41,8 @@
 #'   with support for resampling at level 2, level 1, or both (e.g., see Hox and van de Schoot, 2013; van der Leeden, Meijer, & Busing, 2008).
 #'   These functions also support moderated mediation. See also \code{\link{modmed.mlm}}. Note that \code{\link{nlm}} was used as the optimizer
 #'   for some of the examples below as it was found to be faster for the models/simulations studied by Falk et al (in press).
+#' @return A vector of parameter estimates, depending on the value of \code{type} specified as input. Once the model is estimated,
+#'   \code{\link{extract.modmed.mlm} is used to obtain the parameter estimates.}
 #' @references
 #' Bauer, D. J., Preacher, K. J., & Gil, K. M. (2006). Conceptualizing and testing random indirect effects and moderated mediation in multilevel models: New procedures and recommendations. Psychological Methods, 11(2), 142–163. \doi{10.1037/1082-989X.11.2.142}
 #'
@@ -50,103 +52,77 @@
 #'
 #' van der Leeden, R., Meijer, E., & Busing, F. M. T. A. (2008). Resampling multilevel models. In J. de Leeuw & E. Meijer (Eds.), Handbook of Multilevel Analysis (pp. 401-433). Springer.
 #' @examples
-#' \dontrun{
+#'
+#' \donttest{
+#'
+#' # Note that for all examples below, R should be increased to something
+#' #  MUCH larger (e.g., 1000). Small values here are used only so that the code
+#' #  runs relatively quickly when tested.
+#'
 #' ## Mediation for 1-1-1 model
 #' data(BPG06dat)
 #'
-#' # Do bootstrapping... w/ parallel processing
+#' #Setup parallel processing
 #' # snow appears to work on Windows; something else may be better on Unix/Mac/Linux
+#' library(parallel)
+#' library(boot)
+#' ncpu<-2
+#' RNGkind("L'Ecuyer-CMRG") # set type of random number generation that works in parallel
+#' cl<-makeCluster(ncpu)
+#' clusterSetRNGStream(cl, 9912) # set random number seeds for cluster
 #'
-#'
-#' #library(parallel)
-#' #library(boot)
-#' #ncpu<-6
-#' #RNGkind("L'Ecuyer-CMRG") # set type of random number generation that works in parallel
-#' #cl<-makeCluster(ncpu)
-#' #clusterSetRNGStream(cl, 9912) # set random number seeds for cluster
-#'
-#' # bootstrap just the indirect effect
-#' #boot.result<-boot(BPG06dat, statistic=boot.modmed.mlm, R=100,
-#' #  L2ID = "id", X = "x", Y = "y", M = "m",
-#' #  random.a=TRUE, random.b=TRUE, random.cprime=TRUE,
-#' #  type="indirect",
-#' #  control=list(opt="nlm"),
-#' #  parallel="snow",ncpus=ncpu,cl=cl)
-#'
-#'
-#'
-#' #boot.result$t0 # point estimates for everything based on original data
-#' #boot.ci(boot.result, index=1, type="perc") # percentile interval of first element
-#'
-#' # bootstrap all fixed and random effects (recommended)
-#' #boot.result<-boot(BPG06dat, statistic=boot.modmed.mlm, R=100,
-#' #  L2ID = "id", X = "x", Y = "y", M = "m",
-#' #  random.a=TRUE, random.b=TRUE, random.cprime=TRUE,
-#' #  type="all",
-#' #  control=list(opt="nlm"),
-#' #  parallel="snow",ncpus=ncpu,cl=cl)
+#' # bootstrap all fixed and random effects (type="all")
+#' boot.result<-boot(BPG06dat, statistic=boot.modmed.mlm, R=10,
+#'   L2ID = "id", X = "x", Y = "y", M = "m",
+#'   random.a=TRUE, random.b=TRUE, random.cprime=TRUE,
+#'   type="all",
+#'   control=list(opt="nlm"),
+#'   parallel="snow",ncpus=ncpu,cl=cl)
 #'
 #' # Point estimate and 95% CI for indirect effect
-#' #extract.boot.modmed.mlm(boot.result, type="indirect", ci.conf=.95)
+#' extract.boot.modmed.mlm(boot.result, type="indirect", ci.conf=.95)
 #'
-#' #stopCluster(cl)
-#'
-#' # without cluster
-#' # boot.result<-boot(BPG06dat, statistic=boot.modmed.mlm, R=5,
-#' #   L2ID = "id", X = "x", Y = "y", M = "m",
-#' #   random.a=TRUE, random.b=TRUE, random.cprime=TRUE,
-#' #   control=list(opt="nlm"),
-#' #   type="indirect")
+#' stopCluster(cl) # shut down cluster
 #'
 #' ## Moderated mediation
 #'
-#' #data(simdat)
-#' #ncpu<-12
-#' #cl<-makeCluster(ncpu)
+#' data(simdat)
 #'
-#' # note: use of nlm apparently fails in this moderated mediation model
+#' # Note: use of nlm apparently fails in this moderated mediation model
 #' # default optimizer for lme instead is used
 #'
-#' # Bootstrap w/ moderation of a and b paths
+#' ## Bootstrap w/ moderation of a and b paths
+#' set.seed(1234)
 #'
-#' #boot.result2<-boot(simdat, statistic=boot.modmed.mlm, R=10000,
-#' # L2ID = "L2id", X = "X", Y = "Y", M = "M",
-#' #   random.a=TRUE, random.b=TRUE, random.cprime=TRUE,
-#' #   moderator = "mod", mod.a=TRUE, mod.b=TRUE,
-#' #   random.mod.a = TRUE, random.mod.b = TRUE,
-#' #   type="all",
-#' #   parallel="snow",ncpus=ncpu,cl=cl)
-#'
-#' #  test<-modmed.mlm(simdat,
-#' #  L2ID = "L2id", X = "X", Y = "Y", M = "M",
-#' #   random.a=TRUE, random.b=TRUE, random.cprime=TRUE,
-#' #   moderator = "mod", mod.a=TRUE, mod.b=TRUE,
-#' #   random.mod.a = TRUE, random.mod.b = TRUE)
-#'
-#' # stopCluster(cl)
+#' boot.result2<-boot(simdat, statistic=boot.modmed.mlm, R=5,
+#'  L2ID = "L2id", X = "X", Y = "Y", M = "M",
+#'    random.a=TRUE, random.b=TRUE, random.cprime=TRUE,
+#'    moderator = "mod", mod.a=TRUE, mod.b=TRUE,
+#'    type="all")
 #'
 #' # indirect effect point estimate and 95% CI when moderator = 0
-#' #extract.boot.modmed.mlm(boot.result2, type="indirect")
-#' #extract.boot.modmed.mlm(boot.result2, type="indirect", modval1=0)
+#' extract.boot.modmed.mlm(boot.result2, type="indirect")
+#' extract.boot.modmed.mlm(boot.result2, type="indirect", modval1=0)
 #'
 #' # indirect effect point estimate and 95% CI when moderator = 1
-#' #extract.boot.modmed.mlm(boot.result2, type="indirect", modval1=1)
+#' extract.boot.modmed.mlm(boot.result2, type="indirect", modval1=1)
 #'
 #' # indirect effect difference point estimate and 95% CI
-#' #extract.boot.modmed.mlm(boot.result2, type="indirect.diff",
-#' #   modval1=0, modval2=1)
+#' extract.boot.modmed.mlm(boot.result2, type="indirect.diff",
+#'    modval1=0, modval2=1)
 #'
 #' # Example to not fail when using missing values
-#' # Missing data handling is not that great as not all info is used
-#' # dat.miss <- BPG06dat
-#' # dat.miss$m[c(1,2,3,4)]<-NA
-#' # dat.miss$y[c(5,6,7,8)]<-NA
-#' # boot.result<-boot(dat.miss, statistic=boot.modmed.mlm, R=100,
-#' #  L2ID = "id", X = "x", Y = "y", M = "m",
-#' #  random.a=TRUE, random.b=TRUE, random.cprime=TRUE,
-#' #  type="all",
-#' #  control=list(opt="nlm"),
-#' #  na.action = na.omit)
+#' # See documentation for lme function from the nlme package for other
+#' # options for na.action
+#' dat.miss <- BPG06dat
+#' dat.miss$m[c(1,2,3,4)]<-NA
+#' dat.miss$y[c(5,6,7,8)]<-NA
+#' boot.result<-boot(dat.miss, statistic=boot.modmed.mlm, R=5,
+#'   L2ID = "id", X = "x", Y = "y", M = "m",
+#'   random.a=TRUE, random.b=TRUE, random.cprime=TRUE,
+#'   type="all",
+#'   control=list(opt="nlm"),
+#'   na.action = na.omit)
 #'
 #' }
 #' @export boot.modmed.mlm
@@ -262,16 +238,15 @@ boot.modmed.mlm <- function(data, indices, L2ID, ...,
 #' Lai, M. (2021). Bootstrap confidence intervals for multilevel standardized effect size. Multivariate Behavioral Research, 56(4), 558-578. \doi{10.1080/00273171.2020.1746902}
 #'
 #' @examples
-#' \dontrun{
+#' \donttest{
 #' # Example data for 1-1-1 w/o moderation
 #' data(BPG06dat)
 #'
-#' # Fit model
-#' fit<-modmed.mlm(BPG06dat,"id", "x", "y", "m",
-#'   random.a=TRUE, random.b=TRUE, random.cprime=TRUE)
-#'
+#' # Note that R should be set to something MUCH larger, such as 1000 or greater.
+#' # A low number here is chosen only so testing this example code goes relatively
+#' # quickly
 #' bootresid <- bootresid.modmed.mlm(BPG06dat,L2ID="id", X="x", Y="y", M="m",
-#'   R=100, random.a=TRUE, random.b=TRUE, random.cprime=TRUE,
+#'   R=5, random.a=TRUE, random.b=TRUE, random.cprime=TRUE,
 #'   control=list(opt="nlm")
 #'   )
 #'
@@ -472,6 +447,7 @@ bootresid.modmed.mlm <- function(data, L2ID, R=1000, X, Y, M,
 #' @references
 #' Bauer, D. J., Preacher, K. J., & Gil, K. M. (2006). Conceptualizing and testing random indirect effects and moderated mediation in multilevel models: New procedures and recommendations. Psychological Methods, 11(2), 142–163. \doi{10.1037/1082-989X.11.2.142}
 #' @examples
+#'
 #' \donttest{
 #' # Example data for 1-1-1 w/o moderation
 #' data(BPG06dat)
@@ -492,7 +468,8 @@ bootresid.modmed.mlm <- function(data, L2ID, R=1000, X, Y, M,
 #' # The saved, fitted model following Bauer, Preacher, & Gil (2006)
 #' summary(fit$model)
 #' }
-#' \dontrun{
+#'
+#' \donttest{
 #' # Fit model with moderation
 #' data(simdat)
 #'
@@ -626,7 +603,8 @@ bootresid.modmed.mlm <- function(data, L2ID, R=1000, X, Y, M,
 #'
 #'# Example to not fail when using missing values
 #'# Missing data handling is not that great as not all info is used, but is typical
-#'# of default missing data handling strategies in MLM
+#'# of default missing data handling strategies in MLM. See documentation for
+#'# lme function in the nlme package for more options for na.action
 #'dat.miss <- BPG06dat
 #'dat.miss$m[c(1,2,3,4)]<-NA
 #'dat.miss$y[c(5,6,7,8)]<-NA
@@ -840,6 +818,18 @@ modmed.mlm <- function(data, L2ID, X, Y, M,
 #' @details
 #'   This function extracts relevant parameter estimates from models estimated using \code{\link{modmed.mlm}}.
 #'   For any of the .diff values, these are always the value of the effect at modval1 minus modval2.
+#' @return A vector or single numeric value corresponding to the parameter estimate(s) of interest is returned.
+#' @examples
+#' \donttest{
+#' # Example data for 1-1-1 w/o moderation
+#' data(BPG06dat)
+#'
+#' # Fit model
+#' fit<-modmed.mlm(BPG06dat,"id", "x", "y", "m",
+#'   random.a=TRUE, random.b=TRUE, random.cprime=TRUE)
+#' extract.modmed.mlm(fit, type="indirect")
+#' }
+#'
 #' @export extract.modmed.mlm
 extract.modmed.mlm <- function(fit, type=c("all","fixef","recov","recov.vec","indirect","a","b","cprime","covab",
                                            "indirect.diff","a.diff","b.diff","cprime.diff"),
@@ -983,39 +973,35 @@ randef.lme <- function(model){
 #'   was used. This function generally assumes that type="all" was used when initially fitting the model, making all necessary
 #'   information available for computation of indirect effects, differences between effects, and so on. If type="all"
 #'   was not used, there is no guarantee that confidence intervals for the effects of interest can be extracted.
+#' @return A list with the following elements:
+#' \itemize{
+#'  \item{\code{CI} A vector, typically two elements, that has the lower and upper endpoints requested confidence interval
+#'  for the quantity requested by \code{type}.}
+#'  \item{\code{est} Point estimate for the quantity requested by \code{type}.}
+#' }
 #' @export extract.boot.modmed.mlm
 #' @examples
 #' \donttest{
 #' ## Mediation for 1-1-1 model
+#' library(boot)
+#'
 #' data(BPG06dat)
 #'
-#' #library(parallel)
-#' #library(boot)
-#' #ncpu<-6
-#' #cl<-makeCluster(ncpu)
+#' set.seed(1234)
 #'
+#' # Note that R should be be MUCH larger than the value used here (e.g., 1000 or
+#' # larger). A small number is chosen just so examples run relatively fast when
+#' # tested.
 #'
-#' # bootstrap all fixed and random effects (recommended)
-#' #boot.result<-boot(BPG06dat, statistic=boot.modmed.mlm, R=100,
-#' #   L2ID = "id", X = "x", Y = "y", M = "m",
-#' #   random.a=TRUE, random.b=TRUE, random.cprime=TRUE,
-#' #   type="all",
-#' #   control=list(opt="nlm"),
-#' #   parallel="snow",ncpus=ncpu,cl=cl)
-#'
-#' #stopCluster(cl)
-#'
+#' # bootstrap all fixed and random effects
+#' boot.result<-boot(BPG06dat, statistic=boot.modmed.mlm, R=5,
+#'    L2ID = "id", X = "x", Y = "y", M = "m",
+#'    random.a=TRUE, random.b=TRUE, random.cprime=TRUE,
+#'    type="all",
+#'    control=list(opt="nlm"))
 #'
 #' # Point estimate and 95% CI for indirect effect
-#' #extract.boot.modmed.mlm(boot.result, type="indirect", ci.conf=.95)
-#'
-#' # residual-based bootstrap
-#' # bootresid <- bootresid.modmed.mlm(BPG06dat,L2ID="id", X="x", Y="y", M="m",
-#' #   R=100, random.a=TRUE, random.b=TRUE, random.cprime=TRUE,
-#' #   control=list(opt="nlm"))
-#' #
-#' # interval for the indirect effect
-#' #extract.boot.modmed.mlm(bootresid, type="indirect")
+#' extract.boot.modmed.mlm(boot.result, type="indirect", ci.conf=.95)
 #'
 #' }
 #' @importFrom stats quantile

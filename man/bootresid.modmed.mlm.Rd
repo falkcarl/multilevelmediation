@@ -74,16 +74,15 @@ generally follows the procedure by Carpenter, Goldstein, & Rashbash (2003; See a
 does not support parallel processing. See the newer \code{\link{boot.modmed.mlm.custom}} version for a re-write that does.
 }
 \examples{
-\dontrun{
+\donttest{
 # Example data for 1-1-1 w/o moderation
 data(BPG06dat)
 
-# Fit model
-fit<-modmed.mlm(BPG06dat,"id", "x", "y", "m",
-  random.a=TRUE, random.b=TRUE, random.cprime=TRUE)
-
+# Note that R should be set to something MUCH larger, such as 1000 or greater.
+# A low number here is chosen only so testing this example code goes relatively
+# quickly
 bootresid <- bootresid.modmed.mlm(BPG06dat,L2ID="id", X="x", Y="y", M="m",
-  R=100, random.a=TRUE, random.b=TRUE, random.cprime=TRUE,
+  R=5, random.a=TRUE, random.b=TRUE, random.cprime=TRUE,
   control=list(opt="nlm")
   )
 
