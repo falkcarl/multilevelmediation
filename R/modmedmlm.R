@@ -612,8 +612,6 @@ bootresid.modmed.mlm <- function(data, L2ID, R=1000, X, Y, M,
 #'                 random.a=TRUE, random.b=TRUE, random.cprime=TRUE,
 #'                 na.action = na.omit)
 #' }
-#' @import nlme
-#' @import glmmTMB
 #' @importFrom matrixcalc vech
 #' @importFrom MCMCpack xpnd
 #' @importFrom stats as.formula
@@ -642,10 +640,10 @@ modmed.mlm <- function(data, L2ID, X, Y, M,
 
   # save default estimation options, for backwards compatibility
   if(estimator == "lme" & is.null(control)){
-    control <- lmeControl(maxIter = 10000, msMaxIter = 10000, niterEM = 10000,
+    control <- nlme::lmeControl(maxIter = 10000, msMaxIter = 10000, niterEM = 10000,
                msMaxEval = 10000, tolerance = 1e-6)
   } else if (estimator == "glmmTMB" & is.null(control)){
-    control <- glmmTMBControl()
+    control <- glmmTMB::glmmTMBControl()
   }
 
   if(is.null(data.stacked)){
@@ -723,7 +721,7 @@ modmed.mlm <- function(data, L2ID, X, Y, M,
 
   if(estimator == "lme"){
     # Run the model through nlme
-    mod_med_tmp <- try(lme(fixed = as.formula(fixed.formula), # fixed effects
+    mod_med_tmp <- try(nlme::lme(fixed = as.formula(fixed.formula), # fixed effects
                            random = as.formula(random.formula), # random effects
                            weights = varIdent(form = ~ 1 | Sm), # heteroskedasticity
                            data = tmp,
@@ -736,14 +734,14 @@ modmed.mlm <- function(data, L2ID, X, Y, M,
     random.formula <- paste0("(",random.formula,")")
     form <- paste0(fixed.formula,"+", random.formula)
 
-    mod_med_tmp <- glmmTMB(as.formula(form),
+    mod_med_tmp <- try(glmmTMB::glmmTMB(as.formula(form),
             dispformula =  ~ 1 + Sm,
             #dispformula =  ~ 0 + Sm + Sy,
             family = gaussian,
             data = tmp,
             REML = (method=="REML"),
             control = control,
-            ...)
+            ...))
   }
 
 
@@ -751,6 +749,7 @@ modmed.mlm <- function(data, L2ID, X, Y, M,
   out <- list()
 
   # some error handling, just in case
+  #TODO: check some convergence code, depending on the type of model fit
   if (inherits(mod_med_tmp, "try-error")){
     out$model <- NULL
     out$conv <- FALSE # boolean or some other code?
@@ -858,12 +857,13 @@ extract.modmed.mlm <- function(fit, type=c("all","fixef","recov","recov.vec","in
     nfex <- nfixefa + nfixefb # combined
 
     # re due to 2 random intercepts + abc paths
-    #nre <- 2 + sum(unlist(args[grepl("^random\\.[abc]$",names(args))]))
     nre <- 2 + sum(unlist(args[grepl("^random\\.([ab]|cprime)$",names(args))]))
 
     # re due to moderator effects
     nre <- nre + sum(unlist(args[grepl("^random\\.mod\\.([abym]|cprime)$",names(args))]))
     nre <- nre*nre # duplicates not yet removed
+
+    #TODO: what if there are random effects for covariates?
 
     out <- vector("numeric")
 
@@ -895,11 +895,11 @@ extract.modmed.mlm <- function(fit, type=c("all","fixef","recov","recov.vec","in
     #select <- as.vector(lower.tri(sig2, diag=T))
     #sig2vec <- sig2vec[select]
 
-    # extract fixed effects
+    # extract fixed effects and random effects
     if(inherits(fit$model, "glmmTMB")){
-      fixed <- fixef(fit$model)$cond
+      fixed <- glmmTMB::fixef(fit$model)$cond
     } else {
-      fixed <- fixef(fit$model)
+      fixed <- nlme::fixef(fit$model)
     }
 
     # generate output, computing other stuff as necessary
@@ -922,12 +922,12 @@ extract.modmed.mlm <- function(fit, type=c("all","fixef","recov","recov.vec","in
 randef.lme <- function(model){
 
   if(inherits(model, "glmmTMB")){
-    sig2 <- VarCorr(model)$cond$L2id
+    sig2 <- glmmTMB::VarCorr(model)$cond$L2id
     attr(sig2, "stdev") <- NULL
     attr(sig2, "correlation") <- NULL
   } else {
     # extract var-cov matrix among random effects
-    sig2 <- getVarCov(model)
+    sig2 <- nlme::getVarCov(model)
     class(sig2) <- "matrix"
     attr(sig2,"group.levels") <- NULL
   }
