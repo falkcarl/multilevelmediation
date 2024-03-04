@@ -409,8 +409,10 @@ bootresid.modmed.mlm <- function(data, L2ID, R=1000, X, Y, M,
 #' @param random.mod.cprime (Logical) Add random slope for 'c' path moderator?
 #' @param random.mod.m (Logical) Add random slope for effect of moderator on M?
 #' @param random.mod.y (Logical) Add random slope for effect of moderator on Y?
-#' @param random.covars.m (Logical vector) Add random slopes for covariates on M?
-#' @param random.covars.y (Logical vector) Add random slopes for covariates on Y?
+#' @param random.covars.m (Character vector) If any covariates specified from \code{covars.m} are present, random effects
+#'   are added for them.
+#' @param random.covars.y (Character vector) If any covariates specified from \code{covars.y} are present, random effects
+#'   are added for them.
 #' @param method Argument used to control estimation method. Options are "REML" (default) or "ML".
 #' @param estimator (Character) Which program to use to estimate models? \code{\link[nlme]{lme}} is what was originally tested
 #'   with the package and publication, but support for \code{\link[glmmTMB]{glmmTMB}} is now available.
@@ -859,11 +861,14 @@ extract.modmed.mlm <- function(fit, type=c("all","fixef","recov","recov.vec","in
     nfex <- nfixefa + nfixefb # combined
 
     # re due to 2 random intercepts + abc paths
-    #nre <- 2 + sum(unlist(args[grepl("^random\\.[abc]$",names(args))]))
     nre <- 2 + sum(unlist(args[grepl("^random\\.([ab]|cprime)$",names(args))]))
+
+    # re due to covariates
+    nre <- nre + length(unlist(args[grepl("^random\\.covars\\.([my])$",names(args))]))
 
     # re due to moderator effects
     nre <- nre + sum(unlist(args[grepl("^random\\.mod\\.([abym]|cprime)$",names(args))]))
+
     nre <- nre*nre # duplicates not yet removed
 
     out <- vector("numeric")

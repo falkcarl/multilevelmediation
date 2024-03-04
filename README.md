@@ -57,8 +57,8 @@ van der Leeden, R., Meijer, E., & Busing, F. M. T. A. (2008). Resampling multile
 ## Updates
 
 - Upcoming version
-    - Support for glmmTMB.
-    - Fixes to random effects for covariates (in progress).
+    - Support for `glmmTMB`.
+    - Bugfix to error handling when covariates have random effects.
     - Ability to omit intercept random effects (in progress).
 - Version 0.3.1
     - Random number seed for `boot.modmed.mlm.custom` is not set by default (it's `NULL`).
