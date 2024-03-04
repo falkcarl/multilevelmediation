@@ -254,6 +254,7 @@ boot.modmed.mlm <- function(data, indices, L2ID, ...,
 #'
 #'
 #' }
+#' @importFrom nlme random.effects
 #' @importFrom stats resid var model.matrix terms
 #' @export bootresid.modmed.mlm
 bootresid.modmed.mlm <- function(data, L2ID, R=1000, X, Y, M,
@@ -612,8 +613,8 @@ bootresid.modmed.mlm <- function(data, L2ID, R=1000, X, Y, M,
 #'                 random.a=TRUE, random.b=TRUE, random.cprime=TRUE,
 #'                 na.action = na.omit)
 #' }
-#' @import nlme
-#' @import glmmTMB
+#' @importFrom nlme lmeControl lme fixef getVarCov varIdent
+#' @importFrom glmmTMB glmmTMBControl glmmTMB VarCorr
 #' @importFrom matrixcalc vech
 #' @importFrom MCMCpack xpnd
 #' @importFrom stats as.formula
