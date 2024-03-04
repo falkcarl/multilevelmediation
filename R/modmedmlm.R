@@ -274,6 +274,10 @@ bootresid.modmed.mlm <- function(data, L2ID, R=1000, X, Y, M,
   init.mod <- modmed.mlm(data, L2ID, X, Y, M,
                          moderator=moderator, covars.m=covars.m, covars.y=covars.y, ...)
 
+  if(inherits(init.mod$model, "glmmTMB")){
+    stop("residual bootstrap not yet supported for glmmTMB")
+  }
+
   ## Extract relevant stuff
 
   # fixed effects
@@ -752,6 +756,13 @@ modmed.mlm <- function(data, L2ID, X, Y, M,
             REML = (method=="REML"),
             control = control,
             ...)
+
+    #Tangent, can I get asymptotic SEs from glmmTMB?
+    #https://stackoverflow.com/questions/47872561/does-glmmtmb-return-the-standard-error-for-random-effect-variance-components-lik
+    # var-cov matrix for all, including random effects? yes, but these are on a log scale?
+    #mod_med_tmp$sdr
+    #sqrt(diag(vcov(mod_med_tmp, full=TRUE)))
+
   }
 
 

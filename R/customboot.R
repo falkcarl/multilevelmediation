@@ -238,6 +238,9 @@ boot.modmed.mlm2 <- function(data, L2ID, ...,
     result<-modmed.mlm(rdat,L2ID,...)
   } else if(boot.type=="resid"){
 
+    if(inherits(model$model, "glmmTMB")){
+      stop("residual bootstrap not yet supported for glmmTMB")
+    }
     ## Extract stuff from model and compute residuals
     #TODO: separate out this logic from that which does resampling?
     # This may require computing all of this stuff and then passing residuals to this function
