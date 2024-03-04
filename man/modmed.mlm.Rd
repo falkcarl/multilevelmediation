@@ -74,9 +74,11 @@ modmed.mlm(
 
 \item{random.mod.y}{(Logical) Add random slope for effect of moderator on Y?}
 
-\item{random.covars.m}{(Logical vector) Add random slopes for covariates on M?}
+\item{random.covars.m}{(Character vector) If any covariates specified from \code{covars.m} are present, random effects
+are added for them.}
 
-\item{random.covars.y}{(Logical vector) Add random slopes for covariates on Y?}
+\item{random.covars.y}{(Character vector) If any covariates specified from \code{covars.y} are present, random effects
+are added for them.}
 
 \item{estimator}{(Character) Which program to use to estimate models? \code{\link[nlme]{lme}} is what was originally tested
 with the package and publication, but support for \code{\link[glmmTMB]{glmmTMB}} is now available.}
