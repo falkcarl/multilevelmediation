@@ -4,10 +4,17 @@
 \alias{stack_bpg}
 \title{Stacks data in the style of Bauer-Preacher-Gil for multilevel mediation}
 \usage{
-stack_bpg(data, L2ID, X, Y, M,
+stack_bpg(
+  data,
+  L2ID,
+  X,
+  Y,
+  M,
   moderator = NULL,
   covars.m = NULL,
-  covars.y = NULL)
+  covars.y = NULL,
+  covars = NULL
+)
 }
 \arguments{
 \item{data}{Data frame in long format.}
@@ -22,9 +29,11 @@ stack_bpg(data, L2ID, X, Y, M,
 
 \item{moderator}{Optional Character that contains name of column that contains the moderator variable in \code{data}}
 
-\item{covars.m}{(Character vector) Optional covariates to include in the model for M.}
+\item{covars.m}{(Character vector; deprecated) Optional covariates to include in the model for M.}
 
-\item{covars.y}{(Character vector) Optional covariates to include in the model for Y.}
+\item{covars.y}{(Character vector; deprecated) Optional covariates to include in the model for Y.}
+
+\item{covars}{(Character vector) Optional covariates to include in either the model for M or for Y.}
 }
 \value{
 An object that is a subclass of \code{data.frame} is returned. In particular a \code{tbl_df} or "tibble."
@@ -43,7 +52,7 @@ So that coefficients extracted later from \code{\link{modmed.mlm}} hopefully mak
  \item{\code{Sm} Indicator variable for M as outcome. 0 if M is not outcome for this row. 1 if M is outcome for this row. In model output, this is the intercept for M.}
  \item{\code{SmX} Value of X when M is the outcome (literally X times Sm); will be 0 when Y is outcome. In model output, this is the "a" path.}
  \item{\code{SyX} Value of X when Y is the outcome (literally X times Sy); will be 0 when M is outcome. In model output, this is the "cprime" path (direct effect).}
- \item{\code{SyM} Calue of M when Y is the outcome (literally M times Sy); will be 0 when M is the outcome. In model output, this is the "a" path.}
+ \item{\code{SyM} Value of M when Y is the outcome (literally M times Sy); will be 0 when M is the outcome. In model output, this is the "a" path.}
  \item{\code{W} Value of any moderating variable. This may show up in output later on as "SmX:W" (interaction with "a" path) or "SyM:W" (interaction with "b" path) or "SyX:W"
     (interaction with "cprime" path) depending on which path it moderates.}
  \item{If \code{covars.m} or \code{covars.y} are not null, any additional covariates will also be added to the data frame and their
@@ -71,7 +80,7 @@ This is a convenience function used primarily internally by the package to restr
 data(BPG06dat)
 
 dat <- stack_bpg(BPG06dat,
-  "id", "x", "m", "y"
+  "id", "x", "y", "m"
 )
 
 head(dat)
@@ -79,7 +88,7 @@ head(dat)
 # restructure simulated data w/ moderator
 data(simdat)
 dat2 <- stack_bpg(simdat,
-  "L2id", "X", "M", "Y",
+  "L2id", "X", "Y", "M",
   moderator = "mod"
 )
 

@@ -43,7 +43,11 @@ Imports:
   tidyr,
   brms,
   posterior,
-  glmmTMB
+  glmmTMB,
+  dplyr,
+  tidyselect,
+  utils,
+  rlang
 Suggests:
     testthat (>= 3.0.0),
     boot
