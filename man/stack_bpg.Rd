@@ -71,7 +71,7 @@ This is a convenience function used primarily internally by the package to restr
 data(BPG06dat)
 
 dat <- stack_bpg(BPG06dat,
-  "id", "x", "m", "y"
+  "id", "x", "y", "m"
 )
 
 head(dat)
@@ -79,7 +79,7 @@ head(dat)
 # restructure simulated data w/ moderator
 data(simdat)
 dat2 <- stack_bpg(simdat,
-  "L2id", "X", "M", "Y",
+  "L2id", "X", "Y", "M",
   moderator = "mod"
 )
 
