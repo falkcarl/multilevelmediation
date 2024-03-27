@@ -23,6 +23,8 @@
 #' @param random.mod.y (Logical) Add random slope for effect of moderator on Y?
 #' @param random.covars.m (Logical vector) Add random slopes for covariates on M? (not yet implemented for brms)
 #' @param random.covars.y (Logical vector) Add random slopes for covariates on Y? (not yet implemented for brms)
+#' @param random.int.m (Logical) Add random intercept for M? (defaults to TRUE)
+#' @param random.int.y (Logical) Add random intercept for Y? (defaults to TRUE)
 #' @param returndata (Logical) Whether to save restructured data in its own slot. Defaults to \code{FALSE}.
 #' @param chains Argument passed to \code{\link[brms]{brm}} Set the number of chains
 #' @param family Argument passed to \code{\link[brms]{brm}} A character string naming the distribution of the response variable to be used in the model.
@@ -99,18 +101,15 @@
 #' @export
 modmed.mlm.brms<-function(data, L2ID, X, Y, M,
                      moderator = NULL, mod.a = FALSE, mod.b = FALSE, mod.cprime = FALSE,
-                     covars.m = NULL, covars.y = NULL,
+                     covars.m = character(), covars.y = character(),
                      random.a = FALSE, random.b = FALSE, random.cprime = FALSE,
                      random.mod.a = FALSE, random.mod.b = FALSE, random.mod.cprime = FALSE,
                      random.mod.m = FALSE, random.mod.y = FALSE,
-                     random.covars.m = NULL, random.covars.y = NULL,
+                     random.covars.m = character(), random.covars.y = character(),
+                     random.int.m = TRUE, random.int.y = TRUE,
                      returndata = FALSE,
                      family = gaussian, iter = 7000, control = list(adapt_delta=0.95), chains = 4,
                      ...){
-
-  if(!is.null(covars.m) | !is.null(covars.y) | !is.null(random.covars.m) | !is.null(random.covars.y)){
-    stop("Covariates not yet supported for brms")
-  }
 
   if (is.null(moderator) && any(mod.a, mod.b, mod.cprime)) {
     # Give error if paths indicated as moderated, but no moderator name given
@@ -119,44 +118,24 @@ modmed.mlm.brms<-function(data, L2ID, X, Y, M,
 
   tmp <- stack_bpg(data, L2ID, X, Y, M,
                    moderator=moderator,
-                   covars.m = covars.m,
-                   covars.y = covars.y
+                   covars = union(covars.m, covars.y)
   )
 
-# Create the formula for the fixed effects
-  fixed.formula <- "Z ~ 0 + Sm + Sy + SmX + SyX + SyM" #use the default formula from BPG 2006
+  eqs <- medmlmEq(estimator = "brms",
+                  outcome = "Z",
+                  L2ID = "L2id",
+                  intM = "Sm", intY = "Sy",
+                  a = "SmX", b = "SyM", cprime = "SyX",
+                  moderator = if(!is.null(moderator)){"W"},
+                  mod.a = mod.a, mod.b = mod.b, mod.cprime = mod.cprime,
+                  covars.m = covars.m, covars.y = covars.y,
+                  random.a = random.a, random.b = random.b, random.cprime = random.cprime,
+                  random.mod.a = random.mod.a, random.mod.b = random.mod.b, random.mod.cprime = random.mod.cprime,
+                  random.mod.m = random.mod.m, random.mod.y = random.mod.y,
+                  random.covars.m = random.covars.m, random.covars.y = random.covars.y,
+                  random.int.m = random.int.m, random.int.y = random.int.y)
 
-  # Add in the moderator to the paths if necessary
-  # Note: interactions w/ "W" must must use selector variables in this way
-  if (mod.a == TRUE) {fixed.formula <- paste(fixed.formula, "+ Sm:W + SmX:W")}
-  if (mod.b == TRUE || mod.cprime == TRUE) {
-    fixed.formula <- paste(fixed.formula, "+ Sy:W") #if b or c path is moderated, Sy component will always be there (prevents adding redundant parameters if both b & c are moderated)
-    if (mod.b == TRUE && mod.cprime == TRUE) {fixed.formula <- paste(fixed.formula, "+ SyM:W + SyX:W")}
-    if (mod.b == TRUE && mod.cprime == FALSE) {fixed.formula <- paste(fixed.formula, "+ SyM:W")}
-    if (mod.b == FALSE && mod.cprime == TRUE) {fixed.formula <- paste(fixed.formula, "+ SyX:W")}
-  }
-
-# Create the formula for the random effects
-  random.formula <- " + (0 + Sm + Sy"
-  if (random.a == TRUE) {random.formula <- paste(random.formula, "+ SmX")}
-  if (random.b == TRUE) {random.formula <- paste(random.formula, "+ SyM")}
-  if (random.cprime == TRUE) {random.formula <- paste(random.formula, "+ SyX")}
-
-  # Add random effects for moderator here, if any
-  if(random.mod.a && mod.a){random.formula <- paste(random.formula, "+ SmX:W")}
-  if(random.mod.b && mod.b){random.formula <- paste(random.formula, "+ SyM:W")}
-  if(random.mod.cprime && mod.cprime){random.formula <- paste(random.formula, "+ SyX:W")}
-  if(random.mod.m && mod.a){random.formula <- paste(random.formula, "+ Sm:W")}
-  if(random.mod.y && mod.b){random.formula <- paste(random.formula, "+ Sy:W")}
-
-# Add in the grouping variable after all the variables are entered
-  random.formula <- paste(random.formula, "| L2id )")
-
-#Check if formula contains obly fixed-effects.
-  if (random.a == FALSE && random.b == FALSE && random.cprime == FALSE){
-    formula <-fixed.formula
-  }
-  formula <- paste(fixed.formula, random.formula)
+  formula <- eqs$fixed
 
   mod_med_brms_tmp <- try(brm(formula = bf(as.formula(formula), sigma ~ 0 + Sm + Sy),
                          data = tmp,

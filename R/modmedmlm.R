@@ -266,8 +266,7 @@ bootresid.modmed.mlm <- function(data, L2ID, R=1000, X, Y, M,
   # data that's being used
   tmp <- stack_bpg(data, L2ID, X, Y, M,
                    moderator=moderator,
-                   covars.m = covars.m,
-                   covars.y = covars.y
+                   covars = union(covars.m,covars.y)
   )
 
   # fit initial model
@@ -629,11 +628,11 @@ bootresid.modmed.mlm <- function(data, L2ID, R=1000, X, Y, M,
 #' @export modmed.mlm
 modmed.mlm <- function(data, L2ID, X, Y, M,
                      moderator = NULL, mod.a = FALSE, mod.b = FALSE, mod.cprime = FALSE,
-                     covars.m = NULL, covars.y = NULL,
+                     covars.m = character(), covars.y = character(),
                      random.a = FALSE, random.b = FALSE, random.cprime = FALSE,
                      random.mod.a = FALSE, random.mod.b = FALSE, random.mod.cprime = FALSE,
                      random.mod.m = FALSE, random.mod.y = FALSE,
-                     random.covars.m = NULL, random.covars.y = NULL,
+                     random.covars.m = character(), random.covars.y = character(),
                      random.int.m = TRUE, random.int.y = TRUE,
                      estimator = c("lme","glmmTMB"),
                      method= c("REML","ML"), control = NULL,
@@ -661,8 +660,7 @@ modmed.mlm <- function(data, L2ID, X, Y, M,
   if(is.null(data.stacked)){
     tmp <- stack_bpg(data, L2ID, X, Y, M,
                      moderator=moderator,
-                     covars.m = covars.m,
-                     covars.y = covars.y
+                     covars = union(covars.m, covars.y)
     )
   } else {
     tmp <- data.stacked
@@ -673,65 +671,22 @@ modmed.mlm <- function(data, L2ID, X, Y, M,
     tmp <- datmfun(tmp)
   }
 
-  # Create the formula for the fixed effects
-  fixed.formula <- "Z ~ 0 + Sm + Sy + SmX + SyX + SyM" #use the default formula from BPG 2006
-  #FIXME: rename variables to something more intuitive? Eg a, b & cprime paths?
+  eqs <- medmlmEq(estimator = estimator,
+                  outcome = "Z",
+                  L2ID = "L2id",
+                  intM = "Sm", intY = "Sy",
+                  a = "SmX", b = "SyM", cprime = "SyX",
+                  moderator = if(!is.null(moderator)){"W"},
+                  mod.a = mod.a, mod.b = mod.b, mod.cprime = mod.cprime,
+                  covars.m = covars.m, covars.y = covars.y,
+                  random.a = random.a, random.b = random.b, random.cprime = random.cprime,
+                  random.mod.a = random.mod.a, random.mod.b = random.mod.b, random.mod.cprime = random.mod.cprime,
+                  random.mod.m = random.mod.m, random.mod.y = random.mod.y,
+                  random.covars.m = random.covars.m, random.covars.y = random.covars.y,
+                  random.int.m = random.int.m, random.int.y = random.int.y)
 
-  # Add in the moderator to the paths if necessary
-  # Note: interactions w/ "W" must must use selector variables in this way
-  if (mod.a == TRUE) {fixed.formula <- paste(fixed.formula, "+ Sm:W + SmX:W")}
-  if (mod.b == TRUE || mod.cprime == TRUE) {
-    fixed.formula <- paste(fixed.formula, "+ Sy:W") #if b or c path is moderated, Sy component will always be there (prevents adding redundant parameters if both b & c are moderated)
-    if (mod.b == TRUE && mod.cprime == TRUE) {fixed.formula <- paste(fixed.formula, "+ SyM:W + SyX:W")}
-    if (mod.b == TRUE && mod.cprime == FALSE) {fixed.formula <- paste(fixed.formula, "+ SyM:W")}
-    if (mod.b == FALSE && mod.cprime == TRUE) {fixed.formula <- paste(fixed.formula, "+ SyX:W")}
-  }
-
-  # Add any covariates to the paths if necessary
-  #TV: does the order of the variables matter for lme? Here the covariates are after the mod interactions in the formula
-  #CFF: don't think it matters
-  if (!is.null(covars.m)) {
-    covars.m_formula <-  paste0("+ Sm:", covars.m, collapse=" ") #write the formula for each covar specified
-    fixed.formula <- paste(fixed.formula, covars.m_formula)      #and add to main fixed fx formula
-  }
-  if (!is.null(covars.y)) {
-    covars.y_formula <-  paste0("+ Sy:", covars.y, collapse=" ") #write the formula for each covar specified
-    fixed.formula <- paste(fixed.formula, covars.y_formula)      #and add to main fixed fx formula
-  }
-
-  # Create the formula for the random effects
-  random.formula <- "~ 0 "
-  if (random.int.m) {random.formula <- paste(random.formula, "+ Sm")}
-  if (random.int.y) {random.formula <- paste(random.formula, "+ Sy")}
-  if (random.a) {random.formula <- paste(random.formula, "+ SmX")}
-  if (random.b) {random.formula <- paste(random.formula, "+ SyM")}
-  if (random.cprime) {random.formula <- paste(random.formula, "+ SyX")}
-
-  # Add random effects for moderator here, if any
-  if(random.mod.a && mod.a){random.formula <- paste(random.formula, "+ SmX:W")}
-  if(random.mod.b && mod.b){random.formula <- paste(random.formula, "+ SyM:W")}
-  if(random.mod.cprime && mod.cprime){random.formula <- paste(random.formula, "+ SyX:W")}
-  if(random.mod.m && mod.a){random.formula <- paste(random.formula, "+ Sm:W")}
-  if(random.mod.y && mod.b){random.formula <- paste(random.formula, "+ Sy:W")}
-  #TV: would there ever be a situation where Sm or Sy would be moderated, but not their paths? (eg SmX, SyM, etc)
-  #TV: eg, would random.mod.m ever be true if random.mod.a was not true?
-  #CFF: I would suppose it's possible. Depends on user's theory. Leave in for more flexibilty.
-
-  # Add random effects for covariates here, if any
-  #TODO: TV: currently doesn't check whether random covariates have the same
-  #name as other variables in the model, or are the same covariates in the fixed fx formula.
-  # Is possible to specify random covars not in the fixed formula, but may give an error with lme (although can be implemented, would just have to save random covar to the data above)
-  if (!is.null(random.covars.m)) {
-    random.covars.m_formula <- paste0("+ Sm:", random.covars.m, collapse=" ")
-    random.formula <- paste(random.formula, random.covars.m_formula)
-  }
-  if (!is.null(random.covars.y)) {
-    random.covars.y_formula <- paste0("+ Sy:", random.covars.y, collapse=" ")
-    random.formula <- paste(random.formula, random.covars.y_formula)
-  }
-
-  # Add in the grouping variable after all the variables are entered
-  random.formula <- paste(random.formula, "| L2id")
+  fixed.formula <- eqs$fixed
+  random.formula <- eqs$random
 
   if(estimator == "lme"){
     # Run the model through nlme

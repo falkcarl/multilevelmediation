@@ -93,71 +93,105 @@ medmlmDat <- function(data, L2ID, X, Y, M,
 # Definition
 
 # Model definition function
+#TODO: still needs to be reworked with revamp of medmlmEqs
 medmlmDef <- function(obj, estimator = c("lme","glmmTMB","brms"), ...){
 
   estimator <- match.arg(estimator)
 
-  opts <- medmlmOpts(obj@dat@vars, ...)
+  #opts <- medmlmOpts(obj@dat@vars, ...)
+
+  # Obtain model equations
+  #FIXME: options passed to here and returned
+  eqs <- medmlmEq(estimator = estimator, ...)
+  opts <- eqs$opts
+
+  def <- new("medmlmDef",
+     estimator = estimator,
+     opts = opts,
+     formula = eqs$fixed,
+     random = eqs$random)
+
+  return(def)
+
+}
+
+# model equations
+#TODO: experiment with equations for separate models
+medmlmEq <- function(estimator = c("lme","glmmTMB","brms"),
+                     outcome = "Z",
+                     L2ID = "L2id",
+                     intM = "Sm", intY = "Sy",
+                     a = "SmX", b = "SyM", cprime = "SyX",
+                     ...
+                     ){
+
+  estimator = match.arg(estimator)
+
+  opts <- medmlmOpts(...)
+
+  #TODO: check variable names
+  varnames <- list(outcome = outcome,
+               L2ID = L2ID,
+               intM = intM,
+               intY = intY,
+               a = a,
+               b = b,
+               cprime = cprime)
 
   # Create the formula for the fixed effects
-  fixed.formula <- "Z ~ 0 + Sm + Sy + SmX + SyX + SyM" # use the default formula from BPG 2006
-  #FIXME: rename variables to something more intuitive? Eg a, b & cprime paths?
+  fixed.formula <- paste(outcome, "~ 0 +", paste(c(intM,intY,a,b,cprime), collapse=" + "))
 
   # Add in the moderator to the paths if necessary
   # Note: interactions w/ "W" must must use selector variables in this way
-  if (opts$mod.a == TRUE) {fixed.formula <- paste(fixed.formula, "+ Sm:W + SmX:W")}
+  if (opts$mod.a == TRUE) {fixed.formula <- paste(fixed.formula, paste0(intM,":",opts$moderator," + ",a,":",opts$moderator), sep=" + ")}
   if (opts$mod.b == TRUE || opts$mod.cprime == TRUE) {
-    fixed.formula <- paste(fixed.formula, "+ Sy:W") #if b or c path is moderated, Sy component will always be there (prevents adding redundant parameters if both b & c are moderated)
-    if (opts$mod.b == TRUE && opts$mod.cprime == TRUE) {fixed.formula <- paste(fixed.formula, "+ SyM:W + SyX:W")}
-    if (opts$mod.b == TRUE && opts$mod.cprime == FALSE) {fixed.formula <- paste(fixed.formula, "+ SyM:W")}
-    if (opts$mod.b == FALSE && opts$mod.cprime == TRUE) {fixed.formula <- paste(fixed.formula, "+ SyX:W")}
+    #if b or c path is moderated, Sy component will always be there (prevents adding redundant parameters if both b & c are moderated)
+    fixed.formula <- paste(fixed.formula, paste0(intY,":",opts$moderator), sep=" + ")
+    if (opts$mod.b == TRUE && opts$mod.cprime == TRUE) {fixed.formula <- paste(fixed.formula, paste0(b,":",opts$moderator," + ",cprime,":",opts$moderator), sep=" + ")}
+    if (opts$mod.b == TRUE && opts$mod.cprime == FALSE) {fixed.formula <- paste(fixed.formula, paste0(b,":",opts$moderator), sep = " + ")}
+    if (opts$mod.b == FALSE && opts$mod.cprime == TRUE) {fixed.formula <- paste(fixed.formula, paste0(cprime,":",opts$moderator), sep = " + ")}
   }
 
   # Add any covariates to the paths if necessary
-  if (!is.null(opts$covars.m)) {
-    covars.m_formula <-  paste0("+ Sm:", opts$covars.m, collapse=" ") #write the formula for each covar specified
-    fixed.formula <- paste(fixed.formula, covars.m_formula)      #and add to main fixed fx formula
+  if (length(opts$covars.m)>0) {
+    covars.m_formula <-  paste0(intM, ":", opts$covars.m, collapse=" + ") #write the formula for each covar specified
+    fixed.formula <- paste(fixed.formula, covars.m_formula, sep = " + ")      # and add to main fixed fx formula
   }
-  if (!is.null(opts$covars.y)) {
-    covars.y_formula <-  paste0("+ Sy:", opts$covars.y, collapse=" ") #write the formula for each covar specified
-    fixed.formula <- paste(fixed.formula, covars.y_formula)      #and add to main fixed fx formula
+  if (length(opts$covars.y)>0) {
+    covars.y_formula <-  paste0(intY, ":", opts$covars.y, collapse=" + ") #write the formula for each covar specified
+    fixed.formula <- paste(fixed.formula, covars.y_formula, sep = " + ")      #and add to main fixed fx formula
   }
 
   # Create the formula for the random effects
   random.formula <- "0"
 
-  if (opts$random.int.m) {random.formula <- paste(random.formula, "+ Sm")}
-  if (opts$random.int.y) {random.formula <- paste(random.formula, "+ Sy")}
-  if (opts$random.a) {random.formula <- paste(random.formula, "+ SmX")}
-  if (opts$random.b) {random.formula <- paste(random.formula, "+ SyM")}
-  if (opts$random.cprime) {random.formula <- paste(random.formula, "+ SyX")}
+  if (opts$random.int.m) {random.formula <- paste0(random.formula, " + ", intM)}
+  if (opts$random.int.y) {random.formula <- paste0(random.formula, " + ", intY)}
+  if (opts$random.a) {random.formula <- paste0(random.formula, " + ", a)}
+  if (opts$random.b) {random.formula <- paste0(random.formula, " + ", b)}
+  if (opts$random.cprime) {random.formula <- paste0(random.formula, " + ", cprime)}
 
   # Add random effects for moderator here, if any
-  if(opts$random.mod.a && opts$mod.a){random.formula <- paste(random.formula, "+ SmX:W")}
-  if(opts$random.mod.b && opts$mod.b){random.formula <- paste(random.formula, "+ SyM:W")}
-  if(opts$random.mod.cprime && opts$mod.cprime){random.formula <- paste(random.formula, "+ SyX:W")}
-  if(opts$random.mod.m && opts$mod.a){random.formula <- paste(random.formula, "+ Sm:W")}
-  if(opts$random.mod.y && opts$mod.b){random.formula <- paste(random.formula, "+ Sy:W")}
-  #TV: would there ever be a situation where Sm or Sy would be moderated, but not their paths? (eg SmX, SyM, etc)
-  #TV: eg, would random.mod.m ever be true if random.mod.a was not true?
-  #CFF: I would suppose it's possible. Depends on user's theory. Leave in for more flexibilty.
+  if(opts$random.mod.a && opts$mod.a){random.formula <- paste0(random.formula, " + ", a, ":", opts$moderator)}
+  if(opts$random.mod.b && opts$mod.b){random.formula <- paste0(random.formula, " + ", b, ":", opts$moderator)}
+  if(opts$random.mod.cprime && opts$mod.cprime){random.formula <- paste0(random.formula, " + ", cprime, ":", opts$moderator)}
+  if(opts$random.mod.m && opts$mod.a){random.formula <- paste0(random.formula, " + ", intM, ":", opts$moderator)}
+  if(opts$random.mod.y && opts$mod.b){random.formula <- paste0(random.formula, " + ", intY, ":", opts$moderator)}
 
   # Add random effects for covariates here, if any
   #TODO: TV: currently doesn't check whether random covariates have the same
-  #name as other variables in the model, or are the same covariates in the fixed fx formula.
-  #CFF: some checks now in stack_bpg or medmlmDat
-  # Is possible to specify random covars not in the fixed formula, but may give an error with lme (although can be implemented, would just have to save random covar to the data above)
+  # name as other variables in the model, or are the same covariates in the fixed fx formula.
   if (length(opts$random.covars.m)>0) {
-    random.covars.m_formula <- paste0("+ Sm:", opts$random.covars.m, collapse=" ")
-    random.formula <- paste(random.formula, random.covars.m_formula)
+    random.covars.m_formula <- paste0(intM, ":", opts$random.covars.m, collapse=" + ")
+    random.formula <- paste(random.formula, random.covars.m_formula, sep = " + ")
   }
   if (length(opts$random.covars.y)>0) {
-    random.covars.y_formula <- paste0("+ Sy:", opts$random.covars.y, collapse=" ")
-    random.formula <- paste(random.formula, random.covars.y_formula)
+    random.covars.y_formula <- paste0(intY, ":", opts$random.covars.y, collapse=" + ")
+    random.formula <- paste(random.formula, random.covars.y_formula, sep = " + ")
   }
 
   # Add in the grouping variable after all the variables are entered
-  random.formula <- paste(random.formula, "| L2id")
+  random.formula <- paste(random.formula, "|", L2ID)
 
   if(estimator == "lme"){
     random.formula <- paste("~", random.formula)
@@ -168,19 +202,16 @@ medmlmDef <- function(obj, estimator = c("lme","glmmTMB","brms"), ...){
     random.formula <- character()
   }
 
-  def <- new("medmlmDef",
-     estimator = estimator,
-     opts = opts,
-     formula = fixed.formula,
-     random = random.formula)
-
-  return(def)
-
+  return(list(estimator = estimator,
+              opts = opts,
+              varnames = varnames,
+              fixed = fixed.formula,
+              random = random.formula))
 }
 
 #' @importFrom utils modifyList
 #' @importFrom rlang dots_list
-medmlmOpts <- function(vars, ...){
+medmlmOpts <- function(...){
 
   # set up defaults
   opts <- medmlmOpts.default()
@@ -198,45 +229,48 @@ medmlmOpts <- function(vars, ...){
   opts <- modifyList(opts, args)
 
   # check for incongruent options
-  check.medmlmOpts(vars, opts)
+  check.medmlmOpts(opts)
 
   return(opts)
 
 }
 
+# Options regarding which terms are present in order
+# to set up model equations
 medmlmOpts.default <- function(){
 
   opts <- list(
 
-    # re
+    # re for typical effects
+    random.int.m = TRUE,
+    random.int.y = TRUE,
     random.a = FALSE,
     random.b = FALSE,
     random.cprime = FALSE,
-    random.mod.a = FALSE,
-    random.mod.b = FALSE,
-    random.mod.cprime = FALSE,
-    random.mod.m = FALSE,
-    random.mod.y = FALSE,
-    random.covars.m = character(),
-    random.covars.y = character(),
-    random.int.m = TRUE,
-    random.int.y = TRUE,
 
-    # moderation paths
+    # moderation
+    moderator = NULL,
     mod.a = FALSE,
     mod.b = FALSE,
     mod.cprime = FALSE,
+    random.mod.m = FALSE,
+    random.mod.y = FALSE,
+    random.mod.a = FALSE,
+    random.mod.b = FALSE,
+    random.mod.cprime = FALSE,
 
-    # other
-    covars.m = NULL,
-    covars.y = NULL
+    # covariates
+    covars.m = character(),
+    covars.y = character(),
+    random.covars.m = character(),
+    random.covars.y = character()
 
   )
 
   return(opts)
 }
 
-check.medmlmOpts <- function(vars, opts){
+check.medmlmOpts <- function(opts){
 
   # check everything that ought to be logical
   if(with(opts, !all(is.logical(c(random.a,random.b,random.cprime,random.mod.a,random.mod.b,random.mod.cprime,
@@ -253,8 +287,11 @@ check.medmlmOpts <- function(vars, opts){
 
   # moderator needs to be specified for mod.a, mod.b, mod.cprime to be TRUE
   # still just a single moderator for now
-  if(is.null(vars$moderator) & any(c(opts$mod.a,opts$mod.b,opts$mod.cprime))){
+  if(is.null(opts$moderator) & any(c(opts$mod.a,opts$mod.b,opts$mod.cprime))){
     stop("moderator cannot be null if mod.a, mod.b, or mod.cprime are specified as TRUE")
+  }
+  if(length(opts$moderator) > 1){
+    stop("Only one moderator is currently supported")
   }
 
   # moderation should be enabled for relevant random effects to be TRUE
@@ -265,8 +302,8 @@ check.medmlmOpts <- function(vars, opts){
   if(opts$random.mod.y & !opts$mod.b){stop("random.mod.y specified as TRUE but mod.b is FALSE")}
 
   # covars must be present for relevant random effects to be enabled
-  if(length(vars$covars.m) != length(opts$random.covar.m)){stop("random.covars specified as TRUE but covars is empty")}
-  if(length(vars$covars.y) != length(opts$random.covars.y)){stop("random.covars.y specified as TRUE but covars.y is FALSE")}
+  if(length(opts$covars.m) != length(opts$random.covars.m)){stop("random.covars specified as TRUE but covars is empty")}
+  if(length(opts$covars.y) != length(opts$random.covars.y)){stop("random.covars.y specified as TRUE but covars.y is FALSE")}
 
 }
 
