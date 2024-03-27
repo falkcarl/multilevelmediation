@@ -726,8 +726,13 @@ modmed.mlm <- function(data, L2ID, X, Y, M,
 
   # some error handling, just in case
   if (inherits(mod_med_tmp, "try-error")){
+    #lme throws and error
     out$model <- NULL
-    out$conv <- FALSE # boolean or some other code?
+    out$conv <- FALSE
+  } else if (estimator == "glmmTMB" && mod_med_tmp$fit$convergence != 0) {
+    # glmmTMB just has a non zero convergence code, I think
+    out$model <- mod_med_tmp
+    out$conv <- FALSE
   } else {
     out$model <- mod_med_tmp
     out$conv <- TRUE
