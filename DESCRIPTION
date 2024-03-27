@@ -47,7 +47,8 @@ Imports:
   dplyr,
   tidyselect,
   utils,
-  rlang
+  rlang,
+  methods
 Suggests:
     testthat (>= 3.0.0),
     boot

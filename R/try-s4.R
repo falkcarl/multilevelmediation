@@ -35,6 +35,7 @@ setClass("medmlm",
 ################################################################################
 # Data
 
+#' @importFrom methods new
 medmlmDat <- function(data, L2ID, X, Y, M,
                       moderator=NULL, covars.m=NULL, covars.y=NULL,
                       data.stacked=NULL,
@@ -310,6 +311,7 @@ check.medmlmOpts <- function(opts){
 ################################################################################
 # Estimation
 
+#' @importFrom methods is new
 medmlmEst <- function(obj, method=c("REML","ML"), control, estopts){
 
   if(!is(obj, "medmlm")){stop("Object should be of class medmlm")}
@@ -402,6 +404,31 @@ control.defaults <- function(estimator = c("lme","glmmTMB","brms"), control=NULL
 # - Then formulas/equations used for all approaches
 # - Then optionally fits the model to create the model
 #TODO: have spaces for slots to be passed to function
+#' @importFrom methods new
+#' @examples{
+#'
+#' data(BPG06dat)
+#' # Fit model
+#' fit<-modmed.mlm2(BPG06dat,"id", "x", "y", "m",
+#'                 random.a=TRUE, random.b=TRUE, random.cprime=TRUE)
+#'
+#' inspect.medmlm(fit, "vars")
+#' inspect.medmlm(fit, "data.stacked")
+#' inspect.medmlm(fit, "datmfun")
+#'
+#' inspect.medmlm(fit, "defest")
+#' inspect.medmlm(fit, "defopts")
+#' inspect.medmlm(fit, "formula")
+#' inspect.medmlm(fit, "randformula")
+#'
+#' inspect.medmlm(fit, "conv")
+#' mod <- inspect.medmlm(fit, "model")
+#' fixef(mod)
+#'
+#' inspect.medmlm(fit, "fitest")
+#' inspect.medmlm(fit, "estopts")
+#'
+#' }
 modmed.mlm2 <- function(data, L2ID, X, Y, M,
                        moderator = NULL, covars.m = NULL, covars.y = NULL,
                        mod.a = FALSE, mod.b = FALSE, mod.cprime = FALSE,
