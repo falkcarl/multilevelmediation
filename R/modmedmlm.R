@@ -698,12 +698,8 @@ modmed.mlm <- function(data, L2ID, X, Y, M,
                            control = control,
                            ...))
   } else if (estimator == "glmmTMB"){
-    # some quick fixes to get glmmTMB up and running
-    random.formula <- gsub("~ ", "", random.formula)
-    random.formula <- paste0("(",random.formula,")")
-    form <- paste0(fixed.formula,"+", random.formula)
 
-    mod_med_tmp <- glmmTMB(as.formula(form),
+    mod_med_tmp <- glmmTMB(as.formula(fixed.formula),
             dispformula =  ~ 1 + Sm,
             #dispformula =  ~ 0 + Sm + Sy,
             family = gaussian,

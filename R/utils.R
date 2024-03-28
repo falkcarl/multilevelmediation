@@ -140,7 +140,7 @@ stack_bpg <-function(data, L2ID, X, Y, M,
 
   # moderator: use naming convention
   if (!is.null(moderator)) {
-    tmp <- rename(tmp, W = moderator)
+    tmp <- rename(tmp, all_of(c(W = moderator)))
   }
 
   # restructure data such that both m and y are in the Z column
@@ -148,8 +148,8 @@ stack_bpg <-function(data, L2ID, X, Y, M,
                       values_to = "Z")
 
   # create variables similar to Bauer et al syntax; enforce naming conventions
-  tmp <- rename(tmp, X = X,
-                L2id = L2ID)
+  tmp <- rename(tmp, all_of(c(X = X,
+                L2id = L2ID)))
   tmp <- mutate(tmp,
                 Sy = ifelse(.data$Outcome == Y, 1, 0),
                 Sm = ifelse(.data$Outcome == M, 1, 0))

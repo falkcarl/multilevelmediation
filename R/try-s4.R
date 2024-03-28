@@ -140,7 +140,7 @@ medmlmEq <- function(estimator = c("lme","glmmTMB","brms"),
                cprime = cprime)
 
   # Create the formula for the fixed effects
-  fixed.formula <- paste(outcome, "~ 0 +", paste(c(intM,intY,a,b,cprime), collapse=" + "))
+  fixed.formula <- paste(outcome, "~ 0 +", paste(c(intM,intY,a,cprime,b), collapse=" + "))
 
   # Add in the moderator to the paths if necessary
   # Note: interactions w/ "W" must must use selector variables in this way
