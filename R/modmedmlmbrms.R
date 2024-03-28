@@ -121,8 +121,7 @@ modmed.mlm.brms<-function(data, L2ID, X, Y, M,
                    covars = union(covars.m, covars.y)
   )
 
-  eqs <- medmlmEq(estimator = "brms",
-                  outcome = "Z",
+  eqs <- medmlmEq(outcome = "Z",
                   L2ID = "L2id",
                   intM = "Sm", intY = "Sy",
                   a = "SmX", b = "SyM", cprime = "SyX",
@@ -135,9 +134,9 @@ modmed.mlm.brms<-function(data, L2ID, X, Y, M,
                   random.covars.m = random.covars.m, random.covars.y = random.covars.y,
                   random.int.m = random.int.m, random.int.y = random.int.y)
 
-  formula <- eqs$fixed
-
-  mod_med_brms_tmp <- try(brm(formula = bf(as.formula(formula), sigma ~ 0 + Sm + Sy),
+  formula <- eqs$combined
+  hetformula <- as.formula(paste0("sigma ", eqs$het$het2))
+  mod_med_brms_tmp <- try(brm(formula = bf(as.formula(formula), hetformula),
                          data = tmp,
                          family = family,
                          iter = iter,

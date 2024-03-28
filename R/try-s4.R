@@ -9,10 +9,11 @@ setClass("medmlmDat",
 )
 
 setClass("medmlmDef",
-         slots = c(estimator = "character", # program assumed when setting up syntax
-                   opts = "list",   # stores information about paths, random effects, etc.
-                   formula = "character", # model equations
-                   random = "character" # separate model equations for random effects, if needed
+         slots = c(opts = "list",   # stores information about paths, random effects, etc.
+                   fixed = "character", # fixed effect equations
+                   random = "character", # random effect equations
+                   combined = "character", # combined equations
+                   het = "list" # equations for heteroscedasticity
          )
 )
 
@@ -95,22 +96,21 @@ medmlmDat <- function(data, L2ID, X, Y, M,
 
 # Model definition function
 #TODO: still needs to be reworked with revamp of medmlmEqs
-medmlmDef <- function(obj, estimator = c("lme","glmmTMB","brms"), ...){
-
-  estimator <- match.arg(estimator)
+medmlmDef <- function(obj, ...){
 
   #opts <- medmlmOpts(obj@dat@vars, ...)
 
   # Obtain model equations
   #FIXME: options passed to here and returned
-  eqs <- medmlmEq(estimator = estimator, ...)
+  eqs <- medmlmEq(...)
   opts <- eqs$opts
 
   def <- new("medmlmDef",
-     estimator = estimator,
      opts = opts,
-     formula = eqs$fixed,
-     random = eqs$random)
+     fixed = eqs$fixed,
+     random = eqs$random,
+     combined = eqs$combined,
+     het = eqs$het)
 
   return(def)
 
@@ -118,15 +118,12 @@ medmlmDef <- function(obj, estimator = c("lme","glmmTMB","brms"), ...){
 
 # model equations
 #TODO: experiment with equations for separate models
-medmlmEq <- function(estimator = c("lme","glmmTMB","brms"),
-                     outcome = "Z",
+medmlmEq <- function(outcome = "Z",
                      L2ID = "L2id",
                      intM = "Sm", intY = "Sy",
                      a = "SmX", b = "SyM", cprime = "SyX",
                      ...
                      ){
-
-  estimator = match.arg(estimator)
 
   opts <- medmlmOpts(...)
 
@@ -194,20 +191,24 @@ medmlmEq <- function(estimator = c("lme","glmmTMB","brms"),
   # Add in the grouping variable after all the variables are entered
   random.formula <- paste(random.formula, "|", L2ID)
 
-  if(estimator == "lme"){
-    random.formula <- paste("~", random.formula)
-  } else if (estimator %in% c("glmmTMB","brms")){
-    random.formula <- paste("(",random.formula)
-    random.formula <- paste(random.formula,")")
-    fixed.formula <- paste(fixed.formula,"+",random.formula)
-    random.formula <- character()
-  }
+  combined.formula <- paste("(",random.formula)
+  combined.formula <- paste(combined.formula,")")
+  combined.formula <- paste(fixed.formula,"+",combined.formula)
 
-  return(list(estimator = estimator,
-              opts = opts,
+  random.formula <- paste("~", random.formula)
+
+  # another option may be ~ 1 + intM
+  het.form1 <- paste0("~ 1 | ", intM)
+  het.form2 <- paste0("~ 0 + ", intM, " + ", intY)
+
+  return(list(opts = opts,
               varnames = varnames,
               fixed = fixed.formula,
-              random = random.formula))
+              random = random.formula,
+              combined = combined.formula,
+              het = list(het1 = het.form1,
+                         het2 = het.form2)
+              ))
 }
 
 #' @importFrom utils modifyList
@@ -324,9 +325,9 @@ medmlmEst <- function(obj, method=c("REML","ML"), control, estopts){
 
   if(estimator == "lme"){
     fit <- try(do.call(lme,
-               c(list(fixed = as.formula(obj@def@formula), # fixed effects
+               c(list(fixed = as.formula(obj@def@fixed), # fixed effects
                       random = as.formula(obj@def@random), # random effects
-                      weights = varIdent(form = ~ 1 | Sm), # heteroskedasticity
+                      weights = varIdent(form = as.formula(obj@def@het$het1)), # heteroskedasticity
                       data = obj@dat@data,
                       method = method,
                       control = control),
@@ -336,9 +337,8 @@ medmlmEst <- function(obj, method=c("REML","ML"), control, estopts){
 
   } else if (estimator == "glmmTMB"){
     fit <- try(do.call(glmmTMB,
-                       c(list(formula = as.formula(obj@def@formula),
-                       dispformula =  ~ 1 + Sm,
-                       #dispformula =  ~ 0 + Sm + Sy,
+                       c(list(formula = as.formula(obj@def@combined),
+                       dispformula = as.formula(obj@def@het$het2),
                        family = gaussian,
                        data = obj@dat@data,
                        REML = (method=="REML"),
@@ -350,9 +350,10 @@ medmlmEst <- function(obj, method=c("REML","ML"), control, estopts){
     conv <- ifelse(fit$fit$convergence == 0, TRUE, FALSE)
 
   } else if (estimator == "brms"){
+    hetformula <- as.formula(paste0("sigma ", obj@def@het$het2))
     fit <- try(do.call(brm,
-                       c(list(formula = bf(as.formula(obj@def@formula),
-                                           sigma ~ 0 + Sm + Sy),
+                       c(list(formula = bf(as.formula(obj@def@combined),
+                                           hetformula),
                                 data = obj@dat@data,
                                 family = gaussian,
                                 control = control),
@@ -457,7 +458,7 @@ modmed.mlm2 <- function(data, L2ID, X, Y, M,
   if(!is.null(defslot)){
     obj$def <- defslot
   } else {
-    obj@def <- medmlmDef(obj, estimator, ...)
+    obj@def <- medmlmDef(obj, ...)
   }
 
   # estimate model
@@ -468,6 +469,7 @@ modmed.mlm2 <- function(data, L2ID, X, Y, M,
 
 ################################################################################
 # Access / summary
+#TODO: ask each object where to obtain the result
 
 inspect.medmlm <- function(obj, what){
 
@@ -486,10 +488,16 @@ inspect.medmlm <- function(obj, what){
     out <- obj@def@estimator # estimator assumed when setting up model equations
   } else if (what=="defopts"){
     out <- obj@def@opts # options when setting up model equations
-  } else if (what=="formula"){
-    out <- obj@def@formula # (fixed) formula for the model
+  } else if (what=="fixedformula"){
+    out <- obj@def@fixed # fixed formula for the model
   } else if (what=="randformula"){
     out <- obj@def@random # random effects formula for the model
+  } else if (what=="combinedformula"){
+    out <- obj@def@combined # combined formula for the model
+  } else if (what=="hetformula1"){
+    out <- obj@def@het$het1 # formula for heteroscedasticity
+  } else if (what=="hetformula2"){
+    out <- obj@def@het$het2 # formula for heteroscedasticity
 
   # model
   } else if(what == "conv"){

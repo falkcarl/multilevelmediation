@@ -671,8 +671,7 @@ modmed.mlm <- function(data, L2ID, X, Y, M,
     tmp <- datmfun(tmp)
   }
 
-  eqs <- medmlmEq(estimator = estimator,
-                  outcome = "Z",
+  eqs <- medmlmEq(outcome = "Z",
                   L2ID = "L2id",
                   intM = "Sm", intY = "Sy",
                   a = "SmX", b = "SyM", cprime = "SyX",
@@ -687,21 +686,23 @@ modmed.mlm <- function(data, L2ID, X, Y, M,
 
   fixed.formula <- eqs$fixed
   random.formula <- eqs$random
+  combined.formula <- eqs$combined
 
   if(estimator == "lme"){
     # Run the model through nlme
     mod_med_tmp <- try(lme(fixed = as.formula(fixed.formula), # fixed effects
                            random = as.formula(random.formula), # random effects
-                           weights = varIdent(form = ~ 1 | Sm), # heteroskedasticity
+                           weights = varIdent(form = as.formula(eqs$het$het1)), # heteroskedasticity
                            data = tmp,
                            method = method,
                            control = control,
                            ...))
   } else if (estimator == "glmmTMB"){
 
-    mod_med_tmp <- glmmTMB(as.formula(fixed.formula),
-            dispformula =  ~ 1 + Sm,
+    mod_med_tmp <- glmmTMB(as.formula(combined.formula),
+            #dispformula =  ~ 1 + Sm,
             #dispformula =  ~ 0 + Sm + Sy,
+            dispformula = as.formula(eqs$het$het2),
             family = gaussian,
             data = tmp,
             REML = (method=="REML"),
