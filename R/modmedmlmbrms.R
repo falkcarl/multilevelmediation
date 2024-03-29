@@ -133,7 +133,7 @@ modmed.mlm.brms<-function(data, L2ID, X, Y, M,
                   random.int.m = random.int.m, random.int.y = random.int.y)
 
   formula <- eqs$combined
-  hetformula <- as.formula(paste0("sigma ", eqs$het$het2))
+  hetformula <- as.formula(paste0("sigma ", eqs$het2))
   mod_med_brms_tmp <- try(brm(formula = bf(as.formula(formula), hetformula),
                          data = tmp,
                          family = family,

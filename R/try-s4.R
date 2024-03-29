@@ -10,10 +10,7 @@ setClass("medmlmDat",
 
 setClass("medmlmDef",
          slots = c(opts = "list",   # stores information about paths, random effects, etc.
-                   fixed = "character", # fixed effect equations
-                   random = "character", # random effect equations
-                   combined = "character", # combined equations
-                   het = "list" # equations for heteroscedasticity
+                   eqs = "list" # list that stores model equations
          )
 )
 
@@ -37,7 +34,7 @@ setClass("medmlm",
 # Data
 
 #' @importFrom methods new
-medmlmDat <- function(data, L2ID, X, Y, M,
+initDat <- function(data, L2ID, X, Y, M,
                       moderator=NULL, covars.m=NULL, covars.y=NULL,
                       data.stacked=NULL,
                       datmfun=NULL){
@@ -96,21 +93,15 @@ medmlmDat <- function(data, L2ID, X, Y, M,
 
 # Model definition function
 #TODO: still needs to be reworked with revamp of medmlmEqs
-medmlmDef <- function(obj, ...){
-
-  #opts <- medmlmOpts(obj@dat@vars, ...)
+initDef <- function(obj, ...){
 
   # Obtain model equations
-  #FIXME: options passed to here and returned
   eqs <- medmlmEq(...)
   opts <- eqs$opts
 
   def <- new("medmlmDef",
      opts = opts,
-     fixed = eqs$fixed,
-     random = eqs$random,
-     combined = eqs$combined,
-     het = eqs$het)
+     eqs = eqs)
 
   return(def)
 
@@ -206,8 +197,8 @@ medmlmEq <- function(outcome = "Z",
               fixed = fixed.formula,
               random = random.formula,
               combined = combined.formula,
-              het = list(het1 = het.form1,
-                         het2 = het.form2)
+              het1 = het.form1,
+              het2 = het.form2
               ))
 }
 
@@ -313,21 +304,19 @@ check.medmlmOpts <- function(opts){
 # Estimation
 
 #' @importFrom methods is new
-medmlmEst <- function(obj, method=c("REML","ML"), control, estopts){
+medmlmEst <- function(obj, method=c("REML","ML"), estimator, control, estopts){
 
   if(!is(obj, "medmlm")){stop("Object should be of class medmlm")}
 
   method <- match.arg(method)
 
-  estimator <- obj@def@estimator
-
   control <- control.defaults(estimator, control)
 
   if(estimator == "lme"){
     fit <- try(do.call(lme,
-               c(list(fixed = as.formula(obj@def@fixed), # fixed effects
-                      random = as.formula(obj@def@random), # random effects
-                      weights = varIdent(form = as.formula(obj@def@het$het1)), # heteroskedasticity
+               c(list(fixed = as.formula(obj@def@eqs$fixed), # fixed effects
+                      random = as.formula(obj@def@eqs$random), # random effects
+                      weights = varIdent(form = as.formula(obj@def@eqs$het1)), # heteroskedasticity
                       data = obj@dat@data,
                       method = method,
                       control = control),
@@ -337,8 +326,8 @@ medmlmEst <- function(obj, method=c("REML","ML"), control, estopts){
 
   } else if (estimator == "glmmTMB"){
     fit <- try(do.call(glmmTMB,
-                       c(list(formula = as.formula(obj@def@combined),
-                       dispformula = as.formula(obj@def@het$het2),
+                       c(list(formula = as.formula(obj@def@eqs$combined),
+                       dispformula = as.formula(obj@def@eqs$het2),
                        family = gaussian,
                        data = obj@dat@data,
                        REML = (method=="REML"),
@@ -350,9 +339,9 @@ medmlmEst <- function(obj, method=c("REML","ML"), control, estopts){
     conv <- ifelse(fit$fit$convergence == 0, TRUE, FALSE)
 
   } else if (estimator == "brms"){
-    hetformula <- as.formula(paste0("sigma ", obj@def@het$het2))
+    hetformula <- as.formula(paste0("sigma ", obj@def@eqs$het2))
     fit <- try(do.call(brm,
-                       c(list(formula = bf(as.formula(obj@def@combined),
+                       c(list(formula = bf(as.formula(obj@def@eqs$combined),
                                            hetformula),
                                 data = obj@dat@data,
                                 family = gaussian,
@@ -398,13 +387,12 @@ control.defaults <- function(estimator = c("lme","glmmTMB","brms"), control=NULL
 
 
 ################################################################################
-# Main constructor
+# Main constructor, to replace modmedmlm
 
-# Creates a modmedmlm object
+# Creates a medmlm object
 # - Restructures data, if necessary
 # - Then formulas/equations used for all approaches
 # - Then optionally fits the model to create the model
-#TODO: have spaces for slots to be passed to function
 #' @importFrom methods new
 #' @examples{
 #'
@@ -417,22 +405,21 @@ control.defaults <- function(estimator = c("lme","glmmTMB","brms"), control=NULL
 #' inspect.medmlm(fit, "data.stacked")
 #' inspect.medmlm(fit, "datmfun")
 #'
-#' inspect.medmlm(fit, "defest")
 #' inspect.medmlm(fit, "defopts")
-#' inspect.medmlm(fit, "formula")
+#' inspect.medmlm(fit, "fixedformula")
 #' inspect.medmlm(fit, "randformula")
+#' inspect.medmlm(fit, "combinedformula")
 #'
 #' inspect.medmlm(fit, "conv")
 #' mod <- inspect.medmlm(fit, "model")
 #' fixef(mod)
 #'
-#' inspect.medmlm(fit, "fitest")
+#' inspect.medmlm(fit, "estimator")
 #' inspect.medmlm(fit, "estopts")
 #'
 #' }
 modmed.mlm2 <- function(data, L2ID, X, Y, M,
                        moderator = NULL, covars.m = NULL, covars.y = NULL,
-                       mod.a = FALSE, mod.b = FALSE, mod.cprime = FALSE,
                        estimator = c("lme","glmmTMB","brms"),
                        method= c("REML","ML"), control = NULL,
                        estopts = list(),
@@ -442,13 +429,16 @@ modmed.mlm2 <- function(data, L2ID, X, Y, M,
                        datslot = NULL,
                        defslot = NULL){
 
+  estimator <- match.arg(estimator)
+  method <- match.arg(method)
+
   obj <- new("medmlm")
 
   # set up data
   if(!is.null(datslot)){
     obj@dat <- datslot
   } else {
-    obj@dat <- medmlmDat(data=data, L2ID=L2ID, X=X, Y=Y, M=M,
+    obj@dat <- initDat(data=data, L2ID=L2ID, X=X, Y=Y, M=M,
                          moderator=moderator, covars.m=covars.m, covars.y=covars.y,
                          data.stacked=data.stacked,
                          datmfun=datmfun)
@@ -458,18 +448,20 @@ modmed.mlm2 <- function(data, L2ID, X, Y, M,
   if(!is.null(defslot)){
     obj$def <- defslot
   } else {
-    obj@def <- medmlmDef(obj, ...)
+    obj@def <- initDef(obj, moderator=moderator, covars.m=covars.m,
+                       covars.y=covars.y, ...)
   }
 
   # estimate model
-  obj@fit <- medmlmEst(obj, method=method, control=control, estopts=estopts)
+  obj@fit <- medmlmEst(obj, method=method, estimator=estimator, control=control,
+                       estopts=estopts)
 
   return(obj)
 }
 
 ################################################################################
 # Access / summary
-#TODO: ask each object where to obtain the result
+#TODO: ask each object where to obtain the result?
 
 inspect.medmlm <- function(obj, what){
 
@@ -484,34 +476,32 @@ inspect.medmlm <- function(obj, what){
     out <- obj@dat@misc$datmfun # optional function for data manipulation
 
   # def
-  } else if (what=="defest"){
-    out <- obj@def@estimator # estimator assumed when setting up model equations
   } else if (what=="defopts"){
     out <- obj@def@opts # options when setting up model equations
   } else if (what=="fixedformula"){
-    out <- obj@def@fixed # fixed formula for the model
+    out <- obj@def@eqs$fixed # fixed formula for the model
   } else if (what=="randformula"){
-    out <- obj@def@random # random effects formula for the model
+    out <- obj@def@eqs$random # random effects formula for the model
   } else if (what=="combinedformula"){
-    out <- obj@def@combined # combined formula for the model
+    out <- obj@def@eqs$combined # combined formula for the model
   } else if (what=="hetformula1"){
-    out <- obj@def@het$het1 # formula for heteroscedasticity
+    out <- obj@def@eqs$het1 # formula for heteroscedasticity
   } else if (what=="hetformula2"){
-    out <- obj@def@het$het2 # formula for heteroscedasticity
+    out <- obj@def@eqs$het2 # formula for heteroscedasticity
 
   # model
   } else if(what == "conv"){
     out <- obj@fit@conv$conv # convergence
   } else if (what=="model"){
     out <- obj@fit@results$model # fitted model
-  } else if (what == "fitest"){
+  } else if (what == "estimator"){
     out <- obj@fit@estimator # program that was actually used for estimation
   } else if (what == "estopts"){
     out <- obj@fit@opts # estimation options used
 
   # else
   } else {
-    print("Unrecognized option for extraction. Is the value of 'what' correct?")
+    print("Unrecognized option for extraction.")
   }
 
   return(out)

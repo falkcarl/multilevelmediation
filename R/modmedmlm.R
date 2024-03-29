@@ -690,7 +690,7 @@ modmed.mlm <- function(data, L2ID, X, Y, M,
     # Run the model through nlme
     mod_med_tmp <- try(lme(fixed = as.formula(fixed.formula), # fixed effects
                            random = as.formula(random.formula), # random effects
-                           weights = varIdent(form = as.formula(eqs$het$het1)), # heteroskedasticity
+                           weights = varIdent(form = as.formula(eqs$het1)), # heteroskedasticity
                            data = tmp,
                            method = method,
                            control = control,
@@ -700,7 +700,7 @@ modmed.mlm <- function(data, L2ID, X, Y, M,
     mod_med_tmp <- glmmTMB(as.formula(combined.formula),
             #dispformula =  ~ 1 + Sm,
             #dispformula =  ~ 0 + Sm + Sy,
-            dispformula = as.formula(eqs$het$het2),
+            dispformula = as.formula(eqs$het2),
             family = gaussian,
             data = tmp,
             REML = (method=="REML"),
