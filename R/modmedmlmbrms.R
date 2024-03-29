@@ -95,8 +95,6 @@
 #' }
 #'
 #' @import brms
-#' @importFrom matrixcalc vech
-#' @importFrom MCMCpack xpnd
 #' @importFrom stats as.formula gaussian
 #' @export
 modmed.mlm.brms<-function(data, L2ID, X, Y, M,

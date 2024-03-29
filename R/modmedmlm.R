@@ -622,8 +622,6 @@ bootresid.modmed.mlm <- function(data, L2ID, R=1000, X, Y, M,
 #' }
 #' @importFrom nlme lmeControl lme fixef getVarCov varIdent
 #' @importFrom glmmTMB glmmTMBControl glmmTMB VarCorr
-#' @importFrom matrixcalc vech
-#' @importFrom MCMCpack xpnd
 #' @importFrom stats as.formula
 #' @export modmed.mlm
 modmed.mlm <- function(data, L2ID, X, Y, M,
