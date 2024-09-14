@@ -43,7 +43,7 @@ So that coefficients extracted later from \code{\link{modmed.mlm}} hopefully mak
  \item{\code{Sm} Indicator variable for M as outcome. 0 if M is not outcome for this row. 1 if M is outcome for this row. In model output, this is the intercept for M.}
  \item{\code{SmX} Value of X when M is the outcome (literally X times Sm); will be 0 when Y is outcome. In model output, this is the "a" path.}
  \item{\code{SyX} Value of X when Y is the outcome (literally X times Sy); will be 0 when M is outcome. In model output, this is the "cprime" path (direct effect).}
- \item{\code{SyM} Calue of M when Y is the outcome (literally M times Sy); will be 0 when M is the outcome. In model output, this is the "a" path.}
+ \item{\code{SyM} Calue of M when Y is the outcome (literally M times Sy); will be 0 when M is the outcome. In model output, this is the "b" path.}
  \item{\code{W} Value of any moderating variable. This may show up in output later on as "SmX:W" (interaction with "a" path) or "SyM:W" (interaction with "b" path) or "SyX:W"
     (interaction with "cprime" path) depending on which path it moderates.}
  \item{If \code{covars.m} or \code{covars.y} are not null, any additional covariates will also be added to the data frame and their

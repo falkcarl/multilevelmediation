@@ -30,7 +30,7 @@ Description: The ultimate goal is to support 2-2-1, 2-1-1, and 1-1-1 models for
 License: GPL-3
 Encoding: UTF-8
 LazyData: true
-RoxygenNote: 7.3.1
+RoxygenNote: 7.3.2
 Imports: 
   furrr,
   future,
