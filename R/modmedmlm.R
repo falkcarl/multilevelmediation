@@ -356,15 +356,14 @@ bootresid.modmed.mlm <- function(data, L2ID, R=1000, X, Y, M,
 
     # Then, just directly compute Y and M
     tmp2 <- merge(tmp, as.data.frame(model.matrix(init.mod$model$terms, tmp)), sort=FALSE)
-    Zs<-lapply(l2groups, function(grp){
+    for(grp in l2groups){
       tmpsub<-as.matrix(tmp2[tmp2$L2id %in% grp, colnames(bootcoef)])
       tmpcoef<-bootcoef[which(l2groups%in%grp), ]
-      tmpsub%*%t(t(tmpcoef))
-    })
-    Zs<-do.call("c",Zs)
+      tmp2[tmp2$L2id %in% grp, "Z"] <- tmpsub%*%t(t(tmpcoef)) # add Y and M to data frame
+    }
 
-    # add Y and M to data frame
-    tmp2$Z<-Zs+l1resid.boot
+    # add l1 residuals
+    tmp2$Z<-tmp2$Z+l1resid.boot
     tmp2 <- tmp2[,c("L2id",names(attr(terms(init.mod$model),"dataClasses")))]
 
     # fit model

@@ -293,12 +293,12 @@ boot.modmed.mlm2 <- function(data, L2ID, ...,
     l1resid.infl<-as.matrix(alll1resid)%*%Al1
 
     ## Do resampling
-    # sample ids
+    # sample indices
     L2idxsamp<-sample(1:nl2, nl2, replace=T)
     L1Yidxsamp<-sample(1:nl1, nl1, replace=T)
     L1Midxsamp<-sample(1:nl1, nl1, replace=T)
 
-    # use ids to sample residuals
+    # use indices to sample residuals
     l2resid.boot<-l2resid.infl[L2idxsamp,]
     l1Yresid.boot<-l1resid.infl[L1Yidxsamp,1]
     l1Mresid.boot<-l1resid.infl[L1Midxsamp,2]
@@ -310,19 +310,19 @@ boot.modmed.mlm2 <- function(data, L2ID, ...,
     bootcoef<-(rep(1,nl2))%*%t(fe)
     bootcoef[,colnames(l2resid.boot)]<- bootcoef[,colnames(l2resid.boot)] + l2resid.boot
 
-    # Then, just directly compute Y and M
+    # copy of data frame
+    rdat <- model$data
+
+    # Then, just directly compute Y and M & add to data frame
     tmp <- as.data.frame(model.matrix(model$model$terms, model$data))
     tmp$L2id <- model$data$L2id
-    Zs<-lapply(l2groups, function(grp){
+    for(grp in l2groups){
       tmpsub<-as.matrix(tmp[tmp$L2id %in% grp, colnames(bootcoef)])
       tmpcoef<-bootcoef[which(l2groups%in%grp), ]
-      tmpsub%*%t(t(tmpcoef))
-    })
-    Zs<-do.call("c",Zs)
+      rdat[rdat$L2id %in% grp, "Z"] <- tmpsub%*%t(t(tmpcoef)) # add Y and M to data frame
+    }
 
-    # add Y and M to data frame
-    rdat <- model$data
-    rdat$Z<-Zs+l1resid.boot
+    rdat$Z<-rdat$Z+l1resid.boot # add l1 residuals
 
     # estimate model
     result<-modmed.mlm(NULL, L2ID, data.stacked=rdat, ...)
