@@ -56,7 +56,7 @@ van der Leeden, R., Meijer, E., & Busing, F. M. T. A. (2008). Resampling multile
 
 ## Updates
 
-- Upcoming version
+- Version 0.4.0
     - Support for `glmmTMB`.
     - Bugfix to error handling when covariates have random effects.
     - Bugfix: residual bootstrap assumed data sorted by IDs    

@@ -5,12 +5,12 @@ bibentry(
   title    = "Multilevel mediation analysis in R: A comparison of bootstrap and Bayesian approaches",
   author   = "C.F. Falk and T. Vogel and S. Hammami and M. Miočević",
   journal  = "Behavior Research Methods",
-  year     = "in press",
-  #volume   = ,
+  year     = "2024",
+  volume   = "56",
   #number   = ,
-  #pages    = ,
+  pages    = "750-764",
   url      = "https://doi.org/10.3758/s13428-023-02079-4",
-  textVersion = paste("Falk, C. F., Vogel, T., Hammami, S., & Miočević, M. (in press). Multilevel mediation analysis in R: A comparison of bootstrap and Bayesian approaches. Behavior Research Methods. doi: https://doi.org/10.3758/s13428-023-02079-4  Preprint: https://doi.org/10.31234/osf.io/ync34"
+  textVersion = paste("Falk, C. F., Vogel, T., Hammami, S., & Miočević, M. (2024). Multilevel mediation analysis in R: A comparison of bootstrap and Bayesian approaches. Behavior Research Methods, 56, 750-764. doi: https://doi.org/10.3758/s13428-023-02079-4  Preprint: https://doi.org/10.31234/osf.io/ync34"
   )
 )
 
@@ -19,6 +19,6 @@ bibentry(
   title = "multilevelmediation: Utility functions for multilevel mediation analysis in R",
   author = "C.F. Falk and T. Vogel and S. Hammami and M. Miočević",
   year = "2024",
-  note = "R package version 0.3.1",
+  note = "R package version 0.4.0",
   url = "https://github.com/falkcarl/multilevelmediation"
 )
