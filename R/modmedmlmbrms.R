@@ -23,6 +23,8 @@
 #' @param random.mod.y (Logical) Add random slope for effect of moderator on Y?
 #' @param random.covars.m (Logical vector) Add random slopes for covariates on M? (not yet implemented for brms)
 #' @param random.covars.y (Logical vector) Add random slopes for covariates on Y? (not yet implemented for brms)
+#' @param random.int.m (Logical) Add random intercept for M? (defaults to TRUE)
+#' @param random.int.y (Logical) Add random intercept for Y? (defaults to TRUE)
 #' @param returndata (Logical) Whether to save restructured data in its own slot. Defaults to \code{FALSE}.
 #' @param chains Argument passed to \code{\link[brms]{brm}} Set the number of chains
 #' @param family Argument passed to \code{\link[brms]{brm}} A character string naming the distribution of the response variable to be used in the model.
@@ -104,6 +106,7 @@ modmed.mlm.brms<-function(data, L2ID, X, Y, M,
                      random.mod.a = FALSE, random.mod.b = FALSE, random.mod.cprime = FALSE,
                      random.mod.m = FALSE, random.mod.y = FALSE,
                      random.covars.m = NULL, random.covars.y = NULL,
+                     random.int.m = TRUE, random.int.y = TRUE,
                      returndata = FALSE,
                      family = gaussian, iter = 7000, control = list(adapt_delta=0.95), chains = 4,
                      ...){
@@ -137,7 +140,10 @@ modmed.mlm.brms<-function(data, L2ID, X, Y, M,
   }
 
 # Create the formula for the random effects
-  random.formula <- " + (0 + Sm + Sy"
+
+  random.formula <- " + (0 "
+  if (random.int.m) {random.formula <- paste(random.formula, "+ Sm")}
+  if (random.int.y) {random.formula <- paste(random.formula, "+ Sy")}
   if (random.a == TRUE) {random.formula <- paste(random.formula, "+ SmX")}
   if (random.b == TRUE) {random.formula <- paste(random.formula, "+ SyM")}
   if (random.cprime == TRUE) {random.formula <- paste(random.formula, "+ SyX")}
@@ -181,20 +187,6 @@ modmed.mlm.brms<-function(data, L2ID, X, Y, M,
   if(returndata) out$data <- tmp
 
   out$call <- match.call()
-  #out$args<-list(
-  #  L2ID = L2ID,
-  #  X = X,
-  #  Y = Y,
-  #  M = M,
-  #  random.a = random.a,
-  #  random.b = random.b,
-  #  random.cprime = random.cprime,
-  #  family = family,
-  #  iter = iter,
-  #  control = control,
-  #  chains = chains,
-  #  returndata = returndata
-  #)
 
   return(out)
 }

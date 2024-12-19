@@ -26,6 +26,8 @@ modmed.mlm.brms(
   random.mod.y = FALSE,
   random.covars.m = NULL,
   random.covars.y = NULL,
+  random.int.m = TRUE,
+  random.int.y = TRUE,
   returndata = FALSE,
   family = gaussian,
   iter = 7000,
@@ -76,6 +78,10 @@ modmed.mlm.brms(
 \item{random.covars.m}{(Logical vector) Add random slopes for covariates on M? (not yet implemented for brms)}
 
 \item{random.covars.y}{(Logical vector) Add random slopes for covariates on Y? (not yet implemented for brms)}
+
+\item{random.int.m}{(Logical) Add random intercept for M? (defaults to TRUE)}
+
+\item{random.int.y}{(Logical) Add random intercept for Y? (defaults to TRUE)}
 
 \item{returndata}{(Logical) Whether to save restructured data in its own slot. Defaults to \code{FALSE}.}
 
