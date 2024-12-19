@@ -143,7 +143,7 @@ boot.modmed.mlm <- function(data, indices, L2ID, ...,
     if (boot.lvl == "both") {
       # Resample at L2 and then L1 within each L2 unit
       # Resample L2 units
-      L2 <- unique(data[, L2ID])
+      L2 <- unlist(unique(data[, L2ID], use.names=FALSE))
       N <- length(L2)
       L2_indices <- sample(L2, N, replace = TRUE)
       # Resample L1 units
@@ -163,7 +163,7 @@ boot.modmed.mlm <- function(data, indices, L2ID, ...,
 
     } else if (boot.lvl == "2") {
       # Resample L2 units only
-      L2 <- unique(data[, L2ID])
+      L2 <- unlist(unique(data[, L2ID], use.names=FALSE))
       N <- length(L2)
       L2_indices <- sample(L2, N, replace = TRUE)
       rdat <- lapply(L2_indices, function(x) {

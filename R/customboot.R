@@ -197,7 +197,7 @@ boot.modmed.mlm2 <- function(data, L2ID, ...,
   if(boot.type=="caseboth"){
     # Resample at L2 and then L1 within each L2 unit
     # Resample L2 units
-    L2 <- unique(data[, L2ID])
+    L2 <- unlist(unique(data[, L2ID], use.names=FALSE))
     N <- length(L2)
     L2_indices <- sample(L2, N, replace = TRUE)
     # Resample L1 units
@@ -212,7 +212,7 @@ boot.modmed.mlm2 <- function(data, L2ID, ...,
     result<-modmed.mlm(rdat,L2ID,...)
   } else if (boot.type == "case2") {
     # Resample L2 units
-    L2 <- unique(data[, L2ID])
+    L2 <- unlist(unique(data[, L2ID], use.names=FALSE))
     N <- length(L2)
     L2_indices <- sample(L2, N, replace = TRUE)
     rdat <- lapply(L2_indices, function(x) {
@@ -223,7 +223,7 @@ boot.modmed.mlm2 <- function(data, L2ID, ...,
     result<-modmed.mlm(rdat,L2ID,...)
   } else if (boot.type == "case1") {
     # No resampling of L2 units
-    L2 <- unique(data[, L2ID])
+    L2 <- unlist(unique(data[, L2ID], use.names=FALSE))
     N <- length(L2)
     L2_indices <- L2
     # Resample L1 units
