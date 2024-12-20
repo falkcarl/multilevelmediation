@@ -46,7 +46,8 @@ Imports:
   glmmTMB
 Suggests:
     testthat (>= 3.0.0),
-    boot
+    boot,
+    BH
 Depends: 
     R (>= 2.10)
 Config/testthat/edition: 3
