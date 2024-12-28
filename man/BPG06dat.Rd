@@ -14,7 +14,7 @@ A data frame with 800 observations (from 100 subjects) and 4 variables
 }
 }
 \source{
-\url{https://psycnet.apa.org/doi/10.1037/1082-989X.11.2.142}
+\url{https://doi.org/10.1037/1082-989X.11.2.142}
 }
 \usage{
 BPG06dat

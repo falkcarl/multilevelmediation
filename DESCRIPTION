@@ -1,8 +1,8 @@
 Package: multilevelmediation
 Type: Package
 Title: Utility Functions for Multilevel Mediation Analysis
-Version: 0.4.0
-Date: 2024-12-18
+Version: 0.4.1
+Date: 2024-12-28
 Authors@R: 
   c(person(given = c("Carl","F."),
            family = "Falk",

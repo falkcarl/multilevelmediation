@@ -55,7 +55,8 @@ van der Leeden, R., Meijer, E., & Busing, F. M. T. A. (2008). Resampling multile
     - Try converting the data to a data frame. Support to automatically do this may eventually be forthcoming, but it should be easy for the end user to do this.
 
 ## Updates
-
+- Version 0.4.1
+    - Support for covariates for `brms`
 - Version 0.4.0
     - Support for `glmmTMB` (resid bootstrap still forthcoming).
     - Bugfix to error handling when covariates have random effects.

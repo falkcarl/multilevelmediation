@@ -19,6 +19,6 @@ bibentry(
   title = "multilevelmediation: Utility functions for multilevel mediation analysis in R",
   author = "C.F. Falk and T. Vogel and S. Hammami and M. Miočević",
   year = "2024",
-  note = "R package version 0.4.0",
+  note = "R package version 0.4.1",
   url = "https://github.com/falkcarl/multilevelmediation"
 )
