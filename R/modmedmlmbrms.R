@@ -14,15 +14,15 @@
 #' @param mod.a (Logical) Add moderator to 'a' path (i.e., SmX:W, where W is the moderator)?
 #' @param mod.b (Logical) Add moderator to 'b' path (i.e., SyM:W, where W is the moderator)?
 #' @param mod.cprime (Logical) Add moderator to 'c' path (i.e., SyX:W, where W is the moderator)
-#' @param covars.m (Character vector) Optional covariates to include in the model for M. (not yet implemented for brms)
-#' @param covars.y (Character vector) Optional covariates to include in the model for Y. (not yet implemented for brms)
+#' @param covars.m (Character vector) Optional covariates to include in the model for M.
+#' @param covars.y (Character vector) Optional covariates to include in the model for Y.
 #' @param random.mod.a (Logical) Add random slope for 'a' path moderator?
 #' @param random.mod.b (Logical) Add random slope for 'b' path moderator?
 #' @param random.mod.cprime (Logical) Add random slope for 'c' path moderator?
 #' @param random.mod.m (Logical) Add random slope for effect of moderator on M?
 #' @param random.mod.y (Logical) Add random slope for effect of moderator on Y?
-#' @param random.covars.m (Logical vector) Add random slopes for covariates on M? (not yet implemented for brms)
-#' @param random.covars.y (Logical vector) Add random slopes for covariates on Y? (not yet implemented for brms)
+#' @param random.covars.m (Logical vector) Add random slopes for covariates on M?
+#' @param random.covars.y (Logical vector) Add random slopes for covariates on Y?
 #' @param random.int.m (Logical) Add random intercept for M? (defaults to TRUE)
 #' @param random.int.y (Logical) Add random intercept for Y? (defaults to TRUE)
 #' @param returndata (Logical) Whether to save restructured data in its own slot. Defaults to \code{FALSE}.
@@ -111,10 +111,6 @@ modmed.mlm.brms<-function(data, L2ID, X, Y, M,
                      family = gaussian, iter = 7000, control = list(adapt_delta=0.95), chains = 4,
                      ...){
 
-  if(!is.null(covars.m) | !is.null(covars.y) | !is.null(random.covars.m) | !is.null(random.covars.y)){
-    stop("Covariates not yet supported for brms")
-  }
-
   if (is.null(moderator) && any(mod.a, mod.b, mod.cprime)) {
     # Give error if paths indicated as moderated, but no moderator name given
     stop("No moderator was specified for the moderated path(s).")
@@ -126,7 +122,7 @@ modmed.mlm.brms<-function(data, L2ID, X, Y, M,
                    covars.y = covars.y
   )
 
-# Create the formula for the fixed effects
+  # Create the formula for the fixed effects
   fixed.formula <- "Z ~ 0 + Sm + Sy + SmX + SyX + SyM" #use the default formula from BPG 2006
 
   # Add in the moderator to the paths if necessary
@@ -139,7 +135,17 @@ modmed.mlm.brms<-function(data, L2ID, X, Y, M,
     if (mod.b == FALSE && mod.cprime == TRUE) {fixed.formula <- paste(fixed.formula, "+ SyX:W")}
   }
 
-# Create the formula for the random effects
+  # Add any covariates to the paths if necessary
+  if (!is.null(covars.m)) {
+    covars.m_formula <-  paste0("+ Sm:", covars.m, collapse=" ") #write the formula for each covar specified
+    fixed.formula <- paste(fixed.formula, covars.m_formula)      #and add to main fixed fx formula
+  }
+  if (!is.null(covars.y)) {
+    covars.y_formula <-  paste0("+ Sy:", covars.y, collapse=" ") #write the formula for each covar specified
+    fixed.formula <- paste(fixed.formula, covars.y_formula)      #and add to main fixed fx formula
+  }
+
+  # Create the formula for the random effects
 
   random.formula <- " + (0 "
   if (random.int.m) {random.formula <- paste(random.formula, "+ Sm")}
@@ -155,10 +161,20 @@ modmed.mlm.brms<-function(data, L2ID, X, Y, M,
   if(random.mod.m && mod.a){random.formula <- paste(random.formula, "+ Sm:W")}
   if(random.mod.y && mod.b){random.formula <- paste(random.formula, "+ Sy:W")}
 
-# Add in the grouping variable after all the variables are entered
+  # Add random effects for covariates here, if any
+  if (!is.null(random.covars.m)) {
+    random.covars.m_formula <- paste0("+ Sm:", random.covars.m, collapse=" ")
+    random.formula <- paste(random.formula, random.covars.m_formula)
+  }
+  if (!is.null(random.covars.y)) {
+    random.covars.y_formula <- paste0("+ Sy:", random.covars.y, collapse=" ")
+    random.formula <- paste(random.formula, random.covars.y_formula)
+  }
+
+  # Add in the grouping variable after all the variables are entered
   random.formula <- paste(random.formula, "| L2id )")
 
-#Check if formula contains obly fixed-effects.
+  # Check if formula contains only fixed-effects.
   if (random.a == FALSE && random.b == FALSE && random.cprime == FALSE){
     formula <-fixed.formula
   }
