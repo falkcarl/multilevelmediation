@@ -18,7 +18,7 @@ Authors@R:
            family = "Miočević",
            role = "aut"))
 Maintainer: Carl F. Falk <carl.falk@mcgill.ca>
-BugReports: https://github.com/falkcarl/multilevelmediation
+BugReports: https://github.com/falkcarl/multilevelmediation/issues
 Description: The ultimate goal is to support 2-2-1, 2-1-1, and 1-1-1 models for
  multilevel mediation, the option of a moderating variable for either the a, b,
  or both paths, and covariates. Currently the 1-1-1 model is supported
