@@ -124,80 +124,91 @@
 #' @importFrom future plan multicore multisession
 #' @importFrom parallelly supportsMulticore
 #' @export boot.modmed.mlm.custom
-boot.modmed.mlm.custom <- function(data, L2ID, ...,
-                                   return.type="all",
-                                   modval1=NULL, modval2=NULL,
-                                   nrep=500,
-                                   boot.type = c("caseboth","case2","case1","resid"),
-                                   parallel.type=c("lapply","parallel","furrr"),
-                                   ncores=NULL,
-                                   seed=NULL)
-{
-
+boot.modmed.mlm.custom <- function(
+  data,
+  L2ID,
+  ...,
+  return.type = "all",
+  modval1 = NULL,
+  modval2 = NULL,
+  nrep = 500,
+  boot.type = c("caseboth", "case2", "case1", "resid"),
+  parallel.type = c("lapply", "parallel", "furrr"),
+  ncores = NULL,
+  seed = NULL
+) {
   call <- match.call()
 
   boot.type <- match.arg(boot.type)
   parallel.type <- match.arg(parallel.type)
 
   # point estimate
-  point<-modmed.mlm(data, L2ID, ..., returndata=T)
+  point <- modmed.mlm(data, L2ID, ..., returndata = T)
 
-  boot.fun<-function(i){
-    boot.modmed.mlm2(data, L2ID, ..., type=return.type,
-                     modval1 = modval1, modval2 = modval2,
-                     boot.type= boot.type,
-                     model = point)
+  boot.fun <- function(i) {
+    boot.modmed.mlm2(
+      data,
+      L2ID,
+      ...,
+      type = return.type,
+      modval1 = modval1,
+      modval2 = modval2,
+      boot.type = boot.type,
+      model = point
+    )
   }
 
   # do bootstrapping
-  if(parallel.type=="lapply"){
+  if (parallel.type == "lapply") {
     set.seed(seed)
     res <- lapply(1:nrep, boot.fun)
-    res<-do.call("rbind",res)
-
-  } else if (parallel.type=="parallel") {
+    res <- do.call("rbind", res)
+  } else if (parallel.type == "parallel") {
     cl <- makeCluster(ncores)
     clusterSetRNGStream(cl, seed)
-    res<-parLapply(cl, as.list(1:nrep), boot.fun)
-    res<-do.call("rbind",res)
+    res <- parLapply(cl, as.list(1:nrep), boot.fun)
+    res <- do.call("rbind", res)
     stopCluster(cl)
-  } else if (parallel.type=="furrr"){
-    if(supportsMulticore()){
-      plan(multicore, workers=ncores)
+  } else if (parallel.type == "furrr") {
+    if (supportsMulticore()) {
+      plan(multicore, workers = ncores)
     } else {
-      plan(multisession, workers=ncores)
+      plan(multisession, workers = ncores)
     }
-    res<-future_map(1:nrep, boot.fun,
-                    .options = furrr_options(seed=seed),
-                    .progress=TRUE)
-    res<-do.call("rbind",res)
+    res <- future_map(1:nrep, boot.fun, .options = furrr_options(seed = seed), .progress = TRUE)
+    res <- do.call("rbind", res)
   }
 
   # output - designed to mimic boot output for compatibility with extract functions
-  out <- list(call=call,
-              t0 = extract.modmed.mlm(point,type=return.type,modval1=modval1,modval2=modval2),
-              t = res,
-              model = point$model,
-              conv = point$conv,
-              args = point$args
+  out <- list(
+    call = call,
+    t0 = extract.modmed.mlm(point, type = return.type, modval1 = modval1, modval2 = modval2),
+    t = res,
+    model = point$model,
+    conv = point$conv,
+    args = point$args
   )
 }
 
 # Custom model fitting function for two-level (moderated) mediation
 # Currently hidden
-boot.modmed.mlm2 <- function(data, L2ID, ...,
-                             type="all",
-                             modval1=NULL, modval2=NULL,
-                             boot.type = c("caseboth","case2","case1","resid"),
-                             model=NULL) {
-
+boot.modmed.mlm2 <- function(
+  data,
+  L2ID,
+  ...,
+  type = "all",
+  modval1 = NULL,
+  modval2 = NULL,
+  boot.type = c("caseboth", "case2", "case1", "resid"),
+  model = NULL
+) {
   boot.type <- match.arg(boot.type)
 
   # manually apply case-wise resampling
-  if(boot.type=="caseboth"){
+  if (boot.type == "caseboth") {
     # Resample at L2 and then L1 within each L2 unit
     # Resample L2 units
-    L2 <- unlist(unique(data[, L2ID], use.names=FALSE))
+    L2 <- unlist(unique(data[, L2ID], use.names = FALSE))
     N <- length(L2)
     L2_indices <- sample(L2, N, replace = TRUE)
     # Resample L1 units
@@ -209,10 +220,10 @@ boot.modmed.mlm2 <- function(data, L2ID, ...,
       return(L2_sub)
     })
     rdat <- do.call("rbind", rdat)
-    result<-modmed.mlm(rdat,L2ID,...)
+    result <- modmed.mlm(rdat, L2ID, ...)
   } else if (boot.type == "case2") {
     # Resample L2 units
-    L2 <- unlist(unique(data[, L2ID], use.names=FALSE))
+    L2 <- unlist(unique(data[, L2ID], use.names = FALSE))
     N <- length(L2)
     L2_indices <- sample(L2, N, replace = TRUE)
     rdat <- lapply(L2_indices, function(x) {
@@ -220,10 +231,10 @@ boot.modmed.mlm2 <- function(data, L2ID, ...,
       return(L2_sub)
     })
     rdat <- do.call("rbind", rdat)
-    result<-modmed.mlm(rdat,L2ID,...)
+    result <- modmed.mlm(rdat, L2ID, ...)
   } else if (boot.type == "case1") {
     # No resampling of L2 units
-    L2 <- unlist(unique(data[, L2ID], use.names=FALSE))
+    L2 <- unlist(unique(data[, L2ID], use.names = FALSE))
     N <- length(L2)
     L2_indices <- L2
     # Resample L1 units
@@ -235,10 +246,9 @@ boot.modmed.mlm2 <- function(data, L2ID, ...,
       return(L2_sub)
     })
     rdat <- do.call("rbind", rdat)
-    result<-modmed.mlm(rdat,L2ID,...)
-  } else if(boot.type=="resid"){
-
-    if(inherits(model$model, "glmmTMB")){
+    result <- modmed.mlm(rdat, L2ID, ...)
+  } else if (boot.type == "resid") {
+    if (inherits(model$model, "glmmTMB")) {
       stop("residual bootstrap not yet supported for glmmTMB")
     }
     ## Extract stuff from model and compute residuals
@@ -246,37 +256,37 @@ boot.modmed.mlm2 <- function(data, L2ID, ...,
     # This may require computing all of this stuff and then passing residuals to this function
 
     # fixed effects
-    fe<-fixef(model$model)
+    fe <- fixef(model$model)
 
     # L2
-    l2groups<-unique(model$model$groups$L2id) # group IDs
-    nl2<-length(l2groups) # N at l2
+    l2groups <- unique(model$model$groups$L2id) # group IDs
+    nl2 <- length(l2groups) # N at l2
     l2resid <- random.effects(model$model) # random effects (l2 residuals)
     modvl2 <- randef.lme(model$model)$sig2 # extract var-cov of random effects
 
     # L1
     l1resid <- resid(model$model) # l1 residuals
-    l1sig<-model$model$sigma # l1 error sd for Y
-    l1varstruct<-model$model$modelStruct$varStruct # contains info about scaling of error for Y
-    l1sds<-(1/attr(l1varstruct,"weights")[1:2])*l1sig # obtain actual l1 error sds
-    l1vars<-diag(l1sds^2) # l1 error variances
-    l1groups<-attr(l1varstruct,"groups") # indicators for which obs is Y vs M
+    l1sig <- model$model$sigma # l1 error sd for Y
+    l1varstruct <- model$model$modelStruct$varStruct # contains info about scaling of error for Y
+    l1sds <- (1 / attr(l1varstruct, "weights")[1:2]) * l1sig # obtain actual l1 error sds
+    l1vars <- diag(l1sds^2) # l1 error variances
+    l1groups <- attr(l1varstruct, "groups") # indicators for which obs is Y vs M
     # it's critical that modmed.mlm does heteroscedasticity in same way, otherwise next lines break
-    yresid<-l1resid[l1groups=="0"] # l1 y residuals
-    mresid<-l1resid[l1groups=="1"] # l1 m residuals
-    alll1resid<-cbind(yresid,mresid) # all l1 residuals
-    nl1<-nrow(alll1resid) # N at l1
+    yresid <- l1resid[l1groups == "0"] # l1 y residuals
+    mresid <- l1resid[l1groups == "1"] # l1 m residuals
+    alll1resid <- cbind(yresid, mresid) # all l1 residuals
+    nl1 <- nrow(alll1resid) # N at l1
 
     ## Reflate stuff (Carpenter, Goldstein, & Rashbash, 2003)
 
     # L2
-    vl2<-var(l2resid)*(nl2-1)/nl2
-    LR<-chol(modvl2, pivot=TRUE)
-    LR<-LR[order(attr(LR,"pivot")),order(attr(LR,"pivot"))] # sometimes rank deficient, thus pivot used
-    LS<-chol(vl2, pivot=TRUE)
-    LS<-LS[order(attr(LS,"pivot")),order(attr(LS,"pivot"))]
-    A<-t(t(LR)%*%solve(t(LS)))
-    l2resid.infl<-as.matrix(l2resid)%*%A
+    vl2 <- var(l2resid) * (nl2 - 1) / nl2
+    LR <- chol(modvl2, pivot = TRUE)
+    LR <- LR[order(attr(LR, "pivot")), order(attr(LR, "pivot"))] # sometimes rank deficient, thus pivot used
+    LS <- chol(vl2, pivot = TRUE)
+    LS <- LS[order(attr(LS, "pivot")), order(attr(LS, "pivot"))]
+    A <- t(t(LR) %*% solve(t(LS)))
+    l2resid.infl <- as.matrix(l2resid) %*% A
 
     # check
     #var(l2resid.infl)*(nl2-1)/nl2 # should be close to modvl2
@@ -284,31 +294,31 @@ boot.modmed.mlm2 <- function(data, L2ID, ...,
     # L1
 
     # reflate L1 resid
-    vl1<-var(alll1resid)*(nl1-1)/nl1
-    LRl1<-chol(l1vars, pivot=TRUE)
-    LRl1<-LRl1[order(attr(LRl1,"pivot")),order(attr(LRl1,"pivot"))]
-    LSl1<-chol(vl1, pivot=TRUE)
-    LSl1<-LSl1[order(attr(LSl1,"pivot")),order(attr(LSl1,"pivot"))]
-    Al1<-t(t(LRl1)%*%solve(t(LSl1)))
-    l1resid.infl<-as.matrix(alll1resid)%*%Al1
+    vl1 <- var(alll1resid) * (nl1 - 1) / nl1
+    LRl1 <- chol(l1vars, pivot = TRUE)
+    LRl1 <- LRl1[order(attr(LRl1, "pivot")), order(attr(LRl1, "pivot"))]
+    LSl1 <- chol(vl1, pivot = TRUE)
+    LSl1 <- LSl1[order(attr(LSl1, "pivot")), order(attr(LSl1, "pivot"))]
+    Al1 <- t(t(LRl1) %*% solve(t(LSl1)))
+    l1resid.infl <- as.matrix(alll1resid) %*% Al1
 
     ## Do resampling
     # sample indices
-    L2idxsamp<-sample(1:nl2, nl2, replace=T)
-    L1Yidxsamp<-sample(1:nl1, nl1, replace=T)
-    L1Midxsamp<-sample(1:nl1, nl1, replace=T)
+    L2idxsamp <- sample(1:nl2, nl2, replace = T)
+    L1Yidxsamp <- sample(1:nl1, nl1, replace = T)
+    L1Midxsamp <- sample(1:nl1, nl1, replace = T)
 
     # use indices to sample residuals
-    l2resid.boot<-l2resid.infl[L2idxsamp,]
-    l1Yresid.boot<-l1resid.infl[L1Yidxsamp,1]
-    l1Mresid.boot<-l1resid.infl[L1Midxsamp,2]
-    l1resid.boot<-rep(NA,nl1*2)
-    l1resid.boot[l1groups=="0"]<-l1Yresid.boot
-    l1resid.boot[l1groups=="1"]<-l1Mresid.boot
+    l2resid.boot <- l2resid.infl[L2idxsamp, ]
+    l1Yresid.boot <- l1resid.infl[L1Yidxsamp, 1]
+    l1Mresid.boot <- l1resid.infl[L1Midxsamp, 2]
+    l1resid.boot <- rep(NA, nl1 * 2)
+    l1resid.boot[l1groups == "0"] <- l1Yresid.boot
+    l1resid.boot[l1groups == "1"] <- l1Mresid.boot
 
     # add fixed effects to l2 random effects
-    bootcoef<-(rep(1,nl2))%*%t(fe)
-    bootcoef[,colnames(l2resid.boot)]<- bootcoef[,colnames(l2resid.boot)] + l2resid.boot
+    bootcoef <- (rep(1, nl2)) %*% t(fe)
+    bootcoef[, colnames(l2resid.boot)] <- bootcoef[, colnames(l2resid.boot)] + l2resid.boot
 
     # copy of data frame
     rdat <- model$data
@@ -316,21 +326,18 @@ boot.modmed.mlm2 <- function(data, L2ID, ...,
     # Then, just directly compute Y and M & add to data frame
     tmp <- as.data.frame(model.matrix(model$model$terms, model$data))
     tmp$L2id <- model$data$L2id
-    for(grp in l2groups){
-      tmpsub<-as.matrix(tmp[tmp$L2id %in% grp, colnames(bootcoef)])
-      tmpcoef<-bootcoef[which(l2groups%in%grp), ]
-      rdat[rdat$L2id %in% grp, "Z"] <- tmpsub%*%t(t(tmpcoef)) # add Y and M to data frame
+    for (grp in l2groups) {
+      tmpsub <- as.matrix(tmp[tmp$L2id %in% grp, colnames(bootcoef)])
+      tmpcoef <- bootcoef[which(l2groups %in% grp), ]
+      rdat[rdat$L2id %in% grp, "Z"] <- tmpsub %*% t(t(tmpcoef)) # add Y and M to data frame
     }
 
-    rdat$Z<-rdat$Z+l1resid.boot # add l1 residuals
+    rdat$Z <- rdat$Z + l1resid.boot # add l1 residuals
 
     # estimate model
-    result<-modmed.mlm(NULL, L2ID, data.stacked=rdat, ...)
-
+    result <- modmed.mlm(NULL, L2ID, data.stacked = rdat, ...)
   }
   row.names(rdat) <- NULL
 
-  return(extract.modmed.mlm(result,type=type,modval1=modval1,modval2=modval2))
+  return(extract.modmed.mlm(result, type = type, modval1 = modval1, modval2 = modval2))
 }
-
-
