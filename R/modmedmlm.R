@@ -269,6 +269,9 @@ modmed.mlm <- function(
   #to the FE and RE function creations, and just have it passed out at end (either spearate like it is now,
   # or just as a list var that can be subset later??)
   #(but then need to subset that list in the formula funcs below, which maybe just introducing weird dependency?)
+  #FIXME: would be nice to be able to pass a list of things you want modded or random,
+  #  eg pass random = c("a", "b", "cprime") to set this to true (keep the original for bw compatibility)
+  #FIXME: would be nice to have a summary function work on this variable (have to use S3??)
 
   if (is.null(moderator) && any(mod.a, mod.b, mod.cprime)) {
     # Give error if paths indicated as moderated, but no moderator name given
@@ -280,29 +283,13 @@ modmed.mlm <- function(
 
   # save default estimation options, for backwards compatibility
   if (estimator == "lme" && is.null(control)) {
-    #FIXME: should just default to default lmeControl()?  how to keep this for bw compatibility, but have new stuff be the default for nlme??
-    control <- lmeControl(
-      maxIter = 10000L,
-      msMaxIter = 10000L,
-      niterEM = 10000L,
-      msMaxEval = 10000L,
-      tolerance = 1e-6
-    )
+    control <- lmeControl(maxIter = 10000L, msMaxIter = 10000L, niterEM = 10000L, msMaxEval = 10000L, tolerance = 1e-6)
   } else if (estimator == "glmmTMB" && is.null(control)) {
     control <- glmmTMBControl()
   }
 
   if (is.null(data.stacked)) {
-    tmp <- stack_bpg(
-      data,
-      L2ID,
-      X,
-      Y,
-      M,
-      moderator = moderator,
-      covars.m = covars.m,
-      covars.y = covars.y
-    )
+    tmp <- stack_bpg(data, L2ID, X, Y, M, moderator = moderator, covars.m = covars.m, covars.y = covars.y)
   } else {
     tmp <- data.stacked
   }
@@ -347,7 +334,6 @@ modmed.mlm <- function(
       data = tmp,
       method = method,
       control = control,
-      subset = NULL,
       ...
     ))
   } else if (estimator == "glmmTMB") {
@@ -365,7 +351,6 @@ modmed.mlm <- function(
       data = tmp,
       REML = (method == "REML"),
       control = control,
-      na.action = getOption("na.action"),
       ...
     )
 
@@ -383,6 +368,7 @@ modmed.mlm <- function(
   #FIXME: does glmmtmB give a try-error? or is that just when using try()? how to make this most flexible for other packages?
   #FIXME: wouldn't it be better to just pass the failed mod_med_tmp model, to diagnose based on lme/glmmtmb output?
   #FIXME: although would still need to wrap in a try()? Otherwise error might cause it to stop running??
+  #FIXME: or would it be better just for lme() to fail? then to hlep diagnose??
   if (inherits(mod_med_tmp, "try-error")) {
     out$model <- NULL
     out$conv <- FALSE # boolean or some other code?
@@ -396,8 +382,6 @@ modmed.mlm <- function(
   }
 
   #out$call <- match.call()
-  #TODO: TV: Have a test that checks that this matches the list of parameters for the function call above?
-  #FIXME: ie check that the output args match the input args that are passed (including that those not passed are not included??)
   out$args <- list(
     L2ID = L2ID,
     X = X,
@@ -433,7 +417,7 @@ modmed.mlm <- function(
 
 #TODO: add documentation using roxygen skeleton
 #FIXME: rename variables to something more intuitive? Eg a, b & cprime paths?
-make_fixed_formula <- function(mod.a, mod.b, mod.cprime, covars.m, covars.y) {
+make_fixed_formula <- function(mod.a = FALSE, mod.b = FALSE, mod.cprime = FALSE, covars.m = NULL, covars.y = NULL) {
   fixed.formula <- "Z ~ 0 + Sm + Sy + SmX + SyX + SyM" #use the default formula from BPG 2006
 
   # Add in the moderator to the paths if necessary
@@ -471,24 +455,24 @@ make_fixed_formula <- function(mod.a, mod.b, mod.cprime, covars.m, covars.y) {
 #TODO: add documentation using roxygen skeleton
 #FIXME: can maybe force randommod.a to be true only if mod.a is true? to reduce number of args here...
 make_random_formula <- function(
-  random.int.m,
-  random.int.y,
-  random.a,
-  random.b,
-  random.cprime,
-  random.mod.a,
-  random.mod.b,
-  random.mod.cprime,
-  random.mod.m,
-  random.mod.y,
-  random.covars.m,
-  random.covars.y,
-  mod.a,
-  mod.b,
-  mod.cprime
+  random.int.m = TRUE,
+  random.int.y = TRUE,
+  random.a = FALSE,
+  random.b = FALSE,
+  random.cprime = FALSE,
+  random.mod.a = FALSE,
+  random.mod.b = FALSE,
+  random.mod.cprime = FALSE,
+  random.mod.m = FALSE,
+  random.mod.y = FALSE,
+  random.covars.m = NULL,
+  random.covars.y = NULL,
+  mod.a = FALSE,
+  mod.b = FALSE,
+  mod.cprime = FALSE
 ) {
   # Create the formula for the random effects
-  random.formula <- "~ 0 "
+  random.formula <- "~ 0"
   if (random.int.m) {
     random.formula <- paste(random.formula, "+ Sm")
   }
@@ -508,19 +492,34 @@ make_random_formula <- function(
   # Add random effects for moderator here, if any
   if (random.mod.a && mod.a) {
     random.formula <- paste(random.formula, "+ SmX:W")
+  } else if (random.mod.a && !mod.a) {
+    stop("mod.a must be set to TRUE to add random effect of moderated a path.")
   }
+
   if (random.mod.b && mod.b) {
     random.formula <- paste(random.formula, "+ SyM:W")
+  } else if (random.mod.b && !mod.b) {
+    stop("mod.b must be set to TRUE to add random effect of moderated b path.")
   }
+
   if (random.mod.cprime && mod.cprime) {
     random.formula <- paste(random.formula, "+ SyX:W")
+  } else if (random.mod.cprime && !mod.cprime) {
+    stop("mod.cprime must be set to TRUE to add random effect of moderated cprime path.")
   }
+
   if (random.mod.m && mod.a) {
     random.formula <- paste(random.formula, "+ Sm:W")
+  } else if (random.mod.m && !mod.a) {
+    stop("mod.a must be set to TRUE to add random effect of moderated Sm.")
   }
+
   if (random.mod.y && mod.b) {
     random.formula <- paste(random.formula, "+ Sy:W")
+  } else if (random.mod.y && !mod.b) {
+    stop("mod.b must be set to TRUE to add random effect of moderated Sy.")
   }
+
   #TV: would there ever be a situation where Sm or Sy would be moderated, but not their paths? (eg SmX, SyM, etc)
   #TV: eg, would random.mod.m ever be true if random.mod.a was not true?
   #CFF: I would suppose it's possible. Depends on user's theory. Leave in for more flexibilty.
@@ -528,7 +527,7 @@ make_random_formula <- function(
   # Add random effects for covariates here, if any
   #TODO: TV: currently doesn't check whether random covariates have the same
   #name as other variables in the model, or are the same covariates in the fixed fx formula.
-  # Is possible to specify random covars not in the fixed formula, but may give an error with lme (although can be implemented, would just have to save random covar to the data above)
+  # FIXME: Is possible to specify random covars not in the fixed formula, but may give an error with lme (although can be implemented, would just have to save random covar to the data above)
   if (!is.null(random.covars.m)) {
     random.covars.m_formula <- paste0("+ Sm:", random.covars.m, collapse = " ")
     random.formula <- paste(random.formula, random.covars.m_formula)
@@ -540,4 +539,5 @@ make_random_formula <- function(
 
   # Add in the grouping variable after all the variables are entered
   random.formula <- paste(random.formula, "| L2id")
+  return(random.formula)
 }
