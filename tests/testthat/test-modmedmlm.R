@@ -4,7 +4,6 @@ data("simdat")
 #TODO: Load in pre-fit models, rather than need to rerun every time
 #TODO: move tests that use extract function to test-extract.R.
 #TODO: Check invalid stacked data is handled correctly
-#TODO: add tests comparing lme vs glmmTMB outputs
 #TODO: add tests for datmfun...
 
 # make_fixed_formula ----
@@ -13,7 +12,6 @@ test_that("make_fixed_formula default args match modmed.mlm defaults", {
   modmedmlm_args <- formals("modmed.mlm")
   expect_identical(as.list(fe_args), modmedmlm_args[c("mod.a", "mod.b", "mod.cprime", "covars.m", "covars.y")])
 })
-
 
 test_that("make_fixed_formula output is correct", {
   #FIXME: does the formula have to be in this exact order? or can just check if elements exist?
@@ -59,7 +57,6 @@ test_that("make_random_formula default args match modmed.mlm", {
     )]
   )
 })
-
 
 test_that("make_random_formula output is correct", {
   expect_identical(make_random_formula(), "~ 0 + Sm + Sy | L2id")
@@ -118,9 +115,10 @@ test_that("moderator args correct", {
 })
 
 test_that("non-default 'control' arg is passed correctly", {
+  #FIXME: maybe can just use update() function here to check things? eg can also just load from a prefit default model to make things easier/quicker...
   fit_lme_default <- modmed.mlm(BPG06dat, L2ID = "id", X = "x", Y = "y", M = "m")
   fit_lme_new <- modmed.mlm(BPG06dat, L2ID = "id", X = "x", Y = "y", M = "m", control = lmeControl())
-  fit_glmmTMB <- modmed.mlm(
+  fit_glmmtmb <- modmed.mlm(
     data = BPG06dat,
     L2ID = "id",
     X = "x",
@@ -134,7 +132,7 @@ test_that("non-default 'control' arg is passed correctly", {
     lmeControl(maxIter = 10000L, msMaxIter = 10000L, niterEM = 10000L, msMaxEval = 10000L, tolerance = 1e-6)
   ) # this is the current default, keep in tests for backwards compatibility?
   expect_identical(fit_lme_new$args$control, lmeControl())
-  expect_identical(fit_glmmTMB$args$control, glmmTMBControl())
+  expect_identical(fit_glmmtmb$args$control, glmmTMBControl(optCtrl = list(iter.max = 100L)))
 })
 
 # Returned objects ----
@@ -153,13 +151,18 @@ test_that("Invalid stacked data is handled correctly", {
   #TODO
 })
 
-# Model output ----
+# lme vs glmmTMB output ----
 test_that("lme vs glmmTMB outputs", {
-  #TODO
+  fit_lme <- modmed.mlm(BPG06dat, L2ID = "id", X = "x", Y = "y", M = "m")
+  fit_glmmtmb <- modmed.mlm(BPG06dat, L2ID = "id", X = "x", Y = "y", M = "m", estimator = "glmmTMB")
+
+  expect_equal(fixef(fit_lme$model), fixef(fit_glmmtmb$model)$cond, tolerance = 1e-5) #fixed effects
+  expect_equal(unclass(ranef(fit_lme$model)$Sm), ranef(fit_glmmtmb$model)$cond$L2id$Sm, tolerance = 1e-4) # Sm
+  expect_equal(unclass(ranef(fit_lme$model)$Sy), ranef(fit_glmmtmb$model)$cond$L2id$Sy, tolerance = 1e-4) # Sy
 })
 
 
-# Old tests, should be removed or moved to test-extract.R ----
+#FIXME Old tests, should be removed or moved to test-extract.R ----
 test_that("BPG rand a rand b", {
   fit <- modmed.mlm(BPG06dat, "id", "x", "y", "m", random.a = TRUE, random.b = TRUE)
 
