@@ -131,7 +131,7 @@ boot.modmed.mlm.custom <- function(
   return.type = "all",
   modval1 = NULL,
   modval2 = NULL,
-  nrep = 500,
+  nrep = 500L,
   boot.type = c("caseboth", "case2", "case1", "resid"),
   parallel.type = c("lapply", "parallel", "furrr"),
   ncores = NULL,
@@ -143,7 +143,7 @@ boot.modmed.mlm.custom <- function(
   parallel.type <- match.arg(parallel.type)
 
   # point estimate
-  point <- modmed.mlm(data, L2ID, ..., returndata = T)
+  point <- modmed.mlm(data, L2ID, ..., returndata = TRUE)
 
   boot.fun <- function(i) {
     boot.modmed.mlm2(
@@ -268,8 +268,8 @@ boot.modmed.mlm2 <- function(
     l1resid <- resid(model$model) # l1 residuals
     l1sig <- model$model$sigma # l1 error sd for Y
     l1varstruct <- model$model$modelStruct$varStruct # contains info about scaling of error for Y
-    l1sds <- (1 / attr(l1varstruct, "weights")[1:2]) * l1sig # obtain actual l1 error sds
-    l1vars <- diag(l1sds^2) # l1 error variances
+    l1sds <- (1.0 / attr(l1varstruct, "weights")[1:2]) * l1sig # obtain actual l1 error sds
+    l1vars <- diag(l1sds^2.0) # l1 error variances
     l1groups <- attr(l1varstruct, "groups") # indicators for which obs is Y vs M
     # it's critical that modmed.mlm does heteroscedasticity in same way, otherwise next lines break
     yresid <- l1resid[l1groups == "0"] # l1 y residuals
@@ -304,14 +304,14 @@ boot.modmed.mlm2 <- function(
 
     ## Do resampling
     # sample indices
-    L2idxsamp <- sample(1:nl2, nl2, replace = T)
-    L1Yidxsamp <- sample(1:nl1, nl1, replace = T)
-    L1Midxsamp <- sample(1:nl1, nl1, replace = T)
+    L2idxsamp <- sample(1:nl2, nl2, replace = TRUE)
+    L1Yidxsamp <- sample(1:nl1, nl1, replace = TRUE)
+    L1Midxsamp <- sample(1:nl1, nl1, replace = TRUE)
 
     # use indices to sample residuals
     l2resid.boot <- l2resid.infl[L2idxsamp, ]
-    l1Yresid.boot <- l1resid.infl[L1Yidxsamp, 1]
-    l1Mresid.boot <- l1resid.infl[L1Midxsamp, 2]
+    l1Yresid.boot <- l1resid.infl[L1Yidxsamp, 1L]
+    l1Mresid.boot <- l1resid.infl[L1Midxsamp, 2L]
     l1resid.boot <- rep(NA, nl1 * 2)
     l1resid.boot[l1groups == "0"] <- l1Yresid.boot
     l1resid.boot[l1groups == "1"] <- l1Mresid.boot

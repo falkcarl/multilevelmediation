@@ -5,7 +5,7 @@ test_that("custom double boot", {
   skip_on_cran()
   boot.result <- boot.modmed.mlm.custom(
     BPG06dat,
-    nrep = 100,
+    nrep = 100L,
     L2ID = "id",
     X = "x",
     Y = "y",
@@ -15,21 +15,21 @@ test_that("custom double boot", {
     random.cprime = TRUE,
     boot.type = "caseboth",
     parallel.type = "parallel",
-    ncores = 2,
-    seed = 9912,
+    ncores = 2L,
+    seed = 9912L,
     control = list(opt = "nlm")
   )
 
   expect_snapshot(boot.result$t0)
-  expect_snapshot(extract.boot.modmed.mlm(boot.result, type = "indirect", ci.conf = .95))
-  expect_snapshot(extract.boot.modmed.mlm(boot.result, type = "a", ci.conf = .95))
-  expect_snapshot(extract.boot.modmed.mlm(boot.result, type = "b", ci.conf = .95))
-  expect_snapshot(extract.boot.modmed.mlm(boot.result, type = "cprime", ci.conf = .95))
-  expect_snapshot(extract.boot.modmed.mlm(boot.result, type = "covab", ci.conf = .95))
+  expect_snapshot(extract.boot.modmed.mlm(boot.result, type = "indirect", ci.conf = 0.95))
+  expect_snapshot(extract.boot.modmed.mlm(boot.result, type = "a", ci.conf = 0.95))
+  expect_snapshot(extract.boot.modmed.mlm(boot.result, type = "b", ci.conf = 0.95))
+  expect_snapshot(extract.boot.modmed.mlm(boot.result, type = "cprime", ci.conf = 0.95))
+  expect_snapshot(extract.boot.modmed.mlm(boot.result, type = "covab", ci.conf = 0.95))
 
   boot.result2 <- boot.modmed.mlm.custom(
     BPG06dat,
-    nrep = 100,
+    nrep = 100L,
     L2ID = "id",
     X = "x",
     Y = "y",
@@ -40,38 +40,38 @@ test_that("custom double boot", {
     boot.type = "caseboth",
     estimator = "glmmTMB",
     parallel.type = "parallel",
-    ncores = 2,
-    seed = 9912
+    ncores = 2L,
+    seed = 9912L
   )
 
   # check glmmTMB vs nlme
   expect_equal(
-    extract.boot.modmed.mlm(boot.result, type = "indirect", ci.conf = .95)$CI,
-    extract.boot.modmed.mlm(boot.result2, type = "indirect", ci.conf = .95)$CI,
+    extract.boot.modmed.mlm(boot.result, type = "indirect", ci.conf = 0.95)$CI,
+    extract.boot.modmed.mlm(boot.result2, type = "indirect", ci.conf = 0.95)$CI,
     tolerance = 1e-3
   )
 
   expect_equal(
-    extract.boot.modmed.mlm(boot.result, type = "a", ci.conf = .95)$CI,
-    extract.boot.modmed.mlm(boot.result2, type = "a", ci.conf = .95)$CI,
+    extract.boot.modmed.mlm(boot.result, type = "a", ci.conf = 0.95)$CI,
+    extract.boot.modmed.mlm(boot.result2, type = "a", ci.conf = 0.95)$CI,
     tolerance = 1e-3
   )
 
   expect_equal(
-    extract.boot.modmed.mlm(boot.result, type = "b", ci.conf = .95)$CI,
-    extract.boot.modmed.mlm(boot.result2, type = "b", ci.conf = .95)$CI,
+    extract.boot.modmed.mlm(boot.result, type = "b", ci.conf = 0.95)$CI,
+    extract.boot.modmed.mlm(boot.result2, type = "b", ci.conf = 0.95)$CI,
     tolerance = 1e-3
   )
 
   expect_equal(
-    extract.boot.modmed.mlm(boot.result, type = "cprime", ci.conf = .95)$CI,
-    extract.boot.modmed.mlm(boot.result2, type = "cprime", ci.conf = .95)$CI,
+    extract.boot.modmed.mlm(boot.result, type = "cprime", ci.conf = 0.95)$CI,
+    extract.boot.modmed.mlm(boot.result2, type = "cprime", ci.conf = 0.95)$CI,
     tolerance = 1e-3
   )
 
   expect_equal(
-    extract.boot.modmed.mlm(boot.result, type = "covab", ci.conf = .95)$CI,
-    extract.boot.modmed.mlm(boot.result2, type = "covab", ci.conf = .95)$CI,
+    extract.boot.modmed.mlm(boot.result, type = "covab", ci.conf = 0.95)$CI,
+    extract.boot.modmed.mlm(boot.result2, type = "covab", ci.conf = 0.95)$CI,
     tolerance = 1e-2
   )
 })
@@ -80,7 +80,7 @@ test_that("custom level 2 boot", {
   skip_on_cran()
   boot.result <- boot.modmed.mlm.custom(
     BPG06dat,
-    nrep = 100,
+    nrep = 100L,
     L2ID = "id",
     X = "x",
     Y = "y",
@@ -90,17 +90,17 @@ test_that("custom level 2 boot", {
     random.cprime = TRUE,
     boot.type = "case2",
     parallel.type = "parallel",
-    ncores = 2,
-    seed = 9912,
+    ncores = 2L,
+    seed = 9912L,
     control = list(opt = "nlm")
   )
 
   expect_snapshot(boot.result$t0)
-  expect_snapshot(extract.boot.modmed.mlm(boot.result, type = "indirect", ci.conf = .95))
-  expect_snapshot(extract.boot.modmed.mlm(boot.result, type = "a", ci.conf = .95))
-  expect_snapshot(extract.boot.modmed.mlm(boot.result, type = "b", ci.conf = .95))
-  expect_snapshot(extract.boot.modmed.mlm(boot.result, type = "cprime", ci.conf = .95))
-  expect_snapshot(extract.boot.modmed.mlm(boot.result, type = "covab", ci.conf = .95))
+  expect_snapshot(extract.boot.modmed.mlm(boot.result, type = "indirect", ci.conf = 0.95))
+  expect_snapshot(extract.boot.modmed.mlm(boot.result, type = "a", ci.conf = 0.95))
+  expect_snapshot(extract.boot.modmed.mlm(boot.result, type = "b", ci.conf = 0.95))
+  expect_snapshot(extract.boot.modmed.mlm(boot.result, type = "cprime", ci.conf = 0.95))
+  expect_snapshot(extract.boot.modmed.mlm(boot.result, type = "covab", ci.conf = 0.95))
 })
 
 
@@ -108,7 +108,7 @@ test_that("custom resid boot", {
   skip_on_cran()
   boot.result <- boot.modmed.mlm.custom(
     BPG06dat,
-    nrep = 100,
+    nrep = 100L,
     L2ID = "id",
     X = "x",
     Y = "y",
@@ -118,15 +118,15 @@ test_that("custom resid boot", {
     random.cprime = TRUE,
     boot.type = "resid",
     parallel.type = "parallel",
-    ncores = 2,
-    seed = 9912,
+    ncores = 2L,
+    seed = 9912L,
     control = list(opt = "nlm")
   )
 
   expect_snapshot(boot.result$t0)
-  expect_snapshot(extract.boot.modmed.mlm(boot.result, type = "indirect", ci.conf = .95))
-  expect_snapshot(extract.boot.modmed.mlm(boot.result, type = "a", ci.conf = .95))
-  expect_snapshot(extract.boot.modmed.mlm(boot.result, type = "b", ci.conf = .95))
-  expect_snapshot(extract.boot.modmed.mlm(boot.result, type = "cprime", ci.conf = .95))
-  expect_snapshot(extract.boot.modmed.mlm(boot.result, type = "covab", ci.conf = .95))
+  expect_snapshot(extract.boot.modmed.mlm(boot.result, type = "indirect", ci.conf = 0.95))
+  expect_snapshot(extract.boot.modmed.mlm(boot.result, type = "a", ci.conf = 0.95))
+  expect_snapshot(extract.boot.modmed.mlm(boot.result, type = "b", ci.conf = 0.95))
+  expect_snapshot(extract.boot.modmed.mlm(boot.result, type = "cprime", ci.conf = 0.95))
+  expect_snapshot(extract.boot.modmed.mlm(boot.result, type = "covab", ci.conf = 0.95))
 })
