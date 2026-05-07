@@ -227,10 +227,12 @@
 #'                 random.a=TRUE, random.b=TRUE, random.cprime=TRUE,
 #'                 na.action = na.omit)
 #' }
-#' @importFrom nlme lmeControl lme fixef getVarCov varIdent
-#' @importFrom glmmTMB glmmTMBControl glmmTMB VarCorr
-#' @importFrom matrixcalc vech
-#' @importFrom MCMCpack xpnd
+# #' @importFrom nlme lmeControl lme fixef getVarCov varIdent # FIXME fixef, getVarCov not used?
+# #' @importFrom glmmTMB glmmTMBControl glmmTMB VarCorr # FIXME: VarCorr not used?
+#' @importFrom nlme lmeControl lme varIdent
+#' @importFrom glmmTMB glmmTMBControl glmmTMB
+# #' @importFrom matrixcalc vech # FIXME neither used here?
+# #' @importFrom MCMCpack xpnd # FIXME neither used here?
 #' @importFrom stats as.formula
 #' @export modmed.mlm
 modmed.mlm <- function(
@@ -265,14 +267,6 @@ modmed.mlm <- function(
   data.stacked = NULL,
   ...
 ) {
-  #TODO: maybe can put all formula args into one list var, then can just pass that
-  #to the FE and RE function creations, and just have it passed out at end (either spearate like it is now,
-  # or just as a list var that can be subset later??)
-  #(but then need to subset that list in the formula funcs below, which maybe just introducing weird dependency?)
-  #FIXME: would be nice to be able to pass a list of things you want modded or random,
-  #  eg pass random = c("a", "b", "cprime") to set this to true (keep the original for bw compatibility)
-  #FIXME: would be nice to have a summary function work on this variable (have to use S3??)
-
   if (is.null(moderator) && any(mod.a, mod.b, mod.cprime)) {
     # Give error if paths indicated as moderated, but no moderator name given
     stop("No moderator was specified for the moderated path(s).")
@@ -306,7 +300,7 @@ modmed.mlm <- function(
     covars.m = covars.m,
     covars.y = covars.y
   )
-  #FIXME: just pass all args to these? and have the make formaula figure out what is needed? that way don't need to change input args here AND there.
+  # FIXME: just pass all args to these? and have the make formula figure out what is needed? that way don't need to change input args here AND there.
   random.formula <- make_random_formula(
     random.int.m = random.int.m,
     random.int.y = random.int.y,
@@ -366,9 +360,7 @@ modmed.mlm <- function(
 
   # some error handling, just in case
   #FIXME: does glmmtmB give a try-error? or is that just when using try()? how to make this most flexible for other packages?
-  #FIXME: wouldn't it be better to just pass the failed mod_med_tmp model, to diagnose based on lme/glmmtmb output?
-  #FIXME: although would still need to wrap in a try()? Otherwise error might cause it to stop running??
-  #FIXME: or would it be better just for lme() to fail? then to hlep diagnose??
+  #FIXME: better to just pass the failed mod_med_tmp model instead of NULL? to diagnose based output easier?
   if (inherits(mod_med_tmp, "try-error")) {
     out$model <- NULL
     out$conv <- FALSE # boolean or some other code?
@@ -415,27 +407,22 @@ modmed.mlm <- function(
 }
 
 
-#TODO: add documentation using roxygen skeleton
-#FIXME: rename variables to something more intuitive? Eg a, b & cprime paths?
+# TODO: add documentation using roxygen skeleton?
 make_fixed_formula <- function(mod.a = FALSE, mod.b = FALSE, mod.cprime = FALSE, covars.m = NULL, covars.y = NULL) {
   fixed.formula <- "Z ~ 0 + Sm + Sy + SmX + SyX + SyM" #use the default formula from BPG 2006
 
   # Add in the moderator to the paths if necessary
-  # Note: interactions w/ "W" must must use selector variables in this way
+  # Note: interactions with "W" must must use selector variables in this way
   if (mod.a) {
     fixed.formula <- paste(fixed.formula, "+ Sm:W + SmX:W")
   }
-  #FIXME: do we need 3 unique if statements? why not just check b and then cprime? why need to add both?
-  #FIXME: does formula order matter? can check lme and glmmtmb outputs to see
+  #if b or c path is moderated, Sy component will always be there (prevents adding redundant parameters if both b & c are moderated)
   if (mod.b || mod.cprime) {
-    fixed.formula <- paste(fixed.formula, "+ Sy:W") #if b or c path is moderated, Sy component will always be there (prevents adding redundant parameters if both b & c are moderated)
-    if (mod.b && mod.cprime) {
-      fixed.formula <- paste(fixed.formula, "+ SyM:W + SyX:W")
-    }
-    if (mod.b && !mod.cprime) {
+    fixed.formula <- paste(fixed.formula, "+ Sy:W")
+    if (mod.b) {
       fixed.formula <- paste(fixed.formula, "+ SyM:W")
     }
-    if (!mod.b && mod.cprime) {
+    if (mod.cprime) {
       fixed.formula <- paste(fixed.formula, "+ SyX:W")
     }
   }
@@ -452,8 +439,7 @@ make_fixed_formula <- function(mod.a = FALSE, mod.b = FALSE, mod.cprime = FALSE,
   return(fixed.formula)
 }
 
-#TODO: add documentation using roxygen skeleton
-#FIXME: can maybe force randommod.a to be true only if mod.a is true? to reduce number of args here...
+# TODO: add documentation using roxygen skeleton?
 make_random_formula <- function(
   random.int.m = TRUE,
   random.int.y = TRUE,
@@ -525,9 +511,7 @@ make_random_formula <- function(
   #CFF: I would suppose it's possible. Depends on user's theory. Leave in for more flexibilty.
 
   # Add random effects for covariates here, if any
-  #TODO: TV: currently doesn't check whether random covariates have the same
-  #name as other variables in the model, or are the same covariates in the fixed fx formula.
-  # FIXME: Is possible to specify random covars not in the fixed formula, but may give an error with lme (although can be implemented, would just have to save random covar to the data above)
+  # TODO: TV: currently doesn't check whether random covariates have the samename as other variables in the model, or are the same covariates in the fixed fx formula.
   if (!is.null(random.covars.m)) {
     random.covars.m_formula <- paste0("+ Sm:", random.covars.m, collapse = " ")
     random.formula <- paste(random.formula, random.covars.m_formula)

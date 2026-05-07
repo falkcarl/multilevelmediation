@@ -56,7 +56,7 @@ extract.modmed.mlm <- function(
   modval2 = NULL
 ) {
   type <- match.arg(type)
-  args <- fit$args
+  mod_args <- fit$args
 
   if (!fit$conv || is.null(fit$model)) {
     # If model fitting was a problem
@@ -64,13 +64,13 @@ extract.modmed.mlm <- function(
     # This is a bit tenuous if support for more variables changes, however
 
     # Grab if a, b, c paths were moderated
-    moda <- unlist(args[grepl("^mod\\.a", names(args))])
-    modb <- unlist(args[grepl("^mod\\.b", names(args))])
-    modc <- unlist(args[grepl("^mod\\.c", names(args))])
+    moda <- unlist(mod_args[grepl("^mod\\.a", names(mod_args))])
+    modb <- unlist(mod_args[grepl("^mod\\.b", names(mod_args))])
+    modc <- unlist(mod_args[grepl("^mod\\.c", names(mod_args))])
 
     # Grab number of covariates for m and y outcomes
-    cova = length(eval(args$covars.m))
-    covb = length(eval(args$covars.y))
+    cova <- length(eval(mod_args$covars.m))
+    covb <- length(eval(mod_args$covars.y))
 
     nfixefa <- 2 + ifelse(any(moda), 2, 0) + cova # number of fixed effects first model
     nfixefb <- 3 + ifelse(any(modb) || any(modc), 1, 0) + any(modb) + any(modc) + covb #number of fixed effects second model
@@ -78,32 +78,22 @@ extract.modmed.mlm <- function(
 
     # re due to 2 random intercepts
     nre <- 0
-    nre <- nre + sum(unlist(args[grepl("^random\\.int\\.([my])$", names(args))]))
+    nre <- nre + sum(unlist(mod_args[grepl("^random\\.int\\.([my])$", names(mod_args))]))
 
     # re due to abc paths
-    nre <- nre + sum(unlist(args[grepl("^random\\.([ab]|cprime)$", names(args))]))
+    nre <- nre + sum(unlist(mod_args[grepl("^random\\.([ab]|cprime)$", names(mod_args))]))
 
     # re due to covariates
-    nre <- nre + length(unlist(args[grepl("^random\\.covars\\.([my])$", names(args))]))
+    nre <- nre + length(unlist(mod_args[grepl("^random\\.covars\\.([my])$", names(mod_args))]))
 
     # re due to moderator effects
-    nre <- nre + sum(unlist(args[grepl("^random\\.mod\\.([abym]|cprime)$", names(args))]))
+    nre <- nre + sum(unlist(mod_args[grepl("^random\\.mod\\.([abym]|cprime)$", names(mod_args))]))
 
     nre <- nre * nre # duplicates not yet removed
 
     out <- vector("numeric")
 
-    if (
-      type == "indirect" ||
-        type == "a" ||
-        type == "b" ||
-        type == "cprime" ||
-        type == "covab" ||
-        type == "indirect.diff" ||
-        type == "a.diff" ||
-        type == "b.diff" ||
-        type == "cprime.diff"
-    ) {
+    if (type %in% c("indirect", "a", "b", "cprime", "covab", "indirect.diff", "a.diff", "b.diff", "cprime.diff")) {
       out <- NA
     } else if (type == "all") {
       out <- rep(NA, nfex + nre)
@@ -147,7 +137,7 @@ extract.modmed.mlm <- function(
     } else if (type == "recov.vec") {
       out <- sig2vec
     } else {
-      out <- compute.indirect(all, args = args, type = type, modval1 = modval1, modval2 = modval2)
+      out <- compute.indirect(all, args = mod_args, type = type, modval1 = modval1, modval2 = modval2)
     }
   }
   out
@@ -232,7 +222,7 @@ randef.lme <- function(model) {
 #'    control=list(opt="nlm"))
 #'
 #' # Point estimate and 95% CI for indirect effect
-#' extract.boot.modmed.mlm(boot.result, type="indirect", ci.conf=.95)
+#' extract.boot.modmed.mlm(boot.result, type="indirect", ci.conf=0.95)
 #'
 #' }
 #' @importFrom stats quantile
@@ -240,7 +230,7 @@ extract.boot.modmed.mlm <- function(
   boot.obj,
   type = c("indirect", "a", "b", "cprime", "covab", "indirect.diff", "a.diff", "b.diff", "cprime.diff"),
   ci.type = "perc",
-  ci.conf = .95,
+  ci.conf = 0.95,
   modval1 = NULL,
   modval2 = NULL
 ) {
@@ -282,14 +272,16 @@ extract.boot.modmed.mlm <- function(
 #' @importFrom brms as_draws_matrix
 compute.indirect <- function(
   v,
-  args,
+  args, #TODO: change this to mod_args to avoid overloading base variable name? (although creates bw compatibility issue?)
   type = c("indirect", "a", "b", "cprime", "covab", "indirect.diff", "a.diff", "b.diff", "cprime.diff"),
-  modval1 = NULL,
+  modval1 = NULL, #FIXME: better to set these to zero instead of NULL? (since should do the same thing?)
   modval2 = NULL,
   boot = TRUE
 ) {
   # TODO: need some input checking here. e.g., .diff isn't relevant unless both modval1 and modval2 are specified
-  # And these would not work unless relevant moderation effects are actually estimated mod.a, mod.b, mod.cprime
+  # (And these would not work unless relevant moderation effects are actually estimated mod.a, mod.b, mod.cprime)
+  # TODO: raise error sooner if type=="covab" and random.a and random.b are not both TRUE
+  # TODO: raise error sooner if type=="indirect.diff" and mod.a and mod.b are not both TRUE
 
   if (boot) {
     a1 <- a2 <- v["SmX"]
@@ -301,7 +293,8 @@ compute.indirect <- function(
     cprime1 <- cprime2 <- as_draws_matrix(v, "b_SyX")
   }
 
-  # If moderation effects, modify a and b
+  # If moderation effects, modify a and b and cprime as needed
+  #TODO: Should add checking/throw errors for modval inputs? Eg if they are the same or are NA or something
   if (!is.null(args$mod.a) && args$mod.a && !is.null(modval1)) {
     if (boot) {
       a1 <- a1 + v["SmX:W"] * modval1
@@ -354,6 +347,7 @@ compute.indirect <- function(
   # additional adjustments to indirect effect from random effects
 
   # cov among a and b paths
+  # FIXME: are these redundant? can just check if random.a and/or random.b are TRUE??
   if (!is.null(args$random.a) && !is.null(args$random.b) && args$random.a && args$random.b) {
     if (boot) {
       covab <- v["re.SmXSyM"]
@@ -370,9 +364,8 @@ compute.indirect <- function(
   }
 
   # random effects in case interaction term has random effects
-  # TODO: Add options so that these random effects could also be returned?
-  #     Mostly for debugging purposes I suppose
   if (!is.null(modval1)) {
+    # FIXME: if random.b is always true or false, do we need is.null()?
     if (
       !is.null(args$random.b) &&
         !is.null(args$mod.a) &&
@@ -385,6 +378,7 @@ compute.indirect <- function(
         ab1 <- ab1 + modval1 * v["re.SyMSmX:W"] # times covariance between re.b and re.mod.a
       } else {
         # correl bw/ re.b and re.mod.a
+        # TODO: here and elsewhere, is this specific to brms code? maybe safer to put in `elseif`, rather than just `else`
         correl <- as_draws_matrix(v, "cor_L2id__SyM__SmX:W")
         sd1 <- as_draws_matrix(v, "sd_L2id__SyM") # sd
         sd2 <- as_draws_matrix(v, "sd_L2id__SmX:W") # sd
@@ -392,6 +386,7 @@ compute.indirect <- function(
         ab1 <- ab1 + modval1 * covre
       }
     }
+
     if (
       !is.null(args$random.a) &&
         !is.null(args$mod.b) &&
@@ -424,14 +419,9 @@ compute.indirect <- function(
     }
   }
   if (!is.null(modval2)) {
-    if (
-      !is.null(args$random.b) &&
-        !is.null(args$mod.a) &&
-        !is.null(args$random.mod.a) &&
-        args$random.b &&
-        args$mod.a &&
-        args$random.mod.a
-    ) {
+    # FIXME: do we need !is.null()? if it's null, then its false?
+    #if (!is.null(args$random.b) && !is.null(args$mod.a) && !is.null(args$random.mod.a) && args$random.b && args$mod.a && args$random.mod.a) {
+    if (args$random.b && args$mod.a && args$random.mod.a) {
       if (boot) {
         ab2 <- ab2 + modval2 * v["re.SyMSmX:W"] # times covariance between re.b and re.mod.a
       } else {
@@ -442,14 +432,15 @@ compute.indirect <- function(
         ab2 <- ab2 + modval2 * covre
       }
     }
-    if (
-      !is.null(args$random.a) &&
-        !is.null(args$mod.b) &&
-        !is.null(args$random.mod.b) &&
-        args$random.a &&
-        args$mod.b &&
-        args$random.mod.b
-    ) {
+    # if (
+    #   !is.null(args$random.a) &&
+    #     !is.null(args$mod.b) &&
+    #     !is.null(args$random.mod.b) &&
+    #     args$random.a &&
+    #     args$mod.b &&
+    #     args$random.mod.b
+    # ) {
+    if (args$random.a && args$mod.b && args$random.mod.b) {
       if (boot) {
         ab2 <- ab2 + modval2 * v["re.SmXSyM:W"] # times covariance between re.a and re.mod.b
       } else {
