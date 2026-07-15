@@ -8,8 +8,7 @@ bootstrapping. The ultimate goal is to support 2-2-1, 2-1-1, and 1-1-1 models,
 the option of a moderating variable at level 1 or level 2 for either the *a*, *b*,
 or both paths. Currently the 1-1-1 model is supported and several options of
 random effects are supported; the underlying initial code has been evaluated in
-simulations (see Falk et al in references). Support for Bayesian estimation and
-the inclusion of covariates comprises ongoing work. Currently only continuous
+simulations (see Falk et al in references). Currently only continuous
 mediators and outcomes are supported. Factors (e.g., for X) must be numerically
 represented.
 
@@ -50,11 +49,13 @@ van der Leeden, R., Meijer, E., & Busing, F. M. T. A. (2008). Resampling multile
 - How to handle missing data?
     - Missing data handling of the sort that `lme` (the function from the `nlme` package that fits the models) supports is available. Pass an argument (to `modmed.mlm` or any of the bootstrapping functions) for `na.action` that will be passed down to the `lme` function. For example, `na.action = na.omit`.
 - Where is support for Bayesian estimation?
-    - There is a branch started for use with the `brms` package. When it is finished an update shall be posted.
+    - It should now be incorporated into the package, with `brms` used under the hood.
 - I receive an error message with a `tibble` as input
-    - Try converting the data to a data frame. Support to automatically do this may eventually be forthcoming, but it should be easy for the end user to do this.
+    - Try converting the data to a data frame. We think this has been fixed, but let us know if you have problems!
 
 ## Updates
+- Version 0.5.0
+    - Residual-based bootstrap support for `glmmTMB` (Todd Vogel)
 - Version 0.4.1
     - Support for covariates for `brms`
 - Version 0.4.0
