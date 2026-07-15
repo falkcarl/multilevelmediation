@@ -3,7 +3,7 @@
 ## These replace those used in development of code for the Falk et al
 ## publication.
 ##
-## Copyright 2022-2024 Carl F. Falk
+## Copyright 2022-2026 Carl F. Falk, Todd Vogel
 ##
 ## This program is free software: you can redistribute it and/or
 ## modify it under the terms of the GNU General Public License as
@@ -248,10 +248,6 @@ boot.modmed.mlm2 <- function(
     l1resid <- residuals(model$model) # l1 residuals
     if (inherits(model$model, "lme")) {
       l1sig <- model$model$sigma # l1 error sd for Y
-    } else if (inherits(model$model, "glmmTMB")) {
-      l1sig <- exp(fixef(model$model)$disp[[1]]) # glmmTMB uses log-link function for dispersion parameters, so need to transform back using exp()
-    }
-    if (inherits(model$model, "lme")) {
       l1varstruct <- model$model$modelStruct$varStruct # contains info about scaling of error for Y
       l1sds <- (1 / attr(l1varstruct, "weights")[1:2]) * l1sig # obtain actual l1 error sds
       l1vars <- diag(l1sds^2) # l1 error variances
@@ -266,7 +262,7 @@ boot.modmed.mlm2 <- function(
       l1sds <- exp(c(l1_y_sd_log, l1_m_sd_log)) # back transform from log
       l1vars <- diag(l1sds^2) # l1 error variances
       yresid <- l1resid[as.logical(model$model$frame$Sy)] # l1 y residuals
-      mresid <- l1resid[as.logical(model$model$frame$Sm)] # l1 m residuals 
+      mresid <- l1resid[as.logical(model$model$frame$Sm)] # l1 m residuals
     }
     alll1resid <- cbind(yresid, mresid) # all l1 residuals
     nl1 <- nrow(alll1resid) # N at l1
@@ -345,16 +341,18 @@ boot.modmed.mlm2 <- function(
 }
 
 
+# TV: can move this outside this function since also used for non-resample L2
 resample_L2 <- function(data, L2ID) {
-  L2 <- unlist(unique(data[, L2ID], use.names = FALSE)) # TV: can move this outside this function since also used for non-resample L2?
+  L2 <- unlist(unique(data[, L2ID], use.names = FALSE))
   N <- length(L2)
   L2_indices <- sample(L2, N, replace = TRUE)
   return(L2_indices)
 }
 
+#TV: can move this outside this function, since non resample L1 uses this too
 resample_L1 <- function(L2_indices, data, L2ID) {
   rdat <- lapply(L2_indices, function(x) {
-    L2_sub <- data[data[, L2ID] == x, , drop = FALSE] # in case there is only 1 obs #TV: can move this outside this function, since non resample L1 uses this too?
+    L2_sub <- data[data[, L2ID] == x, , drop = FALSE] # in case there is only 1 obs
     n_j <- nrow(L2_sub)
     L1_idx <- sample.int(n_j, n_j, replace = TRUE)
     L2_sub <- L2_sub[L1_idx, ]
