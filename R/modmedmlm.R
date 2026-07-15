@@ -950,7 +950,8 @@ randef.lme <- function(model){
 
   if(inherits(model, "glmmTMB")){
     sig2 <- VarCorr(model)$cond$L2id
-    attr(sig2, "stdev") <- NULL
+    #attr(sig2, "stdev") <- NULL
+    attr(sig2, "stddev") <- NULL
     attr(sig2, "correlation") <- NULL
   } else {
     # extract var-cov matrix among random effects
