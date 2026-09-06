@@ -91,7 +91,7 @@ boot.result<-boot.modmed.mlm.custom(BPG06dat, nrep=10, L2ID="id", X="x", Y="y", 
   boot.type="caseboth",
   control=list(opt="nlm"), seed=1234)
 
-extract.boot.modmed.mlm(boot.result, type="indirect", ci.conf=.95)
+extract.boot.modmed.mlm(boot.result, type="indirect", ci.conf=0.95)
 
 # residual bootstrap, parallel package
 boot.result<-boot.modmed.mlm.custom(BPG06dat, nrep=10, L2ID="id", X="x", Y="y", M="m",
@@ -99,7 +99,7 @@ boot.result<-boot.modmed.mlm.custom(BPG06dat, nrep=10, L2ID="id", X="x", Y="y", 
   parallel.type="parallel",ncores=2,seed=2299,
   control=list(opt="nlm"))
 
-extract.boot.modmed.mlm(boot.result, type="indirect", ci.conf=.95)
+extract.boot.modmed.mlm(boot.result, type="indirect", ci.conf=0.95)
 }
 
 \donttest{

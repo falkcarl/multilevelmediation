@@ -118,6 +118,7 @@
 #'   modval1=0, modval2=1)
 #'
 #' }
+#' @importFrom stats residuals
 #' @importFrom nlme ranef getGroups
 #' @importFrom parallel makeCluster clusterSetRNGStream parLapply stopCluster
 #' @importFrom furrr future_map furrr_options

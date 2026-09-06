@@ -2,7 +2,7 @@ Package: multilevelmediation
 Type: Package
 Title: Utility Functions for Multilevel Mediation Analysis
 Version: 0.5.0
-Date: 2026-07-15
+Date: 2026-09-06
 Authors@R: 
   c(person(given = c("Carl","F."),
            family = "Falk",
@@ -29,7 +29,6 @@ Description: The ultimate goal is to support 2-2-1, 2-1-1, and 1-1-1 models for
 License: GPL-3
 Encoding: UTF-8
 LazyData: true
-RoxygenNote: 7.3.2
 Imports: 
   furrr,
   future,
@@ -50,3 +49,4 @@ Suggests:
 Depends: 
     R (>= 2.10)
 Config/testthat/edition: 3
+Config/roxygen2/version: 8.1.0

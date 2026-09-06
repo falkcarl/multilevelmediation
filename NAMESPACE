@@ -12,40 +12,57 @@ export(stack_bpg)
 import(brms)
 importFrom(MCMCpack,xpnd)
 importFrom(brms,as_draws_matrix)
-importFrom(furrr,furrr_options)
-importFrom(furrr,future_map)
-importFrom(future,multicore)
-importFrom(future,multisession)
-importFrom(future,plan)
-importFrom(glmmTMB,VarCorr)
-importFrom(glmmTMB,glmmTMB)
-importFrom(glmmTMB,glmmTMBControl)
+importFrom(furrr,
+  furrr_options,
+  future_map
+)
+importFrom(future,
+  multicore,
+  multisession,
+  plan
+)
+importFrom(glmmTMB,
+  VarCorr,
+  glmmTMB,
+  glmmTMBControl
+)
 importFrom(matrixcalc,vech)
-importFrom(nlme,fixef)
-importFrom(nlme,getVarCov)
-importFrom(nlme,lme)
-importFrom(nlme,lmeControl)
-importFrom(nlme,random.effects)
-importFrom(nlme,varIdent)
-importFrom(parallel,clusterSetRNGStream)
-importFrom(parallel,makeCluster)
-importFrom(parallel,parLapply)
-importFrom(parallel,stopCluster)
+importFrom(nlme,
+  fixef,
+  getGroups,
+  getVarCov,
+  lme,
+  lmeControl,
+  random.effects,
+  ranef,
+  varIdent
+)
+importFrom(parallel,
+  clusterSetRNGStream,
+  makeCluster,
+  parLapply,
+  stopCluster
+)
 importFrom(parallelly,supportsMulticore)
-importFrom(posterior,ess_bulk)
-importFrom(posterior,ess_tail)
-importFrom(posterior,mad)
-importFrom(posterior,quantile2)
-importFrom(posterior,rhat)
-importFrom(posterior,sd)
-importFrom(posterior,summarise_draws)
-importFrom(stats,as.formula)
-importFrom(stats,gaussian)
-importFrom(stats,median)
-importFrom(stats,model.matrix)
-importFrom(stats,quantile)
-importFrom(stats,resid)
-importFrom(stats,terms)
-importFrom(stats,var)
+importFrom(posterior,
+  ess_bulk,
+  ess_tail,
+  mad,
+  quantile2,
+  rhat,
+  sd,
+  summarise_draws
+)
+importFrom(stats,
+  as.formula,
+  gaussian,
+  median,
+  model.matrix,
+  quantile,
+  resid,
+  residuals,
+  terms,
+  var
+)
 importFrom(tidyr,pivot_longer)
 importFrom(utils,citation)
