@@ -16,7 +16,7 @@
       # A tibble: 1 x 10
         variable  mean median     sd    mad  q2.5 q97.5  rhat ess_bulk ess_tail
         <chr>    <dbl>  <dbl>  <dbl>  <dbl> <dbl> <dbl> <dbl>    <dbl>    <dbl>
-      1 indirect 0.379  0.378 0.0370 0.0367 0.311 0.454  1.00    1851.    2792.
+      1 indirect 0.379  0.378 0.0370 0.0367 0.311 0.454 1.000    1851.    2792.
 
 # random a and b
 
@@ -26,7 +26,7 @@
       # A tibble: 1 x 10
         variable  mean median     sd    mad  q2.5 q97.5  rhat ess_bulk ess_tail
         <chr>    <dbl>  <dbl>  <dbl>  <dbl> <dbl> <dbl> <dbl>    <dbl>    <dbl>
-      1 indirect 0.452  0.449 0.0527 0.0519 0.355 0.562  1.00    3377.    3165.
+      1 indirect 0.452  0.449 0.0527 0.0519 0.355 0.562 1.000    3377.    3165.
 
 # all random
 
@@ -426,7 +426,7 @@
       # A tibble: 1 x 10
         variable   mean median     sd    mad   q2.5  q97.5  rhat ess_bulk ess_tail
         <chr>     <dbl>  <dbl>  <dbl>  <dbl>  <dbl>  <dbl> <dbl>    <dbl>    <dbl>
-      1 a.diff   -0.106 -0.106 0.0728 0.0720 -0.253 0.0359  1.00    2485.    2941.
+      1 a.diff   -0.106 -0.106 0.0728 0.0720 -0.253 0.0359 1.000    2485.    2941.
 
 ---
 
@@ -456,5 +456,5 @@
       # A tibble: 1 x 10
         variable  mean median     sd    mad  q2.5 q97.5  rhat ess_bulk ess_tail
         <chr>    <dbl>  <dbl>  <dbl>  <dbl> <dbl> <dbl> <dbl>    <dbl>    <dbl>
-      1 b.diff   0.332  0.333 0.0777 0.0771 0.177 0.484  1.00    2020.    2693.
+      1 b.diff   0.332  0.333 0.0777 0.0771 0.177 0.484 1.000    2020.    2693.
 

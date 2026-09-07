@@ -241,3 +241,84 @@
       [1] 0.09864558
       
 
+# custom resid boot, glmmTMB
+
+    Code
+      boot_resid_glmmTMB$t0
+    Output
+                Sm           Sy          SmX          SyX          SyM      re.SmSm 
+       0.093215043 -0.096851776  0.611856524  0.220812370  0.610562559  0.679433836 
+           re.SySm     re.SmXSm     re.SyMSm     re.SyXSm      re.SmSy      re.SySy 
+       0.056812562  0.018161130  0.009321789 -0.006673870  0.056812562  0.270283401 
+          re.SmXSy     re.SyMSy     re.SyXSy     re.SmSmX     re.SySmX    re.SmXSmX 
+       0.011879520 -0.004283427 -0.018275861  0.018161130  0.011879520  0.120482848 
+         re.SyMSmX    re.SyXSmX     re.SmSyM     re.SySyM    re.SmXSyM    re.SyMSyM 
+       0.098954703 -0.021495654  0.009321789 -0.004283427  0.098954703  0.111872467 
+         re.SyXSyM     re.SmSyX     re.SySyX    re.SmXSyX    re.SyMSyX    re.SyXSyX 
+       0.005421549 -0.006673870 -0.018275861 -0.021495654  0.005421549  0.032437443 
+
+---
+
+    Code
+      extract.boot.modmed.mlm(boot_resid_glmmTMB, type = "indirect", ci.conf = 0.95)
+    Output
+      $CI
+           2.5%     97.5% 
+      0.3713589 0.5654975 
+      
+      $est
+      [1] 0.4725314
+      
+
+---
+
+    Code
+      extract.boot.modmed.mlm(boot_resid_glmmTMB, type = "a", ci.conf = 0.95)
+    Output
+      $CI
+           2.5%     97.5% 
+      0.5273825 0.7046756 
+      
+      $est
+      [1] 0.6118565
+      
+
+---
+
+    Code
+      extract.boot.modmed.mlm(boot_resid_glmmTMB, type = "b", ci.conf = 0.95)
+    Output
+      $CI
+           2.5%     97.5% 
+      0.5099178 0.7112169 
+      
+      $est
+      [1] 0.6105626
+      
+
+---
+
+    Code
+      extract.boot.modmed.mlm(boot_resid_glmmTMB, type = "cprime", ci.conf = 0.95)
+    Output
+      $CI
+           2.5%     97.5% 
+      0.1336557 0.2956653 
+      
+      $est
+      [1] 0.2208124
+      
+
+---
+
+    Code
+      extract.boot.modmed.mlm(boot_resid_glmmTMB, type = "covab", ci.conf = 0.95)
+    Output
+      $CI
+            2.5%      97.5% 
+      0.06059154 0.13656235 
+      
+      $est
+      [1] 0.0989547
+      
+
