@@ -11,7 +11,7 @@ boot.modmed.mlm.custom(
   return.type = "all",
   modval1 = NULL,
   modval2 = NULL,
-  nrep = 500,
+  nrep = 500L,
   boot.type = c("caseboth", "case2", "case1", "resid"),
   parallel.type = c("lapply", "parallel", "furrr"),
   ncores = NULL,
