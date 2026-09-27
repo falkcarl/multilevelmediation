@@ -228,11 +228,10 @@
 #'                 na.action = na.omit)
 #' }
 # #' @importFrom nlme lmeControl lme fixef getVarCov varIdent # FIXME fixef, getVarCov not used?
+# CFF: seems like deprecated functions might use
 # #' @importFrom glmmTMB glmmTMBControl glmmTMB VarCorr # FIXME: VarCorr not used?
-#' @importFrom nlme lmeControl lme varIdent
+#' @importFrom nlme lmeControl lme varIdent getVarCov
 #' @importFrom glmmTMB glmmTMBControl glmmTMB
-# #' @importFrom matrixcalc vech # FIXME neither used here?
-# #' @importFrom MCMCpack xpnd # FIXME neither used here?
 #' @importFrom stats as.formula
 #' @export modmed.mlm
 modmed.mlm <- function(
@@ -331,22 +330,20 @@ modmed.mlm <- function(
       ...
     ))
   } else if (estimator == "glmmTMB") {
-    #FIXME: should this also be put in a try?
     # some quick fixes to get glmmTMB up and running
     random.formula <- gsub("~ ", "", random.formula, fixed = TRUE)
     random.formula <- paste0("(", random.formula, ")")
     form <- paste0(fixed.formula, "+", random.formula)
 
-    mod_med_tmp <- glmmTMB(
+    mod_med_tmp <- try(glmmTMB(
       as.formula(form),
       dispformula = ~ 1L + Sm,
-      #dispformula =  ~ 0 + Sm + Sy,
       family = gaussian,
       data = tmp,
       REML = (method == "REML"),
       control = control,
       ...
-    )
+    ))
 
     #Tangent, can I get asymptotic SEs from glmmTMB?
     #https://stackoverflow.com/questions/47872561/does-glmmtmb-return-the-standard-error-for-random-effect-variance-components-lik
@@ -359,8 +356,8 @@ modmed.mlm <- function(
   out <- list()
 
   # some error handling, just in case
-  #FIXME: does glmmtmB give a try-error? or is that just when using try()? how to make this most flexible for other packages?
-  #FIXME: better to just pass the failed mod_med_tmp model instead of NULL? to diagnose based output easier?
+  #FIXME: TV: better to just pass the failed mod_med_tmp model instead of NULL? to diagnose based output easier?
+  #FIXME: CFF: conv seems like it does not yield whether convergence happened, but potentially useful for bootstrapping code
   if (inherits(mod_med_tmp, "try-error")) {
     out$model <- NULL
     out$conv <- FALSE # boolean or some other code?

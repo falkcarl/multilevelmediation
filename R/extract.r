@@ -347,7 +347,6 @@ compute.indirect <- function(
   # additional adjustments to indirect effect from random effects
 
   # cov among a and b paths
-  # FIXME: are these redundant? can just check if random.a and/or random.b are TRUE??
   if (!is.null(args$random.a) && !is.null(args$random.b) && args$random.a && args$random.b) {
     if (boot) {
       covab <- v["re.SmXSyM"]
@@ -419,8 +418,6 @@ compute.indirect <- function(
     }
   }
   if (!is.null(modval2)) {
-    # FIXME: do we need !is.null()? if it's null, then its false?
-    #if (!is.null(args$random.b) && !is.null(args$mod.a) && !is.null(args$random.mod.a) && args$random.b && args$mod.a && args$random.mod.a) {
     if (args$random.b && args$mod.a && args$random.mod.a) {
       if (boot) {
         ab2 <- ab2 + modval2 * v["re.SyMSmX:W"] # times covariance between re.b and re.mod.a
@@ -432,14 +429,7 @@ compute.indirect <- function(
         ab2 <- ab2 + modval2 * covre
       }
     }
-    # if (
-    #   !is.null(args$random.a) &&
-    #     !is.null(args$mod.b) &&
-    #     !is.null(args$random.mod.b) &&
-    #     args$random.a &&
-    #     args$mod.b &&
-    #     args$random.mod.b
-    # ) {
+
     if (args$random.a && args$mod.b && args$random.mod.b) {
       if (boot) {
         ab2 <- ab2 + modval2 * v["re.SmXSyM:W"] # times covariance between re.a and re.mod.b
