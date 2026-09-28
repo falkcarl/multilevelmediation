@@ -403,6 +403,34 @@ modmed.mlm <- function(
   return(out)
 }
 
+randef.lme <- function(model){
+
+  if(inherits(model, "glmmTMB")){
+    sig2 <- VarCorr(model)$cond$L2id
+    #attr(sig2, "stdev") <- NULL
+    attr(sig2, "stddev") <- NULL
+    attr(sig2, "correlation") <- NULL
+  } else {
+    # extract var-cov matrix among random effects
+    sig2 <- getVarCov(model)
+    class(sig2) <- "matrix"
+    attr(sig2,"group.levels") <- NULL
+  }
+
+  re.names<-colnames(sig2)
+
+  # rand effects as vector
+  sig2vec <- as.vector(sig2)
+  elementnames <- expand.grid(re.names,re.names)
+  elementnames <- paste0("re.",elementnames[,1],elementnames[,2])
+  names(sig2vec) <- elementnames
+
+
+  out<-list(sig2 = sig2,
+            sig2vec = sig2vec)
+
+  return(out)
+}
 
 # TODO: add documentation using roxygen skeleton?
 make_fixed_formula <- function(mod.a = FALSE, mod.b = FALSE, mod.cprime = FALSE, covars.m = NULL, covars.y = NULL) {
@@ -423,6 +451,7 @@ make_fixed_formula <- function(mod.a = FALSE, mod.b = FALSE, mod.cprime = FALSE,
       fixed.formula <- paste(fixed.formula, "+ SyX:W")
     }
   }
+
 
   # Add any covariates to the paths if necessary
   if (!is.null(covars.m)) {
