@@ -22,15 +22,18 @@ importFrom(future,
   plan
 )
 importFrom(glmmTMB,
+  VarCorr,
   glmmTMB,
   glmmTMBControl
 )
 importFrom(matrixcalc,vech)
 importFrom(nlme,
+  getGroups,
   getVarCov,
   lme,
   lmeControl,
   random.effects,
+  ranef,
   varIdent
 )
 importFrom(parallel,
@@ -56,6 +59,7 @@ importFrom(stats,
   model.matrix,
   quantile,
   resid,
+  residuals,
   terms,
   var
 )

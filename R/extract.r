@@ -143,6 +143,8 @@ extract.modmed.mlm <- function(
   out
 }
 
+#' @importFrom glmmTMB VarCorr
+#' @importFrom nlme getVarCov
 randef.lme <- function(model) {
   if (inherits(model, "glmmTMB")) {
     sig2 <- VarCorr(model)$cond$L2id

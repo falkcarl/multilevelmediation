@@ -54,6 +54,9 @@ van der Leeden, R., Meijer, E., & Busing, F. M. T. A. (2008). Resampling multile
     - Try converting the data to a data frame. We think this has been fixed, but let us know if you have problems!
 
 ## Updates
+- Version 0.5.1
+    - A lot of under-the-hood refactoring (Todd Vogel)
+    - Additional tests (Todd Vogel)
 - Version 0.5.0
     - Residual-based bootstrap support for `glmmTMB` (Todd Vogel)
 - Version 0.4.1
